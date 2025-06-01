@@ -1,0 +1,47 @@
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '3.4.6'
+    id 'io.spring.dependency-management' version '1.1.7'
+    id 'com.netflix.dgs.codegen' version '7.0.3'
+}
+
+group = 'xyz.arryan'
+version = '0.0.1-SNAPSHOT'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(24)
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+ext {
+    set('netflixDgsVersion', "10.1.2")
+}
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'com.netflix.graphql.dgs:graphql-dgs-spring-graphql-starter'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'com.netflix.graphql.dgs:graphql-dgs-spring-graphql-starter-test'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+dependencyManagement {
+    imports {
+        mavenBom "com.netflix.graphql.dgs:graphql-dgs-platform-dependencies:${netflixDgsVersion}"
+    }
+}
+
+generateJava {
+    schemaPaths = ["${projectDir}/src/main/resources/graphql-client"]
+    packageName = 'xyz.arryan.livia.codegen'
+    generateClient = true
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}
