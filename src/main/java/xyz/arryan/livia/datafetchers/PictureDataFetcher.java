@@ -43,7 +43,7 @@ public class PictureDataFetcher {
 
     @DgsQuery
     public Picture picture(@InputArgument String date) {
-        logger.info("{} Fetching picture for date: {}", date, date);
+        logger.info("Fetching picture for date: {}", date);
 
         // A. Input Validation
         LocalDate inputDate;
