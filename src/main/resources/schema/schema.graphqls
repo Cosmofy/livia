@@ -1,0 +1,44 @@
+type Query {
+    time: Int
+    articles: [Article]
+    picture(date: String): Picture
+#    events: [Event!]!
+}
+
+# API 1: Picture of the Day
+type Picture {
+    date: String # date to fetch
+    title: String # name of media
+    credit: String # credit (could be different to copyright)
+    explanation: Explanation # descriptions of media
+    media: String # link of image/video
+    copyright: String # display copyright if it exists (could be different to credit)
+    media_type: String # image or video
+}
+type Explanation {
+    original: String # original explanation from NASA
+    summarized: String # ai summarized explanation
+    kids: String # ai explained/summarized explanation for kids mode
+}
+
+
+# API 2: Article of the Month
+type Article {
+    month: Int # month of article 0-12
+    year: Int # year of article (2024-)
+    title: String # title of article
+    subtitle: String # subtitle of article
+    url: String # link of article
+    authors: [Author] # authors who wrote the article
+    source: String # company/magazine/internet source of article
+    banner: Banner # title image of the article
+}
+type Banner {
+    image: String # link of image
+    designer: String # credit of image
+}
+type Author {
+    name: String # name of author
+    title: String # role/job of author
+    image: String # image of author
+}
