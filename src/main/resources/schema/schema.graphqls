@@ -24,7 +24,7 @@ type Explanation {
 
 # API 2: Article of the Month
 type Article {
-    month: Int # month of article 0-12
+    month: Int # month of article (1-12)
     year: Int # year of article (2024-)
     title: String # title of article
     subtitle: String # subtitle of article
