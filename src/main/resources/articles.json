@@ -1,0 +1,273 @@
+[
+    {
+        "month": 6,
+        "year": 2024,
+        "title": "What Is the Geometry of the Universe?",
+        "subtitle": "In our mind’s eye, the universe seems to go on forever. But using geometry we can explore a variety of three-dimensional shapes that offer alternatives to “ordinary” infinite space.",
+        "url": "https://www.quantamagazine.org/what-is-the-geometry-of-the-universe-20200316/",
+        "source": "Quanta Magazine",
+        "banner": {
+            "image": "https://www.quantamagazine.org/wp-content/uploads/2020/03/UniverseShape_LedeFullWidth.jpg",
+            "designer": "Lukas Schlagenhauf"
+        },
+        "authors": [
+            {
+                "name": "Erica Klarreich",
+                "title": "Contributing Correspondent",
+                "image": "https://www.quantamagazine.org/wp-content/uploads/2017/04/Klarreich_Erica1.jpg"
+            },
+            {
+                "name": "Lucy Reading-Ikkanda",
+                "title": "Former Graphics Editor",
+                "image": "https://www.quantamagazine.org/wp-content/uploads/2017/04/QuantaTeam_Lucy.jpg"
+            }
+        ]
+    },
+    {
+        "month": 7,
+        "year": 2024,
+        "title": "Astronomers Reimagine the Making of the Planets",
+        "subtitle": "Observations of faraway planets have forced a near-total rewrite of the story of how our solar system came to be.",
+        "url": "https://www.quantamagazine.org/how-are-planets-made-new-theories-are-taking-shape-20220609/",
+        "source": "Quanta Magazine",
+        "banner": {
+            "image": "https://www.quantamagazine.org/wp-content/uploads/2022/06/Planet-Formation_2880x1620_Lede.jpg",
+            "designer": "ALMA (ESO/NAOJ/NRAO), S. Andrews et al.; N. Lira"
+        },
+        "authors": [
+            {
+                "name": "Rebecca Boyle",
+                "title": "Contributing Writer",
+                "image": "https://www.quantamagazine.org/wp-content/uploads/2023/01/rebeccaboyle2-scaled.jpg"
+            }
+        ]
+    },
+    {
+        "month": 8,
+        "year": 2024,
+        "title": "The Best Neighborhoods for Starting a Life in the Galaxy",
+        "subtitle": "Some neighborhoods in the Milky Way may be better suited for making habitable planets than others.",
+        "url": "https://www.quantamagazine.org/the-best-neighborhoods-for-starting-a-life-in-the-galaxy-20240124/",
+        "source": "Quanta Magazine",
+        "banner": {
+            "image": "https://www.quantamagazine.org/wp-content/uploads/2024/01/GalacticHabitableZones-byKristinaArmitage-Lede-scaled.webp",
+            "designer": "Kristina Armitage/Quanta Magazine"
+        },
+        "authors": [
+            {
+                "name": "Rebecca Boyle",
+                "title": "Contributing Writer",
+                "image": "https://www.quantamagazine.org/wp-content/uploads/2023/01/rebeccaboyle2-scaled.jpg"
+            }
+        ]
+    },
+    {
+        "month": 9,
+        "year": 2024,
+        "title": "The Webb Telescope Further Deepens the Biggest Controversy in Cosmology",
+        "subtitle": "A long-awaited study of the cosmic expansion rate suggests that when it comes to the Hubble tension, cosmologists are still missing something.",
+        "url": "https://www.quantamagazine.org/the-webb-telescope-further-deepens-the-biggest-controversy-in-cosmology-20240813/",
+        "source": "Quanta Magazine",
+        "banner": {
+            "image": "https://www.quantamagazine.org/wp-content/uploads/2024/08/HubbleTensionUpdate-crNicoRoper-Lede-scaled.webp",
+            "designer": "Nico Roper/Quanta Magazine"
+        },
+        "authors": [
+            {
+                "name": "Liz Kruesi",
+                "title": "Contributing Writer",
+                "image": "https://www.quantamagazine.org/wp-content/uploads/2017/04/Kruesi_Liz1.jpg"
+            }
+        ]
+    },
+    {
+        "month": 10,
+        "year": 2024,
+        "title": "The #1 Clue to Quantum Gravity Sits on the Surfaces of Black Holes",
+        "subtitle": "A black hole formula worked out in the 1970s remains the most concrete clue physicists have about the threads of the space-time fabric.",
+        "url": "https://www.quantamagazine.org/the-1-clue-to-quantum-gravity-sits-on-the-surfaces-of-black-holes-20240925/",
+        "source": "Quanta Magazine",
+        "banner": {
+            "image": "https://www.quantamagazine.org/wp-content/uploads/2024/09/BlackHoleThermodynamics-crKristinaArmitage-Lede-scaled.webp",
+            "designer": "Kristina Armitage/Quanta Magazine"
+        },
+        "authors": [
+            {
+                "name": "Joseph Howlett",
+                "title": "Staff Writer ",
+                "image": "https://www.quantamagazine.org/wp-content/uploads/2025/06/Joseph-Howlett-article-profile.webp"
+            }
+        ]
+    },
+    {
+        "month": 11,
+        "year": 2024,
+        "title": "It Might Be Possible to Detect Gravitons After All",
+        "subtitle": " A new experimental proposal suggests detecting a particle of gravity is far easier than anyone imagined. Now physicists are debating what it would really prove.",
+        "url": "https://www.quantamagazine.org/it-might-be-possible-to-detect-gravitons-after-all-20241030/",
+        "source": "Quanta Magazine",
+        "banner": {
+            "image": "https://www.quantamagazine.org/wp-content/uploads/2024/10/Detecting-Gravitons_crSenor-Salme-Lede-scaled.webp",
+            "designer": "Señor Salme for Quanta Magazine"
+        },
+        "authors": [
+            {
+                "name": "Charlie Wood",
+                "title": "Staff Writer",
+                "image": "https://www.quantamagazine.org/wp-content/uploads/2025/06/Charlie-Wood-article-profile.webp"
+            }
+        ]
+    },
+    {
+        "month": 12,
+        "year": 2024,
+        "title": "The ‘Beautiful Confusion’ of the First Billion Years Comes Into View",
+        "subtitle": "Astronomers are reveling in the James Webb Space Telescope’s discoveries about the formative epoch of cosmic history.",
+        "url": "https://www.quantamagazine.org/the-beautiful-confusion-of-the-first-billion-years-comes-into-view-20241009/",
+        "source": "Quanta Magazine",
+        "banner": {
+            "image": "https://www.quantamagazine.org/wp-content/uploads/2024/10/FirstBillionYears-crKristinaArmitage-Lede-scaled.webp",
+            "designer": "Kristina Armitage/Quanta Magazine"
+        },
+        "authors": [
+            {
+                "name": "Rebecca Boyle",
+                "title": "Contributing Writer",
+                "image": "https://www.quantamagazine.org/wp-content/uploads/2023/01/rebeccaboyle2-scaled.jpg"
+            }
+        ]
+    },
+    {
+        "month": 1,
+        "year": 2025,
+        "title": "Why This Universe? A New Calculation Suggests Our Cosmos Is Typical.",
+        "subtitle": "Two physicists have calculated that the universe has a higher entropy — and is therefore more likely — than alternative possible universes. The calculation is “an answer to a question that is yet to be fully understood.”",
+        "url": "https://www.quantamagazine.org/the-best-neighborhoods-for-starting-a-life-in-the-galaxy-20240124/",
+        "source": "Quanta Magazine",
+        "banner": {
+            "image": "https://www.quantamagazine.org/wp-content/uploads/2022/11/CosmicEntropy-cr.KouzouSakai-Lede-scaled.webp",
+            "designer": "Kouzou Sakai for Quanta Magazine "
+        },
+        "authors": [
+            {
+                "name": "Charlie Wood",
+                "title": "Staff Writer",
+                "image": "https://www.quantamagazine.org/wp-content/uploads/2025/06/Charlie-Wood-article-profile.webp"
+            }
+        ]
+    },
+    {
+        "month": 2,
+        "year": 2025,
+        "title": "How (Nearly) Nothing Might Solve Cosmology’s Biggest Questions",
+        "subtitle": "By measuring the universe’s emptiest spaces, scientists can study how matter clumps together and how fast it flies apart.",
+        "url": "https://www.quantamagazine.org/how-nearly-nothing-might-solve-cosmologys-biggest-questions-20230725/",
+        "source": "Quanta Magazine",
+        "banner": {
+            "image": "https://www.quantamagazine.org/wp-content/uploads/2023/07/CosmicVoids-byTNGCollaboration-Lede.mp4",
+            "designer": "TNG Collaboration"
+        },
+        "authors": [
+            {
+                "name": " Lyndie Chiou ",
+                "title": "Contributing Writer",
+                "image": "https://www.quantamagazine.org/wp-content/uploads/2022/09/headshot_no_background_BW-scaled.jpg"
+            }
+        ]
+    },
+    {
+        "month": 3,
+        "year": 2025,
+        "title": "New Maps of the Bizarre, Chaotic Space-Time Inside Black Holes",
+        "subtitle": " Physicists hope that understanding the churning region near singularities might help them reconcile gravity and quantum mechanics.",
+        "url": "https://www.quantamagazine.org/the-best-neighborhoods-for-starting-a-life-in-the-galaxy-20240124/",
+        "source": "Quanta Magazine",
+        "banner": {
+            "image": "https://www.quantamagazine.org/wp-content/uploads/2025/02/MixmasterSingularities_DaveWhyte_Lede.mp4",
+            "designer": "Dave Whyte for Quanta Magazine"
+        },
+        "authors": [
+            {
+                "name": " Lyndie Chiou ",
+                "title": "Contributing Writer",
+                "image": "https://www.quantamagazine.org/wp-content/uploads/2022/09/headshot_no_background_BW-scaled.jpg"
+            }
+        ]
+    },
+    {
+        "month": 4,
+        "year": 2025,
+        "title": "How the Universe Differs From Its Mirror Image",
+        "subtitle": "From living matter to molecules to elementary particles, the world is made of “chiral” objects that differ from their reflected forms.",
+        "url": "https://www.quantamagazine.org/how-the-universe-differs-from-its-mirror-image-20250514/",
+        "source": "Quanta Magazine",
+        "banner": {
+            "image": "https://www.quantamagazine.org/wp-content/uploads/2025/05/Chirality-byCelsius-Pictor-Lede-scaled.webp",
+            "designer": "Celsius Pictor for Quanta Magazine"
+        },
+        "authors": [
+            {
+                "name": "Zack Savitsky",
+                "title": "Contributing Writer",
+                "image": "https://www.quantamagazine.org/wp-content/uploads/2023/01/Artboard-1-zack-2.jpg"
+            }
+        ]
+    },
+    {
+        "month": 5,
+        "year": 2025,
+        "title": "Is Dark Energy Getting Weaker? New Evidence Strengthens the Case.",
+        "subtitle": "Last year, an enormous map of the cosmos hinted that the engine driving cosmic expansion might be sputtering. Now physicists are back with an even bigger map, and a stronger conclusion.",
+        "url": "https://www.quantamagazine.org/is-dark-energy-getting-weaker-new-evidence-strengthens-the-case-20250319/",
+        "source": "Quanta Magazine",
+        "banner": {
+            "image": "https://www.quantamagazine.org/wp-content/uploads/2025/03/Robotic-Positioners-cr.DESI-collaboration-scaled.webp",
+            "designer": "DESI Collaboration"
+        },
+        "authors": [
+            {
+                "name": "Steve Nadis",
+                "title": "Contributing Writer",
+                "image": "https://www.quantamagazine.org/wp-content/uploads/2023/01/nadis-scaled.jpg"
+            }
+        ]
+    },
+    {
+        "month": 6,
+        "year": 2025,
+        "title": "Cosmologists Try a New Way to Measure the Shape of the Universe",
+        "subtitle": "Is the universe flat and infinite, or something more complex? We can’t say for sure, but a new search strategy is mapping out the subtle signals that could reveal if the universe has a shape.",
+        "url": "https://www.quantamagazine.org/cosmologists-try-a-new-way-to-measure-the-shape-of-the-universe-20250127/",
+        "source": "Quanta Magazine",
+        "banner": {
+            "image": "https://www.quantamagazine.org/wp-content/uploads/2025/01/TopologyoftheUniverse_crDVDP-HP.V2.mp4",
+            "designer": "DVDP for Quanta Magazine"
+        },
+        "authors": [
+            {
+                "name": "Steve Nadis",
+                "title": "Contributing Writer",
+                "image": "https://www.quantamagazine.org/wp-content/uploads/2023/01/nadis-scaled.jpg"
+            }
+        ]
+    },
+    {
+        "month": 7,
+        "year": 2025,
+        "title": "The Road Map to Alien Life Passes Through the ‘Cosmic Shoreline’",
+        "subtitle": "Astronomers are ready to search for the fingerprints of life in faraway planetary atmospheres. But first, they need to know where to look — and that means figuring out which planets are likely to have atmospheres in the first place.",
+        "url": "https://www.quantamagazine.org/the-road-map-to-alien-life-passes-through-the-cosmic-shoreline-20250312/",
+        "source": "Quanta Magazine",
+        "banner": {
+            "image": "https://www.quantamagazine.org/wp-content/uploads/2025/03/CosmicShoreline-crKristinaArmitage-Lede-2048x1152.webp",
+            "designer": "Kristina Armitage/Quanta Magazine"
+        },
+        "authors": [
+            {
+                "name": "Elise Cutts",
+                "title": "Contributing Writer",
+                "image": "https://www.quantamagazine.org/wp-content/uploads/2023/06/Elise_Cutts.jpg"
+            }
+        ]
+    }
+]
