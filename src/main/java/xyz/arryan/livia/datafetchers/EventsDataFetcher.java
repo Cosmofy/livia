@@ -66,7 +66,9 @@ public class EventsDataFetcher {
         }
 
         // B. Fetch valid input from API
-        String api_source = "https://eonet.gsfc.nasa.gov/api/v3/events?start=" + formattedDate + "&end=2029-12-31&status=all";
+        LocalDate dynamicEndDate = LocalDate.now(mountainTime).plusYears(5); // Calculate end date dynamically
+        String formattedEndDate = dynamicEndDate.format(formatter); // Format end date
+        String api_source = "https://eonet.gsfc.nasa.gov/api/v3/events?start=" + formattedDate + "&end=" + formattedEndDate + "&status=all";
         String response = webClient
                 .get()
                 .uri(api_source)
