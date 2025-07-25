@@ -128,7 +128,7 @@ public class EventsDataFetcher {
                     List<Double> coords = (List<Double>) geoMap.get("coordinates");
 
                     Geometry geometry = Geometry.newBuilder()
-                            .magnitudeValue(magnitudeValue != null ? Double.valueOf(magnitudeValue) : null)
+                            .magnitudeValue(magnitudeValue != null ? magnitudeValue.doubleValue() : null)
                             .magnitudeUnit((String) geoMap.get("magnitudeUnit"))
                             .date((String) geoMap.get("date"))
                             .type((String) geoMap.get("type"))
