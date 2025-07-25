@@ -31,6 +31,7 @@ import org.slf4j.LoggerFactory;
 @DgsComponent
 public class PictureDataFetcher {
 
+    private WebClient webClient;
     private final Gson gson;
     private final MongoTemplate mongoTemplate;
     private static final Logger logger = LoggerFactory.getLogger(PictureDataFetcher.class);
@@ -43,7 +44,7 @@ public class PictureDataFetcher {
 
     @DgsQuery
     public Picture picture(@InputArgument String date) {
-        logger.info("{} Fetching picture for date: {}", date, date);
+        logger.info("Fetching picture for date: {}", date);
 
         // A. Input Validation
         LocalDate inputDate;
@@ -81,7 +82,6 @@ public class PictureDataFetcher {
 
         // C. Fetch fresh valid input from API
         String api_source = "https://apod.ellanan.com/api?date=" + date;
-        WebClient webClient = WebClient.builder().build();
         String response = webClient
                 .get()
                 .uri(api_source)

@@ -2,7 +2,7 @@ type Query {
     time: Int
     articles: [Article]
     picture(date: String): Picture
-#    events: [Event!]!
+    events(days: Int): [Event]
 }
 
 # API 1: Picture of the Day
@@ -41,4 +41,29 @@ type Author {
     name: String # name of author
     title: String # role/job of author
     image: String # image of author
+}
+
+# API 3: Natural Disaster Events
+type Event {
+    id: String
+    title: String
+    categories: [Category]
+    sources: [Source]
+    geometry: [Geometry]
+}
+type Category {
+    id: String
+    title: String
+}
+type Source {
+    id: String
+    url: String
+}
+type Geometry {
+    id: String
+    magnitudeValue: Float
+    magnitudeUnit: String
+    date: String
+    type: String
+    coordinates: [Float]
 }
