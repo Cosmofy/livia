@@ -1,5 +1,7 @@
 package xyz.arryan.livia.datafetchers;
 
+import org.springframework.cache.annotation.Cacheable;
+
 import com.google.gson.Gson;
 import com.netflix.graphql.dgs.DgsComponent;
 import com.netflix.graphql.dgs.DgsQuery;
@@ -28,6 +30,7 @@ public class PlanetsDataFetcher {
     }
 
     @DgsQuery
+    @Cacheable(value = "planets", key = "'all'")
     public List<Planet> planets() {
         logger.info("Fetching planets information from JPL");
 

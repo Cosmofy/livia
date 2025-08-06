@@ -45,19 +45,19 @@
         "name": "Mercury",
         "momentOfInertia": 0.33,
         "facts": [
-          "Mercury has the most eccentric orbit of any planet in the solar system.",
-          "A day on Mercury is longer than its year, lasting about 176 Earth days.",
-          "Mercury has almost no atmosphere, resulting in extreme temperature fluctuations.",
-          "Its core is large, making up a significant fraction of its volume.",
-          "Mercury's surface is heavily cratered, similar to the Moon."
+          "Mercury’s day is longer than its year, with one solar day lasting about 176 Earth days.",
+          "It has a very thin atmosphere composed mostly of oxygen, sodium, and hydrogen.",
+          "Mercury has the most eccentric orbit of all the planets in the solar system.",
+          "This planet has no moons but possesses a magnetic field despite its small size.",
+          "Its surface temperature can reach 700 K during the day and drop below 100 K at night."
         ],
-        "expandedDescription": "Mercury, the innermost planet of our solar system, is a cratered, rocky world with almost no atmosphere. It experiences extreme temperature swings due to its proximity to the Sun and slow rotation. Its heavily cratered surface tells a story of cosmic bombardment and ancient planetary history.",
-        "description": "A small, rocky planet with extreme temperatures and a cratered surface.",
+        "expandedDescription": "Mercury, the innermost planet, is a rocky, cratered world with almost no atmosphere. Its extreme temperature swings range from scorchingly hot days to freezing nights, revealing the harsh environment at the solar system’s edge. Its swift orbit and long solar day make it a fascinating subject of planetary science.",
+        "description": "A small, rocky world closest to the Sun with extreme temperatures.",
         "mass": 3.302e+23,
         "moons": 0,
         "orbitalInclination": 7.005,
         "rings": 0,
-        "visual": "Known since at least 14th century BCE, first telescopic observations in 1631",
+        "visual": "Known to ancient civilizations since prehistory",
         "volume": 60850000000,
         "solarConstant": {
           "aphelion": 6278,
@@ -79,7 +79,7 @@
           },
           {
             "formula": "H₂",
-            "molar": 1,
+            "molar": 2,
             "name": "Hydrogen",
             "percentage": 22
           },
@@ -140,19 +140,19 @@
         "name": "Venus",
         "momentOfInertia": 0.33,
         "facts": [
-          "Venus has the hottest surface temperature of any planet in the solar system, averaging 735 K.",
-          "It rotates in the opposite direction to most planets, with a sidereal day longer than its year.",
-          "Venus has a thick atmosphere with pressure over 90 times that of Earth.",
-          "Its thick clouds reflect 65% of sunlight, making it very bright in our sky.",
-          "Despite its proximity to Earth, Venus has no moons."
+          "Venus has a thick CO₂ atmosphere causing extreme greenhouse heating.",
+          "Its rotation is retrograde, opposite most planets, lasting 243 Earth days.",
+          "Surface pressure is 90 times that of Earth.",
+          "Venus' maximum angular diameter can reach about 60 arcseconds.",
+          "A solar day on Venus is about 117 Earth days long."
         ],
-        "expandedDescription": "Venus, the second planet from the Sun, is shrouded in dense sulfuric acid clouds and extreme greenhouse conditions that make its surface hotter than Mercury’s. Its slow retrograde rotation and brilliant appearance held fascination for early astronomers and continue to intrigue scientists studying planetary atmospheres and geology.",
-        "description": "A dense and scorching world wrapped in thick clouds.",
+        "expandedDescription": "Venus, the second planet from the Sun, boasts a thick atmosphere rich in carbon dioxide and clouds of sulfuric acid, resulting in a runaway greenhouse effect. Its surface temperature exceeds 700 K, with crushing pressure and slow retrograde rotation, making it a world of extreme alien beauty and scientific intrigue.",
+        "description": "A scorching, dense atmosphere cloaks Earth's fiery twin.",
         "mass": 4.8685e+24,
         "moons": 0,
         "orbitalInclination": 3.39,
         "rings": 0,
-        "visual": "Known since ancient times, clearly observable from Earth even before telescopes.",
+        "visual": "known since ancient times, observed with telescopes since early 1600s",
         "volume": 928430000000,
         "solarConstant": {
           "aphelion": 2614,
@@ -163,7 +163,7 @@
           {
             "formula": "CO₂",
             "molar": 44,
-            "name": "Carbon Dioxide",
+            "name": "Carbon dioxide",
             "percentage": 96.5
           },
           {
@@ -175,7 +175,7 @@
           {
             "formula": "SO₂",
             "molar": 64,
-            "name": "Sulfur Dioxide",
+            "name": "Sulfur dioxide",
             "percentage": 0.015
           },
           {
@@ -187,26 +187,32 @@
           {
             "formula": "H₂O",
             "molar": 18,
-            "name": "Water Vapor",
+            "name": "Water vapor",
             "percentage": 0.002
           },
           {
             "formula": "CO",
             "molar": 28,
-            "name": "Carbon Monoxide",
+            "name": "Carbon monoxide",
             "percentage": 0.0015
           },
           {
             "formula": "He",
             "molar": 4,
             "name": "Helium",
-            "percentage": 0.0005
+            "percentage": 0.0002
           },
           {
-            "formula": "Ne",
+            "formula": "HCl",
+            "molar": 36,
+            "name": "Hydrogen chloride",
+            "percentage": 0.00015
+          },
+          {
+            "formula": "HF",
             "molar": 20,
-            "name": "Neon",
-            "percentage": 0.00007
+            "name": "Hydrogen fluoride",
+            "percentage": 0.000064
           }
         ]
       },
@@ -216,14 +222,22 @@
         "angularDiameter": null,
         "density": 5.51,
         "escapeVelocity": 11.186,
-        "flattening": 0.00335281068,
+        "flattening": 0.0033528107,
         "gravitationalParameter": 398600.435436,
         "gravitationalParameterUncertainty": 0.0014,
         "gravityEquatorial": 9.7803267715,
         "gravityPolar": 9.8321863685,
         "lastUpdated": "2022-05-09",
-        "maxIR": null,
-        "minIR": null,
+        "maxIR": {
+          "aphelion": null,
+          "mean": null,
+          "perihelion": null
+        },
+        "minIR": {
+          "aphelion": null,
+          "mean": null,
+          "perihelion": null
+        },
         "volumetricMeanRadius": 6371.01,
         "visualMagnitudeOpposition": null,
         "visualMagnitude": -3.86,
@@ -233,7 +247,7 @@
         "siderealRotationPeriod": 23.9344695944,
         "siderealOrbitPeriodY": 1.0000174,
         "siderealOrbitPeriodD": 365.25636,
-        "rockyCoreMass": 0.7784,
+        "rockyCoreMass": 0.68,
         "rocheLimit": null,
         "radiusPolar": 6356.752,
         "radiusHillsSphere": 234.9,
@@ -245,49 +259,49 @@
         "name": "Earth",
         "momentOfInertia": 0.3308,
         "facts": [
-          "Earth is the only planet known to support life.",
-          "The planet’s magnetic field shields it from solar radiation.",
-          "About 71% of Earth's surface is covered by water.",
-          "A full rotation takes approximately 24 hours, creating day and night.",
-          "Earth's atmosphere is composed mainly of nitrogen and oxygen."
+          "Earth is the only known planet to support life.",
+          "About 71% of Earth’s surface is covered by water.",
+          "Earth has one natural satellite, the Moon.",
+          "The planet’s atmosphere is primarily nitrogen and oxygen.",
+          "Earth’s magnetic field protects life by deflecting solar radiation."
         ],
-        "expandedDescription": "Earth, the third planet from the Sun, supports a vast array of life thanks to its liquid water and atmosphere rich in nitrogen and oxygen. Its dynamic climate and magnetic field protect all living organisms, making it unique among known worlds in the solar system.",
-        "description": "Our vibrant blue home with thriving life and diverse climates.",
+        "expandedDescription": "Earth, our home planet, is a dynamic world characterized by vast oceans, diverse ecosystems, and an atmosphere ideal for sustaining life. It orbits the Sun in just over 365 days, rotating daily to create familiar cycles of night and day, all under a 23.4-degree axial tilt that gifts the planet its seasons.",
+        "description": "A vibrant blue planet teeming with life and water.",
         "mass": 5.97219e+24,
         "moons": 1,
         "orbitalInclination": 0.00005,
         "rings": 0,
-        "visual": "Known since prehistoric times",
+        "visual": "Known since ancient times",
         "volume": 1083210000000,
         "solarConstant": {
           "aphelion": 1322,
-          "mean": 1367.6,
+          "mean": 1368,
           "perihelion": 1414
         },
         "atmosphere": [
           {
             "formula": "N₂",
             "molar": 28,
-            "name": "Nitrogen gas",
+            "name": "Nitrogen",
             "percentage": 78.08
           },
           {
             "formula": "O₂",
             "molar": 32,
-            "name": "Oxygen gas",
+            "name": "Oxygen",
             "percentage": 20.95
           },
           {
             "formula": "Ar",
             "molar": 40,
-            "name": "Argon gas",
+            "name": "Argon",
             "percentage": 0.93
           },
           {
             "formula": "CO₂",
             "molar": 44,
-            "name": "Carbon dioxide",
-            "percentage": 0.041
+            "name": "Carbon Dioxide",
+            "percentage": 0.04
           },
           {
             "formula": "Ne",
@@ -327,7 +341,7 @@
         "angularDiameter": 17.9,
         "density": 3.933,
         "escapeVelocity": 5.027,
-        "flattening": 0.005895,
+        "flattening": 0.00589,
         "gravitationalParameter": 42828.375662,
         "gravitationalParameterUncertainty": 0.00028,
         "gravityEquatorial": 3.71,
@@ -347,7 +361,7 @@
         "visualMagnitudeOpposition": null,
         "visualMagnitude": -1.52,
         "temperature": 210,
-        "solarDayLength": 24.634,
+        "solarDayLength": 24.6886,
         "siderealRotationRate": 0.0000708822,
         "siderealRotationPeriod": 24.622962,
         "siderealOrbitPeriodY": 1.88081578,
@@ -365,18 +379,18 @@
         "momentOfInertia": null,
         "facts": [
           "Mars has two small moons, Phobos and Deimos.",
-          "A day on Mars lasts about 24.6 hours, close to Earth's day.",
-          "Mars hosts Olympus Mons, the tallest volcano in the solar system.",
-          "Seasons on Mars last twice as long as those on Earth.",
-          "Mars' atmosphere is mostly carbon dioxide with very low pressure."
+          "A day on Mars is approximately 24.6 hours, very close to Earth's day length.",
+          "Mars has the tallest volcano in the solar system, Olympus Mons.",
+          "The atmosphere is about 95% carbon dioxide.",
+          "Mars' dust storms can cover the entire planet."
         ],
-        "expandedDescription": "Mars, the fourth planet from the Sun, features a rusty red surface due to iron oxide. It has polar ice caps, vast deserts, and the largest volcano in the solar system. Its thin atmosphere makes it a mysterious world for exploration and a potential future human habitat.",
-        "description": "The red planet with a cold, desert landscape and intriguing seasons.",
+        "expandedDescription": "Mars, the fourth planet from the Sun, is known for its reddish appearance due to iron oxide on its surface. It hosts the largest volcano and canyon in the solar system and has seasons and polar ice caps. Its thin atmosphere is mostly carbon dioxide, making it a fascinating world for exploration.",
+        "description": "The red planet with a mysterious, dusty surface and the tallest volcano in the solar system.",
         "mass": 6.4171e+23,
         "moons": 2,
         "orbitalInclination": 1.85,
         "rings": 0,
-        "visual": "Known since ancient times, first telescopic observations in the early 1600s",
+        "visual": "Known since antiquity",
         "volume": 163180000000,
         "solarConstant": {
           "aphelion": 493,
@@ -387,7 +401,7 @@
           {
             "formula": "CO₂",
             "molar": 44,
-            "name": "Carbon dioxide",
+            "name": "Carbon Dioxide",
             "percentage": 95.32
           },
           {
@@ -411,26 +425,14 @@
           {
             "formula": "CO",
             "molar": 28,
-            "name": "Carbon monoxide",
+            "name": "Carbon Monoxide",
             "percentage": 0.08
           },
           {
             "formula": "H₂O",
             "molar": 18,
-            "name": "Water vapor",
+            "name": "Water Vapor",
             "percentage": 0.03
-          },
-          {
-            "formula": "Ne",
-            "molar": 20,
-            "name": "Neon",
-            "percentage": 0.00025
-          },
-          {
-            "formula": "Kr",
-            "molar": 84,
-            "name": "Krypton",
-            "percentage": 0.00003
           }
         ]
       },
@@ -462,7 +464,7 @@
         "temperature": 165,
         "solarDayLength": 9.9259,
         "siderealRotationRate": 0.00017585,
-        "siderealRotationPeriod": 9.924919864,
+        "siderealRotationPeriod": 9.92492,
         "siderealOrbitPeriodY": 11.861982204,
         "siderealOrbitPeriodD": 4332.589,
         "rockyCoreMass": 0.0261,
@@ -477,20 +479,20 @@
         "name": "Jupiter",
         "momentOfInertia": null,
         "facts": [
-          "Jupiter’s strong magnetic field is the largest planetary magnetosphere in the solar system.",
-          "The Great Red Spot is a centuries-old storm larger than Earth.",
-          "Jupiter emits more heat than it receives from the Sun.",
-          "It has 79 known moons, including four large Galilean moons.",
-          "A day on Jupiter lasts only about 10 hours due to rapid rotation."
+          "Jupiter's Great Red Spot is a storm larger than Earth that has lasted centuries.",
+          "It has at least 79 known moons, including the volcanically active Io.",
+          "A day on Jupiter lasts just about 9.9 hours despite its huge size.",
+          "The planet emits more heat than it receives from the Sun.",
+          "Its strong magnetic field is the largest of any planet in the Solar System."
         ],
-        "expandedDescription": "Jupiter is the largest planet in our solar system, famous for its Great Red Spot—an immense storm bigger than Earth. Its turbulent atmosphere features colorful bands and powerful winds. Mostly made of hydrogen and helium, this gas giant has dozens of moons and a faint ring system.",
-        "description": "The giant swirling stormy planet with a great red spot.",
+        "expandedDescription": "Jupiter, the largest planet in our solar system, boasts a complex atmosphere with swirling storms and colorful cloud bands. Its massive gravity influences the orbits of many objects while its rings and numerous moons provide endless intrigue for astronomers studying planetary systems and formation.",
+        "description": "A colossal gas giant with striking bands and a turbulent atmosphere.",
         "mass": 1.89819e+27,
         "moons": null,
         "orbitalInclination": 1.304,
         "rings": null,
-        "visual": "Known since ancient times",
-        "volume": 1531200000000000,
+        "visual": "Known since ancient times; clearly observed with telescopes since Galileo, 1610",
+        "volume": 1436700000000000,
         "solarConstant": {
           "aphelion": 46,
           "mean": 51,
@@ -524,26 +526,14 @@
           {
             "formula": "H₂O",
             "molar": 18,
-            "name": "Water Vapor",
-            "percentage": 0.015
+            "name": "Water vapor",
+            "percentage": 0.01
           },
           {
             "formula": "C₂H₆",
             "molar": 30,
             "name": "Ethane",
-            "percentage": 0.01
-          },
-          {
-            "formula": "PH₃",
-            "molar": 34,
-            "name": "Phosphine",
-            "percentage": 0.0005
-          },
-          {
-            "formula": "H₂S",
-            "molar": 34,
-            "name": "Hydrogen Sulfide",
-            "percentage": 0.0005
+            "percentage": 0.0001
           }
         ]
       },
@@ -575,7 +565,7 @@
         "temperature": 134,
         "solarDayLength": 10.656,
         "siderealRotationRate": 0.000163785,
-        "siderealRotationPeriod": 1.1084728888888888,
+        "siderealRotationPeriod": 10.660561111111113,
         "siderealOrbitPeriodY": 29.447498,
         "siderealOrbitPeriodD": 10755.698,
         "rockyCoreMass": 0.1027,
@@ -590,19 +580,20 @@
         "name": "Saturn",
         "momentOfInertia": null,
         "facts": [
-          "Saturn's rings span over 280,000 kilometers but are extremely thin.",
-          "A day on Saturn lasts about 10.6 hours, while its year is nearly 29.5 Earth years.",
-          "Despite its size, Saturn is the least dense planet; it would float on water.",
-          "Saturn has over 80 known moons including Titan, the second-largest moon in the Solar System."
+          "Saturn's rings are primarily composed of ice particles ranging in size from micrometers to meters.",
+          "A day on Saturn lasts about 10.7 hours, one of the shortest among planets.",
+          "Saturn has over 80 moons, including Titan, which has a thick nitrogen atmosphere.",
+          "Its low density means it could float in water if a large enough body existed.",
+          "Saturn's magnetic field is weaker than Jupiter's but still powerful."
         ],
-        "expandedDescription": "Saturn, the sixth planet from the Sun, is famed for its extensive ring system composed of ice and rock. This gas giant features a low density and fast rotation, producing a flattened shape. Its stunning rings and many moons make it a captivating world of endless fascination.",
-        "description": "A giant ringed planet with majestic beauty and swirling storms.",
+        "expandedDescription": "Saturn is the solar system's second-largest planet, famed for its spectacular ring system and vibrant atmosphere. With a low density less than water, its immense storms, numerous moons, and complex magnetic environment make it a captivating subject for planetary science and exploration.",
+        "description": "A majestic gas giant with iconic rings and turbulent storms.",
         "mass": 5.6834e+26,
         "moons": null,
         "orbitalInclination": 2.485,
         "rings": null,
-        "visual": "Known since antiquity, visible to the naked eye.",
-        "volume": 827120000000000,
+        "visual": "Known since antiquity, prominently observed by Galileo in 1610",
+        "volume": 3430000000000000,
         "solarConstant": {
           "aphelion": 13.6,
           "mean": 15.1,
@@ -637,31 +628,25 @@
             "formula": "C₂H₆",
             "molar": 30,
             "name": "Ethane",
-            "percentage": 0.003
+            "percentage": 0.0001
           },
           {
             "formula": "PH₃",
             "molar": 34,
             "name": "Phosphine",
-            "percentage": 0.0005
+            "percentage": 0.00002
           },
           {
-            "formula": "H₂O",
-            "molar": 18,
-            "name": "Water vapor",
-            "percentage": 0.0001
+            "formula": "HD",
+            "molar": 3,
+            "name": "Hydrogen Deuteride",
+            "percentage": 0.00013
           },
           {
             "formula": "Ne",
             "molar": 20,
             "name": "Neon",
-            "percentage": 0.00007
-          },
-          {
-            "formula": "HD",
-            "molar": 3,
-            "name": "Hydrogen deuteride",
-            "percentage": 0.000001
+            "percentage": 0.0007
           }
         ]
       },
@@ -700,7 +685,7 @@
         "rocheLimit": 2.2,
         "radiusPolar": 24973,
         "radiusHillsSphere": 2700,
-        "radiusEquatorial": 25559,
+        "radiusEquatorial": 25560,
         "radiusCore": null,
         "pressure": null,
         "orbitalVelocity": 6.8,
@@ -708,20 +693,20 @@
         "name": "Uranus",
         "momentOfInertia": null,
         "facts": [
-          "Uranus rotates on its side with an axial tilt of roughly 98 degrees.",
-          "A year on Uranus lasts 84 Earth years, while one day is about 17.24 hours.",
-          "It has 27 known moons and a system of faint rings.",
-          "Uranus has the coldest planetary atmosphere in the solar system.",
-          "It was the first planet discovered with a telescope by William Herschel in 1781."
+          "Uranus rotates on its side, unlike any other planet in our solar system.",
+          "It has 27 known moons named after characters from Shakespeare and Alexander Pope.",
+          "The planet's blue-green color is due to methane in its atmosphere absorbing red light.",
+          "Uranus has a faint ring system composed of dark particles.",
+          "A day on Uranus is about 17.2 hours long despite its great distance from the Sun."
         ],
-        "expandedDescription": "Uranus, the seventh planet from the Sun, is an ice giant with a unique sideways rotation. Its atmosphere composed primarily of hydrogen, helium, and methane gives it a distinct cyan color. The planet's extreme axial tilt causes unusual seasons lasting over 20 years each, making its climate and weather fascinating to study.",
-        "description": "An icy giant with a striking cyan hue and extreme axial tilt.",
+        "expandedDescription": "Uranus, the seventh planet from the Sun, rotates on its side with an axial tilt of 97.77°, creating extreme seasons. Its cold atmosphere is mostly hydrogen and helium with methane giving it a blue-green hue, and it houses a faint ring system and dozens of moons in a frigid orbit far from the Sun.",
+        "description": "A distant icy giant with a unique tilted magnetic field.",
         "mass": 8.6813e+25,
         "moons": null,
-        "orbitalInclination": 0.77,
+        "orbitalInclination": 0.772,
         "rings": null,
-        "visual": "January 13, 1781 by William Herschel",
-        "volume": 82714000000000,
+        "visual": "March 13, 1781, by William Herschel",
+        "volume": 68820000000000,
         "solarConstant": {
           "aphelion": 3.39,
           "mean": 3.71,
@@ -732,19 +717,19 @@
             "formula": "H₂",
             "molar": 2,
             "name": "Hydrogen",
-            "percentage": 83
+            "percentage": 82.5
           },
           {
             "formula": "He",
             "molar": 4,
             "name": "Helium",
-            "percentage": 15
+            "percentage": 15.2
           },
           {
             "formula": "CH₄",
             "molar": 16,
             "name": "Methane",
-            "percentage": 2
+            "percentage": 2.3
           },
           {
             "formula": "NH₃",
@@ -755,7 +740,7 @@
           {
             "formula": "H₂O",
             "molar": 18,
-            "name": "Water Vapor",
+            "name": "Water vapor",
             "percentage": 0.001
           },
           {
@@ -768,7 +753,13 @@
             "formula": "HD",
             "molar": 3,
             "name": "Hydrogen Deuteride",
-            "percentage": 0.00002
+            "percentage": 0.00005
+          },
+          {
+            "formula": "CO",
+            "molar": 28,
+            "name": "Carbon monoxide",
+            "percentage": 0.00001
           }
         ]
       },
@@ -815,19 +806,19 @@
         "name": "Neptune",
         "momentOfInertia": null,
         "facts": [
-          "A day on Neptune is about 16 hours long.",
-          "Neptune’s atmosphere contains the fastest winds recorded in the Solar System.",
-          "Discovered in 1846 through mathematical prediction, not direct observation.",
-          "Neptune has 14 known moons, with Triton being the largest and geologically active.",
-          "Its faint ring system was confirmed only in the 1980s."
+          "Neptune has the strongest sustained winds in the solar system, reaching up to 2,100 km/h.",
+          "A day on Neptune lasts about 16 hours.",
+          "Neptune's largest moon, Triton, orbits in a retrograde direction.",
+          "It was the first planet located through mathematical prediction rather than direct observation.",
+          "Neptune completes an orbit around the Sun every 164.8 Earth years."
         ],
-        "expandedDescription": "Neptune, the eighth planet from the Sun, is famous for its striking blue color caused by methane in its atmosphere and its dynamic weather including supersonic winds. Discovered in 1846, it remains a captivating world with a prominent role in planetary science and outer Solar System studies.",
-        "description": "A deep blue and distant gas giant with turbulent weather.",
+        "expandedDescription": "Neptune, the eighth planet from the Sun, is known for its stunning blue hue caused by methane in its atmosphere. This giant planet experiences some of the fastest winds in the solar system, dynamic storms, and a complex climate system, captivating astronomers and sky watchers alike.",
+        "description": "A distant, vibrant blue giant with dynamic weather and fierce winds.",
         "mass": 1.02409e+26,
         "moons": null,
         "orbitalInclination": 1.77,
         "rings": null,
-        "visual": "First observed with telescope in 1846",
+        "visual": "September 23, 1846",
         "volume": 62540000000000,
         "solarConstant": {
           "aphelion": 1.49,
@@ -857,47 +848,41 @@
             "formula": "C₂H₆",
             "molar": 30,
             "name": "Ethane",
-            "percentage": 0.01
+            "percentage": 0.1
           },
           {
             "formula": "C₂H₂",
             "molar": 26,
             "name": "Acetylene",
-            "percentage": 0.007
+            "percentage": 0.01
           },
           {
             "formula": "CO",
             "molar": 28,
             "name": "Carbon monoxide",
-            "percentage": 0.002
+            "percentage": 0.001
           },
           {
             "formula": "N₂",
             "molar": 28,
             "name": "Nitrogen",
             "percentage": 0.001
-          },
-          {
-            "formula": "H₂O",
-            "molar": 18,
-            "name": "Water vapor",
-            "percentage": 0.0001
           }
         ]
       }
     ],
     "picture": {
-      "copyright": null,
-      "credit": "NASA, ESA, CSA, STScI, JWST",
-      "date": "2025-08-05",
+      "copyright": "Fritz Helmut Hemmerich",
+      "credit": null,
+      "date": "2025-08-06",
       "explanation": {
-        "kids": "Imagine you see a big colorful cloud in space that looks like a shiny bubble made by a star, kind of like blowing soap bubbles. This cloud is called NGC 6072, and it is very special because it has lots of twists and shapes that make it look like a space puzzle. A super cool space camera called the Webb Telescope took a close-up picture using special light we cannot see with our eyes, and it showed red areas where there is nice, cool space gas. Scientists think this amazing cloud got its funny, twisty shape because the star in the middle, which might have some star friends nearby, made bursts of gas that pushed and pulled the cloud into a neat, jumbled mess. It’s like when bubbles pop and make new shapes when you blow them really fast!",
-        "original": "Why is this nebula so complex? The Webb Space Telescope has imaged a nebula in great detail that is thought to have emerged from a Sun-like star. NGC 6072 has been resolved into one of the more unusual and complex examples of planetary nebula. The featured image is in infrared light with the red color highlighting cool hydrogen gas. Study of previous images of NGC 6072 indicated several likely outflows and two disks inside the jumbled gas, while the new Webb image resolves new features likely including one disk's edge protruding on the central left. A leading origin hypothesis holds that the nebula's complexity is caused or enhanced by multiple outbursts from a star in a multi-star system near the center.",
-        "summarized": "The Webb Space Telescope captured a detailed infrared image of the complex planetary nebula NGC 6072, which likely formed from a Sun-like star. The red color in the image highlights cool hydrogen gas within the nebula. Previous studies suggested several outflows and two disks inside the gas, while the new image reveals additional features including the edge of one disk. The nebula's complexity is thought to result from multiple outbursts from a star in a multi-star system at the center."
+        "kids": "Look at that bright green flash in front of the big Andromeda galaxy! That’s a meteor, which is like a tiny space rock zooming through the sky. In 2016, while someone was taking a picture of Andromeda, this little rock zoomed across, shining green because it was burning up and glowing as it hit the air around Earth. It moved super fast and glowed in bursts like little flashes! Even though the picture was taken near the time of a special meteor shower called the Perseids, this one might actually be from a different shower that happened a few weeks before. And guess what? The Perseid meteors are coming again soon, so get ready to see more space sparkles in the sky!",
+        "original": "What's that green streak in front of the Andromeda galaxy? A meteor. While photographing the Andromeda galaxy in 2016, near the peak of the Perseid Meteor Shower, a small pebble from deep space crossed right in front of our Milky Way Galaxy's far-distant companion. The small meteor took only a fraction of a second to pass through this 10-degree field. The meteor flared several times while braking violently upon entering Earth's atmosphere. The green color was created, at least in part, by the meteor's gas glowing as it vaporized. Although the exposure was timed to catch a Perseid meteor, the orientation of the imaged streak seems a better match to a meteor from the Southern Delta Aquariids, a meteor shower that peaked a few weeks earlier. Not coincidentally, the Perseid Meteor Shower peaks next week, although this year the meteors will have to outshine a sky brightened by a nearly full moon.",
+        "summarized": "The green streak in front of the Andromeda galaxy is a meteor captured during the 2016 Perseid Meteor Shower. It passed quickly through the field of view and flared multiple times as it entered Earth's atmosphere. The green color came from glowing gases as the meteor vaporized. Although the exposure aimed to catch a Perseid meteor, the streak's orientation suggests it might belong to the Southern Delta Aquariids meteor shower that peaked earlier. This year, the Perseid meteors will face a bright sky due to a nearly full moon."
       },
-      "media": "https://apod.nasa.gov/apod/image/2508/Ngc6072_webb_3755.jpg",
+      "media": "https://apod.nasa.gov/apod/image/2508/MeteorM31_hemmerich_1948.jpg",
       "media_type": "image",
-      "title": "NGC 6072: A Complex Planetary Nebula from Webb"
+      "title": "Meteor before Galaxy"
     },
     "events": [
       {
@@ -958,6 +943,17 @@
               16.8
             ],
             "date": "2025-08-05T18:00:00Z",
+            "id": null,
+            "magnitudeUnit": "kts",
+            "magnitudeValue": 45,
+            "type": "Point"
+          },
+          {
+            "coordinates": [
+              -126.2,
+              17.4
+            ],
+            "date": "2025-08-06T00:00:00Z",
             "id": null,
             "magnitudeUnit": "kts",
             "magnitudeValue": 45,
@@ -1279,6 +1275,17 @@
               39.7
             ],
             "date": "2025-08-05T18:00:00Z",
+            "id": null,
+            "magnitudeUnit": "kts",
+            "magnitudeValue": 25,
+            "type": "Point"
+          },
+          {
+            "coordinates": [
+              162.2,
+              40.2
+            ],
+            "date": "2025-08-06T00:00:00Z",
             "id": null,
             "magnitudeUnit": "kts",
             "magnitudeValue": 25,
@@ -12676,443 +12683,6 @@
           }
         ],
         "title": "Tropical Storm Francisco"
-      },
-      {
-        "categories": [
-          {
-            "id": "floods",
-            "title": "Floods"
-          }
-        ],
-        "geometry": [
-          {
-            "coordinates": [
-              5.3152203,
-              13.0611195
-            ],
-            "date": "2025-07-22T20:00:00Z",
-            "id": null,
-            "magnitudeUnit": null,
-            "magnitudeValue": null,
-            "type": "Point"
-          }
-        ],
-        "id": "EONET_14491",
-        "sources": [
-          {
-            "id": "GDACS",
-            "url": "https://www.gdacs.org/report.aspx?eventtype=FL&eventid=1103409"
-          }
-        ],
-        "title": "Flood in Nigeria 1103409"
-      },
-      {
-        "categories": [
-          {
-            "id": "wildfires",
-            "title": "Wildfires"
-          }
-        ],
-        "geometry": [
-          {
-            "coordinates": [
-              131.91304644149872,
-              -14.936381444401823
-            ],
-            "date": "2025-07-22T19:00:00Z",
-            "id": null,
-            "magnitudeUnit": "hectare",
-            "magnitudeValue": 6030,
-            "type": "Point"
-          }
-        ],
-        "id": "EONET_14451",
-        "sources": [
-          {
-            "id": "GDACS",
-            "url": "https://www.gdacs.org/report.aspx?eventtype=WF&eventid=1024319"
-          }
-        ],
-        "title": "Wildfire in Australia 1024319"
-      },
-      {
-        "categories": [
-          {
-            "id": "wildfires",
-            "title": "Wildfires"
-          }
-        ],
-        "geometry": [
-          {
-            "coordinates": [
-              131.3665429790599,
-              -18.607876544883325
-            ],
-            "date": "2025-07-22T19:00:00Z",
-            "id": null,
-            "magnitudeUnit": "hectare",
-            "magnitudeValue": 6528,
-            "type": "Point"
-          }
-        ],
-        "id": "EONET_14465",
-        "sources": [
-          {
-            "id": "GDACS",
-            "url": "https://www.gdacs.org/report.aspx?eventtype=WF&eventid=1024327"
-          }
-        ],
-        "title": "Wildfire in Australia 1024327"
-      },
-      {
-        "categories": [
-          {
-            "id": "wildfires",
-            "title": "Wildfires"
-          }
-        ],
-        "geometry": [
-          {
-            "coordinates": [
-              32.78930269796288,
-              41.09374894128319
-            ],
-            "date": "2025-07-22T19:00:00Z",
-            "id": null,
-            "magnitudeUnit": "hectare",
-            "magnitudeValue": 5042,
-            "type": "Point"
-          }
-        ],
-        "id": "EONET_14478",
-        "sources": [
-          {
-            "id": "GDACS",
-            "url": "https://www.gdacs.org/report.aspx?eventtype=WF&eventid=1024336"
-          }
-        ],
-        "title": "Wildfire in Türkiye 1024336"
-      },
-      {
-        "categories": [
-          {
-            "id": "wildfires",
-            "title": "Wildfires"
-          }
-        ],
-        "geometry": [
-          {
-            "coordinates": [
-              121.68812210314445,
-              -18.91093953439858
-            ],
-            "date": "2025-07-22T19:00:00Z",
-            "id": null,
-            "magnitudeUnit": "hectare",
-            "magnitudeValue": 5212,
-            "type": "Point"
-          }
-        ],
-        "id": "EONET_14479",
-        "sources": [
-          {
-            "id": "GDACS",
-            "url": "https://www.gdacs.org/report.aspx?eventtype=WF&eventid=1024337"
-          }
-        ],
-        "title": "Wildfire in Australia 1024337"
-      },
-      {
-        "categories": [
-          {
-            "id": "wildfires",
-            "title": "Wildfires"
-          }
-        ],
-        "geometry": [
-          {
-            "coordinates": [
-              -104.5576726957177,
-              54.58455693077772
-            ],
-            "date": "2025-07-22T19:00:00Z",
-            "id": null,
-            "magnitudeUnit": "hectare",
-            "magnitudeValue": 7744,
-            "type": "Point"
-          }
-        ],
-        "id": "EONET_14581",
-        "sources": [
-          {
-            "id": "GDACS",
-            "url": "https://www.gdacs.org/report.aspx?eventtype=WF&eventid=1024405"
-          }
-        ],
-        "title": "Wildfire in Canada 1024405"
-      },
-      {
-        "categories": [
-          {
-            "id": "wildfires",
-            "title": "Wildfires"
-          }
-        ],
-        "geometry": [
-          {
-            "coordinates": [
-              -81.4737,
-              29.118233
-            ],
-            "date": "2025-07-22T11:10:00Z",
-            "id": null,
-            "magnitudeUnit": "acres",
-            "magnitudeValue": 4000,
-            "type": "Point"
-          }
-        ],
-        "id": "EONET_14459",
-        "sources": [
-          {
-            "id": "IRWIN",
-            "url": "https://irwin.doi.gov/observer/"
-          }
-        ],
-        "title": "North Marsh Wildfire, Volusia, Florida"
-      },
-      {
-        "categories": [
-          {
-            "id": "wildfires",
-            "title": "Wildfires"
-          }
-        ],
-        "geometry": [
-          {
-            "coordinates": [
-              -84.372528,
-              30.061944
-            ],
-            "date": "2025-07-22T09:12:00Z",
-            "id": null,
-            "magnitudeUnit": "acres",
-            "magnitudeValue": 1092,
-            "type": "Point"
-          }
-        ],
-        "id": "EONET_14460",
-        "sources": [
-          {
-            "id": "IRWIN",
-            "url": "https://irwin.doi.gov/observer/"
-          }
-        ],
-        "title": "SMR BU 331/333 Rx 0722 Prescribed Fire, Wakulla, Florida"
-      },
-      {
-        "categories": [
-          {
-            "id": "severeStorms",
-            "title": "Severe Storms"
-          }
-        ],
-        "geometry": [
-          {
-            "coordinates": [
-              123.2,
-              18.5
-            ],
-            "date": "2025-07-18T06:00:00Z",
-            "id": null,
-            "magnitudeUnit": "kts",
-            "magnitudeValue": 35,
-            "type": "Point"
-          },
-          {
-            "coordinates": [
-              122.1,
-              19.4
-            ],
-            "date": "2025-07-18T12:00:00Z",
-            "id": null,
-            "magnitudeUnit": "kts",
-            "magnitudeValue": 40,
-            "type": "Point"
-          },
-          {
-            "coordinates": [
-              120.7,
-              19.8
-            ],
-            "date": "2025-07-18T18:00:00Z",
-            "id": null,
-            "magnitudeUnit": "kts",
-            "magnitudeValue": 45,
-            "type": "Point"
-          },
-          {
-            "coordinates": [
-              119.8,
-              20.3
-            ],
-            "date": "2025-07-19T00:00:00Z",
-            "id": null,
-            "magnitudeUnit": "kts",
-            "magnitudeValue": 50,
-            "type": "Point"
-          },
-          {
-            "coordinates": [
-              118.9,
-              20.5
-            ],
-            "date": "2025-07-19T06:00:00Z",
-            "id": null,
-            "magnitudeUnit": "kts",
-            "magnitudeValue": 45,
-            "type": "Point"
-          },
-          {
-            "coordinates": [
-              117.7,
-              21
-            ],
-            "date": "2025-07-19T12:00:00Z",
-            "id": null,
-            "magnitudeUnit": "kts",
-            "magnitudeValue": 50,
-            "type": "Point"
-          },
-          {
-            "coordinates": [
-              116.1,
-              21.5
-            ],
-            "date": "2025-07-19T18:00:00Z",
-            "id": null,
-            "magnitudeUnit": "kts",
-            "magnitudeValue": 55,
-            "type": "Point"
-          },
-          {
-            "coordinates": [
-              114.6,
-              21.7
-            ],
-            "date": "2025-07-20T00:00:00Z",
-            "id": null,
-            "magnitudeUnit": "kts",
-            "magnitudeValue": 65,
-            "type": "Point"
-          },
-          {
-            "coordinates": [
-              113.2,
-              21.8
-            ],
-            "date": "2025-07-20T06:00:00Z",
-            "id": null,
-            "magnitudeUnit": "kts",
-            "magnitudeValue": 65,
-            "type": "Point"
-          },
-          {
-            "coordinates": [
-              111.9,
-              21.7
-            ],
-            "date": "2025-07-20T12:00:00Z",
-            "id": null,
-            "magnitudeUnit": "kts",
-            "magnitudeValue": 60,
-            "type": "Point"
-          },
-          {
-            "coordinates": [
-              110.8,
-              21.6
-            ],
-            "date": "2025-07-20T18:00:00Z",
-            "id": null,
-            "magnitudeUnit": "kts",
-            "magnitudeValue": 50,
-            "type": "Point"
-          },
-          {
-            "coordinates": [
-              109.4,
-              21.5
-            ],
-            "date": "2025-07-21T00:00:00Z",
-            "id": null,
-            "magnitudeUnit": "kts",
-            "magnitudeValue": 45,
-            "type": "Point"
-          },
-          {
-            "coordinates": [
-              109,
-              21.3
-            ],
-            "date": "2025-07-21T06:00:00Z",
-            "id": null,
-            "magnitudeUnit": "kts",
-            "magnitudeValue": 45,
-            "type": "Point"
-          },
-          {
-            "coordinates": [
-              108.3,
-              21.1
-            ],
-            "date": "2025-07-21T12:00:00Z",
-            "id": null,
-            "magnitudeUnit": "kts",
-            "magnitudeValue": 50,
-            "type": "Point"
-          },
-          {
-            "coordinates": [
-              107.6,
-              20.8
-            ],
-            "date": "2025-07-21T18:00:00Z",
-            "id": null,
-            "magnitudeUnit": "kts",
-            "magnitudeValue": 50,
-            "type": "Point"
-          },
-          {
-            "coordinates": [
-              106.8,
-              20.5
-            ],
-            "date": "2025-07-22T00:00:00Z",
-            "id": null,
-            "magnitudeUnit": "kts",
-            "magnitudeValue": 45,
-            "type": "Point"
-          },
-          {
-            "coordinates": [
-              106.2,
-              20.3
-            ],
-            "date": "2025-07-22T06:00:00Z",
-            "id": null,
-            "magnitudeUnit": "kts",
-            "magnitudeValue": 35,
-            "type": "Point"
-          }
-        ],
-        "id": "EONET_14412",
-        "sources": [
-          {
-            "id": "JTWC",
-            "url": "https://www.metoc.navy.mil/jtwc/products/wp0925.tcw"
-          }
-        ],
-        "title": "Tropical Storm Wipha"
       }
     ],
     "articles": [

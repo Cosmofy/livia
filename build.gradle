@@ -29,6 +29,8 @@ dependencies {
     implementation 'com.google.code.gson:gson:2.13.1'
     implementation("com.openai:openai-java:2.3.0")
     implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+    implementation 'com.fasterxml.jackson.core:jackson-databind'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'com.netflix.graphql.dgs:graphql-dgs-spring-graphql-starter-test'
     testImplementation 'io.projectreactor:reactor-test'

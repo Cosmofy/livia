@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import com.google.gson.Gson;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.cache.annotation.Cacheable;
 import xyz.arryan.livia.codegen.types.Category;
 import xyz.arryan.livia.codegen.types.Event;
 import xyz.arryan.livia.codegen.types.Source;
@@ -44,6 +45,7 @@ public class EventsDataFetcher {
     }
 
     @DgsQuery
+    @Cacheable(value = "events", key = "'current'")
     public List<Event> events(@InputArgument Integer days) {
         logger.info("Fetching events for last {} days", days);
 
