@@ -31,13 +31,14 @@ import org.slf4j.LoggerFactory;
 @DgsComponent
 public class PictureDataFetcher {
 
-    private WebClient webClient;
+    private final WebClient webClient;
     private final Gson gson;
     private final MongoTemplate mongoTemplate;
     private static final Logger logger = LoggerFactory.getLogger(PictureDataFetcher.class);
 
     @Autowired
-    public PictureDataFetcher(Gson gson, MongoTemplate mongoTemplate) {
+    public PictureDataFetcher(Gson gson, MongoTemplate mongoTemplate, WebClient webClient) {
+        this.webClient = webClient;
         this.gson = gson;
         this.mongoTemplate = mongoTemplate;
     }

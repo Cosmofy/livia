@@ -3,6 +3,7 @@ type Query {
     articles: [Article]
     picture(date: String): Picture
     events(days: Int): [Event]
+    planets: [Planet]
 }
 
 # API 1: Picture of the Day
@@ -66,4 +67,77 @@ type Geometry {
     date: String
     type: String
     coordinates: [Float]
+}
+
+# API 4: Planetary Information
+type Planet {
+
+    # PHYSICAL PROPERTIES:
+    name: String! # Planet name (e.g., "Venus", "Uranus")
+    id: Int # Planet ID (JPL Horizons body ID)
+    lastUpdated: String # Date this data was last revised
+    density: Float # g/cm^3 — Average planetary density
+    temperature: Int # K — Atmospheric temperature at 1 bar (if applicable)
+    pressure: Float # bar — Surface atmospheric pressure
+    radiusEquatorial: Float # km — Radius at equator (1 bar level if gaseous)
+    radiusPolar: Float # km — Radius at poles
+    radiusCore: Float # km — Estimated radius of the rocky core (if known)
+    radiusHillsSphere: Float # Rp — Radius of Hill sphere, in planetary radii
+    angularDiameter: Float # arcseconds — Max angular diameter seen from Earth
+    momentOfInertia: Float # Unitless — Ratio of rotational inertia to mass-radius^2
+    volumetricMeanRadius: Float # km — Volume-averaged mean radius
+    volume: Float # 6.2526e13 example format
+    moons: Int
+    rings: Int
+
+    # GRAVITATIONAL PROPERTIES:
+    gravityEquatorial: Float # m/s^2 — Gravity at equator
+    gravityPolar: Float # m/s^2 — Gravity at poles
+    escapeVelocity: Float # km/s — Speed required to escape gravitational pull
+    flattening: Float # Unitless — Equatorial bulge (1 − polar/equatorial radius)
+    gravitationalParameter: Float # km^3/s^2 — Standard GM value
+    gravitationalParameterUncertainty: Float # km^3/s^2 — ±1σ uncertainty in GM
+    mass: Float # 6.2526e13 example format
+    rockyCoreMass: Float # Mc/M — Core mass as a fraction of total mass
+
+    # ORBITAL DYNAMICS & ROTATION:
+    orbitalVelocity: Float # km/s — Mean orbital speed
+    siderealOrbitPeriodD: Float # d — Orbit period in days
+    siderealOrbitPeriodY: Float # y — Orbit period in years
+    obliquityToOrbit: Float # degrees — Axial tilt relative to orbital plane
+    siderealRotationRate: Float # rad/s — Angular rotation rate
+    siderealRotationPeriod: Float # h or d — Time to complete 1 full rotation
+    solarDayLength: Float # h or d — Length of a solar day on the planet
+
+    # ATMOSPHERIC & OPTICAL:
+    albedo: Float # Unitless — Fraction of light reflected
+    visualMagnitude: Float # mag — Brightness seen from Earth (1 AU)
+    visualMagnitudeOpposition: Float # mag — Brightness at opposition
+
+    # SPECIALIZED PARAMETERS:
+    rocheLimit: Float # Rp — Distance within which a satellite disintegrates
+
+    solarConstant: OrbitalRadiation # W/m^2 — Solar energy received
+    maxIR: OrbitalRadiation # W/m^2 — Max planetary infrared output
+    minIR: OrbitalRadiation # W/m^2 — Min planetary infrared output
+
+    description: String # a short inviting phrase about the planet. example: A deep blue and distant gas giant with turbulent weather.
+    expandedDescription: String # description: a playful description about the planet. around 50 words example: Neptune, the eighth planet from the Sun, is known for its striking blue color and dynamic atmosphere, which includes the fastest winds in the solar system. This gas giant, discovered in 1846, has a prominent role in understanding planetary formation and atmospheric dynamics due to its complex weather patterns and unique position in the outer solar system.
+    facts: [String] # array of 3-5 facts. example fact: "A day on Neptune is 16 hours, but a year lasts 165 Earth years. Barely one Neptune year has passed since the planet’s discovery in 1846."
+    visual: String # first sight of the planet. example: neptune: September 23, 1846, could be a range or for earth, its was already discovered.
+    orbitalInclination: Float # not in the api, have to fit the value from elsewhere
+    atmosphere: [Component] # all known gaseous components in a planet's atmosphere. example: oxygen gas, 32, O₂, 18.8%
+}
+
+type Component {
+    name: String
+    molar: Int # molar mass
+    formula: String # example He, Ar, CO₂, H₂O
+    percentage: Float # example: 57.7%
+}
+
+type OrbitalRadiation {
+    perihelion: Float # perihelion
+    aphelion: Float # aphelion
+    mean: Float # mean
 }
