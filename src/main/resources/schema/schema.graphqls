@@ -6,6 +6,8 @@ type Query {
     planets: [Planet]
 }
 
+
+
 # API 1: Picture of the Day
 type Picture {
     date: String # date to fetch
@@ -21,6 +23,7 @@ type Explanation {
     summarized: String # ai summarized explanation
     kids: String # ai explained/summarized explanation for kids mode
 }
+
 
 
 # API 2: Article of the Month
@@ -43,6 +46,8 @@ type Author {
     title: String # role/job of author
     image: String # image of author
 }
+
+
 
 # API 3: Natural Disaster Events
 type Event {
@@ -68,6 +73,8 @@ type Geometry {
     type: String
     coordinates: [Float]
 }
+
+
 
 # API 4: Planetary Information
 type Planet {

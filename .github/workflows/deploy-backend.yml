@@ -1,0 +1,37 @@
+name: Backend CI/CD
+
+on:
+  push:
+    branches: [ "main" ]  # trigger on updates to main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Add SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.ORACLE_SSH_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          echo "${{ secrets.ORACLE_KNOWN_HOSTS }}" > ~/.ssh/known_hosts
+
+      - name: Deploy over SSH
+        env:
+          ORACLE_HOST: ${{ secrets.ORACLE_HOST }}
+          ORACLE_USER: ${{ secrets.ORACLE_USER }}
+        run: |
+          ssh -o StrictHostKeyChecking=yes "$ORACLE_USER@$ORACLE_HOST" << 'EOF'
+            set -e
+            cd ~/livia
+            # reset to the latest main
+            git fetch origin main
+            git reset --hard origin/main
+
+            # rebuild and restart
+            docker compose down
+            DOCKER_BUILDKIT=1 docker compose up --build -d
+
+            # quick health check
+            docker compose ps
+          EOF
