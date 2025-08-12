@@ -23,18 +23,24 @@ ext {
 }
 
 dependencies {
+    def isMacOS = System.getProperty('os.name').startsWith('Mac OS X')
+    def architecture = System.getProperty('os.arch').toLowerCase()
+    if (isMacOS && architecture == 'aarch64') {
+        implementation('io.netty:netty-resolver-dns-native-macos:4.1.90.Final:osx-aarch_64')
+    }
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'com.netflix.graphql.dgs:graphql-dgs-spring-graphql-starter'
     implementation 'org.springframework.boot:spring-boot-starter-webflux'
     implementation 'com.google.code.gson:gson:2.13.1'
-    implementation("com.openai:openai-java:2.3.0")
+    implementation("com.openai:openai-java:3.0.2")
     implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
-    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
     implementation 'com.fasterxml.jackson.core:jackson-databind'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'com.netflix.graphql.dgs:graphql-dgs-spring-graphql-starter-test'
     testImplementation 'io.projectreactor:reactor-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+
 }
 
 dependencyManagement {
@@ -51,4 +57,8 @@ generateJava {
 
 tasks.named('test') {
     useJUnitPlatform()
+}
+
+bootRun {
+    jvmArgs '--enable-native-access=ALL-UNNAMED'
 }

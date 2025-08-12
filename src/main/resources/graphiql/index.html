@@ -69,9 +69,131 @@
         const plugins = [HISTORY_PLUGIN, explorerPlugin()];
         const xsrfToken = document.cookie.match(new RegExp('(?:^| )XSRF-TOKEN=([^;]+)'));
         const initialHeaders = xsrfToken ? `{ "X-XSRF-TOKEN" : "${ xsrfToken[1] }" }` : `{}`;
+        // Default GraphQL query shown on first load (can be overridden via ?query=)
+        const DEFAULT_QUERY = `# Welcome to Cosmofy GraphQL
+query MyQuery {
+  time
+  planets {
+    moons
+    name
+    obliquityToOrbit
+    orbitalInclination
+    orbitalVelocity
+    albedo
+    angularDiameter
+    atmosphere {
+      formula
+      molar
+      name
+      percentage
+    }
+    density
+    description
+    escapeVelocity
+    expandedDescription
+    facts
+    flattening
+    gravitationalParameter
+    gravitationalParameterUncertainty
+    gravityEquatorial
+    gravityPolar
+    id
+    lastUpdated
+    mass
+    maxIR {
+      aphelion
+      mean
+      perihelion
+    }
+    minIR {
+      aphelion
+      mean
+      perihelion
+    }
+    pressure
+    radiusEquatorial
+    momentOfInertia
+    radiusCore
+    radiusHillsSphere
+    radiusPolar
+    rocheLimit
+    rings
+    siderealOrbitPeriodD
+    rockyCoreMass
+    siderealOrbitPeriodY
+    siderealRotationRate
+    siderealRotationPeriod
+    solarConstant {
+      perihelion
+      mean
+      aphelion
+    }
+    solarDayLength
+    temperature
+    visual
+    visualMagnitude
+    visualMagnitudeOpposition
+    volume
+    volumetricMeanRadius
+  }
+  picture {
+    copyright
+    credit
+    date
+    explanation {
+      kids
+      original
+      summarized
+    }
+    media
+    media_type
+    title
+  }
+  events {
+    categories {
+      id
+      title
+    }
+    geometry {
+      coordinates
+      date
+      id
+      magnitudeUnit
+      magnitudeValue
+      type
+    }
+    id
+    sources {
+      id
+      url
+    }
+    title
+  }
+  articles {
+    authors {
+      image
+      name
+      title
+    }
+    banner {
+      designer
+      image
+    }
+    month
+    source
+    subtitle
+    title
+    url
+    year
+  }
+}
+`;
+        const initialQuery = params.get("query") || DEFAULT_QUERY;
+
 
         function App() {
             return React.createElement(GraphiQL, {
+                defaultQuery: initialQuery,
                 fetcher: gqlFetcher,
                 defaultEditorToolsVisibility: true,
                 headerEditorEnabled: true,

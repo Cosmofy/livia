@@ -1,6 +1,5 @@
 package xyz.arryan.livia.datafetchers;
 
-import org.springframework.cache.annotation.Cacheable;
 
 import com.google.gson.Gson;
 import com.netflix.graphql.dgs.DgsComponent;
@@ -18,10 +17,14 @@ import xyz.arryan.livia.codegen.types.OrbitalRadiation;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.time.Instant;
+import java.time.Duration;
 
 @DgsComponent
 public class PlanetsDataFetcher {
     private static final Logger logger = LoggerFactory.getLogger(PlanetsDataFetcher.class);
+    private static final String LOG_PREFIX = "API 4: PLANETS | ";
+    private static String lp(String msg) { return LOG_PREFIX + msg; }
     private final WebClient webClient;
 
     @Autowired
@@ -30,18 +33,21 @@ public class PlanetsDataFetcher {
     }
 
     @DgsQuery
-    @Cacheable(value = "planets", key = "'all'")
     public List<Planet> planets() {
-        logger.info("Fetching planets information from JPL");
+        // ===== A. Entry =====
+        logger.info(lp("entry: fetching planets from JPL Horizons"));
 
         // A. Build the OpenAI helper
         OpenAIClientAsync client = OpenAIOkHttpClientAsync.builder()
                 .apiKey(System.getenv("OPENAI_API_KEY"))
                 .build();
 
-        // B. Fetch fresh valid input from API
+        // ===== B. Fetch fresh valid input from API =====
         List<CompletableFuture<Planet>> futures = new ArrayList<>();
         for (int i = 199; i < 999; i += 100) {
+            // ===== B. Fetch text payload for this body ID =====
+            final Instant t0 = Instant.now();
+            logger.info(lp("fetch begin: id={}"), i);
             String api_source = "https://ssd.jpl.nasa.gov/api/horizons.api?format=text&COMMAND='" + i + "'&MAKE_EPHEM=NO";
             String response = webClient
                     .get()
@@ -49,6 +55,13 @@ public class PlanetsDataFetcher {
                     .retrieve()
                     .bodyToMono(String.class)
                     .block();
+            final long ms = Duration.between(t0, Instant.now()).toMillis();
+            logger.info(lp("fetch complete: id={} in {} ms"), i, ms);
+            if (response == null || response.isEmpty()) {
+                logger.error(lp("empty response for id={}"), i);
+            } else {
+                logger.debug(lp("response preview for id={}: {}"), i, response.substring(0, Math.min(300, response.length())).replaceAll("\\s+", " "));
+            }
 
             CompletableFuture<Planet> planetFuture = extractFields(client, response);
 
@@ -59,24 +72,29 @@ public class PlanetsDataFetcher {
                 .map(CompletableFuture::join)
                 .toList();
 
+        logger.info(lp("transform complete: mapped planets={}"), planets.size());
         return planets;
     }
 
     private static CompletableFuture<Planet> extractFields(OpenAIClientAsync client, String response) {
+        // ===== C. LLM extraction via OpenAI =====
+        logger.info(lp("openai begin: extract fields from Horizons text"));
+        final Instant llmStart = Instant.now();
         String instruction = """
                 Extract a single well-formatted JSON object that exactly matches the `Planet` schema below.
                 Only respond with **raw JSON** — no Markdown, no code formatting, no explanations.
                 
                 ### Formatting Rules:
-                - ALWAYS Use **scientific notation** in standard `e` notation format (e.g. `6.085e10`, `1.600e3`, `1.23e-4`)
+                  - DO NOT INCLUDE THE UNIT NO MATTER WHAT AS IT WILL BREAK THE API
+                  - ALWAYS Use **scientific notation** in standard `e` notation format (e.g. `6.085e10`, `1.600e3`, `1.23e-4`) FOR VALUES THAT REQUIRE SCIENTIFIC (NOT WHOLE NUMBERS FOR EXAMPLE)
                   - Do NOT use `×`, superscript numerals, or math formatting
                   - All numeric fields must be valid JSON numbers (not strings)
                 - **Convert ALL appropriate numeric values** to scientific notation except:
-                  - Fields of type `OrbitalRadiation` (those use plain floats)
-                  - Fields where precision demands decimal (e.g., `gravity`, `obliquity`, `flattening`)
+                    1) Fields of type `OrbitalRadiation` (those use plain floats)
+                    2) Fields where precision demands decimal (e.g., `gravity`, `obliquity`, `flattening`) and is not usually that big of an exponent
                 - If a field includes `<` or `~` in the API, DO NOT **retain** those characters.
                 - NEVER return math expressions like `3.39619e3 - (...)` — evaluate and return the numeric result only (e.g., `3.3762e3`)
-                - If a field is missing, return `null`.
+                - If a field is missing, return `null` UNLESS ITS VERY COMMONLY KNOWN SUCH AS NUMBER OF RINGS ON EARTH OR ANY OTHER PLANET
                 - For `atmosphere`: always attempt to return **at least 2–3 gases** with percentages if known.
                 - Use full compliance with the schema types below.
                 
@@ -88,6 +106,8 @@ public class PlanetsDataFetcher {
                   - `facts`: A list of 3–5 short, engaging facts about the planet.
                   - `orbitalInclination`: Use best estimate from NASA or other sources.
                   - `atmosphere`: Include AT LEAST 5–10 known gases with molar mass, formula WITH SUBSCRIPT (e.g., H₂O), and estimated percentage if available.
+                  - `moons`
+                  - `rings`
                 
                 Here is the full schema:
                 # API 4: Planetary Information
@@ -167,7 +187,7 @@ public class PlanetsDataFetcher {
         String prompt = instruction + "\nResponse: " + response;
         ResponseCreateParams createParams = ResponseCreateParams.builder()
                 .input(prompt)
-                .model(ChatModel.GPT_4_1_MINI)
+                .model(ChatModel.GPT_5_MINI)
                 .build();
         CompletableFuture<Planet> future = new CompletableFuture<>();
         client.responses()
@@ -182,11 +202,14 @@ public class PlanetsDataFetcher {
                             .forEach(outputText -> output.append(outputText.text()).append("\n"));
 
                     String rawJson = output.toString().trim();
-                    System.out.println("OpenAI JSON Response:\n" + rawJson);
+                    logger.debug(lp("openai raw json (truncated 400): {}"), rawJson.substring(0, Math.min(400, rawJson.length())));
                     Planet parsedPlanet = new Gson().fromJson(rawJson, Planet.class);
+                    final long llmMs = Duration.between(llmStart, Instant.now()).toMillis();
+                    logger.info(lp("openai complete: {} ms"), llmMs);
                     future.complete(parsedPlanet);
                 })
                 .exceptionally(ex -> {
+                    logger.error(lp("openai failed: {}"), ex.toString(), ex);
                     future.completeExceptionally(ex);
                     return null;
                 });

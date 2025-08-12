@@ -1,6 +1,6 @@
 # 🌌 Cosmofy Backend – Livia
 
-A scalable, AI-augmented GraphQL backend powering the **Cosmofy** astronomy platform across iOS, iPadOS, watchOS, tvOS, and web.
+A scalable, AI-augmented GraphQL backend powering the **Cosmofy** astronomy platform across iOS/iPadOS, watchOS, tvOS, macOS, visionOS, and web.
 
 ---
 
@@ -14,7 +14,9 @@ The backend integrates with:
 - **JPL Horizons**
 - **OpenAI**
 - **MongoDB**
-- **Redis (or Valkey)**
+- **Redis/Valkey**
+- **Cloudflare CDN**
+
 
 Backend is deployed to Oracle Cloud and is open-source under the [Cosmofy GitHub organization](https://github.com/Cosmofy).
 
@@ -22,17 +24,17 @@ Backend is deployed to Oracle Cloud and is open-source under the [Cosmofy GitHub
 
 ## ⚙️ Tech Stack
 
-| Component         | Tech/Tool                                   |
-|------------------|---------------------------------------------|
-| **Language**      | Java 21                                     |
-| **Framework**     | Spring Boot + Netflix DGS (GraphQL)         |
-| **Containerization** | Docker                                  |
-| **CI/CD**         | GitHub Actions                              |
-| **Caching**       | Redis (Valkey compatible)                   |
-| **DB**            | MongoDB                                     |
-| **AI/NLP**        | OpenAI (GPT-4) for summary + parsing        |
-| **Hosting**       | Oracle Cloud ARM (Always Free)              |
-| **Edge/CDN**      | Cloudflare                                  |
+| Component         | Tech/Tool                            |
+|------------------|--------------------------------------|
+| **Language**      | Java 24                              |
+| **Framework**     | Spring Boot + Netflix DGS (GraphQL)  |
+| **Containerization** | Docker                               |
+| **CI/CD**         | GitHub Actions                       |
+| **Caching**       | Redis (Valkey compatible)            |
+| **DB**            | MongoDB                              |
+| **AI/NLP**        | OpenAI (GPT-5) for summary + parsing |
+| **Hosting**       | Oracle Cloud ARM (Always Free)       |
+| **Edge/CDN**      | Cloudflare                           |
 
 ---
 
@@ -49,11 +51,11 @@ Backend is deployed to Oracle Cloud and is open-source under the [Cosmofy GitHub
 
 ## 📦 Modules & TTLs
 
-| Module        | Description                          | TTL        |
-|---------------|--------------------------------------|------------|
-| `planets`     | Planetary data from JPL + OpenAI     | 30 days    |
-| `picture`     | APOD + AI summaries                  | 24 hours   |
-| `events`      | Natural disasters from EONET         | 1 hour     |
+| Module        | Description                          | TTL          |
+|---------------|--------------------------------------|--------------|
+| `planets`     | Planetary data from JPL + OpenAI     | 30 days      |
+| `picture`     | APOD + AI summaries                  | 24 hours     |
+| `events`      | Natural disasters from EONET         | 4 hours      |
 | `articles`    | Monthly curated articles             | MongoDB only |
 
 ---
@@ -64,12 +66,121 @@ Use the hosted GraphiQL instance:
 
 👉 [https://api.arryan.xyz/graphiql](https://api.arryan.xyz/graphiql)
 
-Example query:
-```graphql
-{
+Full Schema Example Query:
+```
+query FullSchema {
+  time
   planets {
+    moons
     name
+    obliquityToOrbit
+    orbitalInclination
+    orbitalVelocity
+    albedo
+    angularDiameter
+    atmosphere {
+      formula
+      molar
+      name
+      percentage
+    }
+    density
+    description
+    escapeVelocity
+    expandedDescription
+    facts
+    flattening
+    gravitationalParameter
+    gravitationalParameterUncertainty
+    gravityEquatorial
+    gravityPolar
+    id
+    lastUpdated
+    mass
+    maxIR {
+      aphelion
+      mean
+      perihelion
+    }
+    minIR {
+      aphelion
+      mean
+      perihelion
+    }
+    pressure
+    radiusEquatorial
+    momentOfInertia
+    radiusCore
+    radiusHillsSphere
+    radiusPolar
+    rocheLimit
+    rings
+    siderealOrbitPeriodD
+    rockyCoreMass
+    siderealOrbitPeriodY
+    siderealRotationRate
+    siderealRotationPeriod
+    solarConstant {
+      perihelion
+      mean
+      aphelion
+    }
+    solarDayLength
     temperature
-    gravityEquatorial\\
+    visual
+    visualMagnitude
+    visualMagnitudeOpposition
+    volume
+    volumetricMeanRadius
+  }
+  picture {
+    copyright
+    credit
+    date
+    explanation {
+      kids
+      original
+      summarized
+    }
+    media
+    media_type
+    title
+  }
+  events {
+    categories {
+      id
+      title
+    }
+    geometry {
+      coordinates
+      date
+      id
+      magnitudeUnit
+      magnitudeValue
+      type
+    }
+    id
+    sources {
+      id
+      url
+    }
+    title
+  }
+  articles {
+    authors {
+      image
+      name
+      title
+    }
+    banner {
+      designer
+      image
+    }
+    month
+    source
+    subtitle
+    title
+    url
+    year
   }
 }

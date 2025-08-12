@@ -11,9 +11,10 @@ COPY . .
 
 # Make Gradle wrapper executable
 RUN chmod +x ./gradlew
+RUN echo "Docker build reached: Gradle wrapper is executable"
 
 # Expose port (adjust if needed)
 EXPOSE 8080
 
-# Run the app like Python (via Gradle)
+# Run the app (via Gradle)
 CMD ["./gradlew", "bootRun"]

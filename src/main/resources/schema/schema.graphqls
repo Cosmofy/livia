@@ -1,12 +1,10 @@
 type Query {
-    time: Int
+    time: Float
     articles: [Article]
     picture(date: String): Picture
-    events(days: Int): [Event]
+    events(daysInput: Int): [Event]
     planets: [Planet]
 }
-
-
 
 # API 1: Picture of the Day
 type Picture {
