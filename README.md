@@ -1,10 +1,12 @@
-# 🌌 Cosmofy Backend – Livia
-
-A scalable, AI-augmented GraphQL backend powering the **Cosmofy** astronomy platform across iOS/iPadOS, watchOS, tvOS, macOS, visionOS, and web.
+# Livia
 
 ---
 
-## 🔭 Overview
+A scalable, AI-augmented GraphQL backend powering the **Cosmofy** astronomy platform across iOS/iPadOS, watchOS, tvOS, macOS, visionOS, and web.
+
+
+
+## Overview
 
 Cosmofy began as a static mobile astronomy app, but rapidly outgrew its architecture. This project ("Livia") introduces a centralized, cache-aware, schema-first GraphQL backend to unify data access, minimize API overfetching, and scale across device platforms.
 
@@ -20,9 +22,9 @@ The backend integrates with:
 
 Backend is deployed to Oracle Cloud and is open-source under the [Cosmofy GitHub organization](https://github.com/Cosmofy).
 
----
 
-## ⚙️ Tech Stack
+
+## Tech Stack
 
 | Component         | Tech/Tool                            |
 |------------------|--------------------------------------|
@@ -36,20 +38,19 @@ Backend is deployed to Oracle Cloud and is open-source under the [Cosmofy GitHub
 | **Hosting**       | Oracle Cloud ARM (Always Free)       |
 | **Edge/CDN**      | Cloudflare                           |
 
----
 
-## 🚀 Features
+## Features
 
-- ✅ Schema-first GraphQL API (`.graphqls`)
-- ✅ Dynamic per-device data filtering
-- ✅ Redis/Valkey TTL-based caching
-- ✅ GPT-powered content generation and parsing
-- ✅ Cron jobs for APOD preloading
-- ✅ Open-source, modular, and containerized
+- Schema-first GraphQL API (`.graphqls`)
+- Dynamic per-device data filtering
+- Redis/Valkey TTL-based caching
+- GPT-powered content generation and parsing
+- Cron jobs for APOD preloading
+- Open-source, modular, and containerized
 
----
 
-## 📦 Modules & TTLs
+
+## Modules & TTLs
 
 | Module        | Description                          | TTL          |
 |---------------|--------------------------------------|--------------|
@@ -58,13 +59,13 @@ Backend is deployed to Oracle Cloud and is open-source under the [Cosmofy GitHub
 | `events`      | Natural disasters from EONET         | 4 hours      |
 | `articles`    | Monthly curated articles             | MongoDB only |
 
----
 
-## 🧪 Testing the API
+
+## Testing the API
 
 Use the hosted GraphiQL instance:
 
-👉 [https://api.arryan.xyz/graphiql](https://api.arryan.xyz/graphiql)
+[https://livia.arryan.xyz/graphiql](https://livia.arryan.xyz/graphiql)
 
 Full Schema Example Query:
 ```
