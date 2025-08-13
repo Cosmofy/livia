@@ -1,10 +1,9 @@
 # Livia
 
----
 
 A scalable, AI-augmented GraphQL backend powering the **Cosmofy** astronomy platform across iOS/iPadOS, watchOS, tvOS, macOS, visionOS, and web.
 
-
+API Endpoint: https://livia.arryan.xyz/graphql
 
 ## Overview
 
