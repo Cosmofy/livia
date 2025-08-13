@@ -81,107 +81,214 @@ public class PlanetsDataFetcher {
         logger.info(lp("openai begin: extract fields from Horizons text"));
         final Instant llmStart = Instant.now();
         String instruction = """
-                Extract a single well-formatted JSON object that exactly matches the `Planet` schema below.
-                Only respond with **raw JSON** — no Markdown, no code formatting, no explanations.
+                Your task is to extract a single well-formatted JSON object from some input text. Your response must exactly matches the `Planet` schema below. Only respond with "raw JSON", no Markdown, no code formatting, and no explanations.
                 
-                ### Formatting Rules:
-                  - DO NOT INCLUDE THE UNIT NO MATTER WHAT AS IT WILL BREAK THE API
-                  - ALWAYS Use **scientific notation** in standard `e` notation format (e.g. `6.085e10`, `1.600e3`, `1.23e-4`) FOR VALUES THAT REQUIRE SCIENTIFIC (NOT WHOLE NUMBERS FOR EXAMPLE)
-                  - Do NOT use `×`, superscript numerals, or math formatting
-                  - All numeric fields must be valid JSON numbers (not strings)
-                - **Convert ALL appropriate numeric values** to scientific notation except:
-                    1) Fields of type `OrbitalRadiation` (those use plain floats)
-                    2) Fields where precision demands decimal (e.g., `gravity`, `obliquity`, `flattening`) and is not usually that big of an exponent
-                - If a field includes `<` or `~` in the API, DO NOT **retain** those characters.
-                - NEVER return math expressions like `3.39619e3 - (...)` — evaluate and return the numeric result only (e.g., `3.3762e3`)
-                - If a field is missing, return `null` UNLESS ITS VERY COMMONLY KNOWN SUCH AS NUMBER OF RINGS ON EARTH OR ANY OTHER PLANET
-                - For `atmosphere`: always attempt to return **at least 2–3 gases** with percentages if known.
-                - Use full compliance with the schema types below.
+                 Challenge:\s
+                 The schema contains much more information to return than the input text. Use best estimate from NASA or other sources (e.g., https://nssdc.gsfc.nasa.gov/planetary/factsheet/). You must fill these values creatively or from your own knowledge:
+                 1. visual: A date or phrase describing first known observation of the planet.
+                 2. description: A singular short inviting phrase about the planet.
+                 3. expandedDescription: A 40-60 words whimsical or scientific summary.
+                 4. facts: A list of 4–6 short, engaging true facts about the planet.
+                 5. atmosphere: Include 5–10 known gases on the planet with molar mass, formula with superscript (e.g., H₂O), and estimated percentage,\s
+                 5. moons: on the planet
+                 6. rings: on the planet
                 
-                ### NOT IN API (MUST be filled in):
-                - The following fields are not in the JPL API but **must be filled in creatively**:
-                  - `visual`: A date or phrase describing first known observation of the planet.
-                  - `description`: A short inviting phrase about the planet (1 sentence).
-                  - `expandedDescription`: A 50-word whimsical or scientific summary.
-                  - `facts`: A list of 3–5 short, engaging facts about the planet.
-                  - `orbitalInclination`: Use best estimate from NASA or other sources.
-                  - `atmosphere`: Include AT LEAST 5–10 known gases with molar mass, formula WITH SUBSCRIPT (e.g., H₂O), and estimated percentage if available.
-                  - `moons`
-                  - `rings`
+                 General Guidelines:
+                 - Fill all fields unless its absolutely unknown then return null.
+                 - Do not include the unit in any field
+                 - All numeric fields must be valid JSON numbers (not strings)
+                 - Use only scientific notation in standard e notation format (e.g. "6.085e10", "1.23e-4") for values that are not whole numbers or precision demands decimal (e.g., `gravity`, `obliquity`, `flattening`) and is not usually that big or small of an exponent. Do not use `×`, superscript numerals, or math formatting.
+                 - If a field includes `<` or `~` in the API, DO NOT retain those characters.
+                 - Compute the value of all math expressions if any, and return the numeric result only
+                 - Every value above 1,000,000 must use scientific notation
                 
-                Here is the full schema:
-                # API 4: Planetary Information
-                type Planet {
+                 Schema to match:
+                 type Planet {
                 
-                    # PHYSICAL PROPERTIES:
-                    name: String! # Planet name (e.g., "Venus", "Uranus")
-                    id: Int # Planet ID (JPL Horizons body ID)
-                    lastUpdated: String # Date this data was last revised
-                    density: Float # g/cm^3 — Average planetary density
-                    temperature: Int # K — Atmospheric temperature at 1 bar (if applicable)
-                    pressure: Float # bar — Surface atmospheric pressure
-                    radiusEquatorial: Float # km — Radius at equator (1 bar level if gaseous)
-                    radiusPolar: Float # km — Radius at poles
-                    radiusCore: Float # km — Estimated radius of the rocky core (if known)
-                    radiusHillsSphere: Float # Rp — Radius of Hill sphere, in planetary radii
-                    angularDiameter: Float # arcseconds — Max angular diameter seen from Earth
-                    momentOfInertia: Float # Unitless — Ratio of rotational inertia to mass-radius^2
-                    volumetricMeanRadius: Float # km — Volume-averaged mean radius
-                    volume: Float # 6.2526 × 10¹³ example format
-                    moons: Int
-                    rings: Int
+                     # PHYSICAL PROPERTIES:
+                     name: String! # Planet name (e.g., "Venus", "Uranus")
+                     id: Int # Planet ID (JPL Horizons body ID)
+                     lastUpdated: String # Date this data was last revised
+                     density: Float # g/cm^3 — Average planetary density
+                     temperature: Int # K — Atmospheric temperature at 1 bar (if applicable)
+                     pressure: Float # bar — Surface atmospheric pressure
+                     radiusEquatorial: Float # km — Radius at equator (1 bar level if gaseous)
+                     radiusPolar: Float # km — Radius at poles
+                     radiusCore: Float # km — Estimated radius of the rocky core (if known)
+                     radiusHillsSphere: Float # Rp — Radius of Hill sphere, in planetary radii
+                     angularDiameter: Float # arcseconds — Max angular diameter seen from Earth
+                     momentOfInertia: Float # Unitless — Ratio of rotational inertia to mass-radius^2
+                     volumetricMeanRadius: Float # km — Volume-averaged mean radius
+                     volume: Float # 6.2526e13 example format
+                     moons: Int
+                     rings: Int
                 
-                    # GRAVITATIONAL PROPERTIES:
-                    gravityEquatorial: Float # m/s^2 — Gravity at equator
-                    gravityPolar: Float # m/s^2 — Gravity at poles
-                    escapeVelocity: Float # km/s — Speed required to escape gravitational pull
-                    flattening: Float # Unitless — Equatorial bulge (1 − polar/equatorial radius)
-                    gravitationalParameter: Float # km^3/s^2 — Standard GM value
-                    gravitationalParameterUncertainty: Float # km^3/s^2 — ±1σ uncertainty in GM
-                    mass: String # 6.2526 × 10¹³ example format
-                    rockyCoreMass: Float # Mc/M — Core mass as a fraction of total mass
+                     # GRAVITATIONAL PROPERTIES:
+                     gravityEquatorial: Float # m/s^2 — Gravity at equator
+                     gravityPolar: Float # m/s^2 — Gravity at poles
+                     escapeVelocity: Float # km/s — Speed required to escape gravitational pull
+                     flattening: Float # Unitless — Equatorial bulge (1 − polar/equatorial radius)
+                     gravitationalParameter: Float # km^3/s^2 — Standard GM value
+                     gravitationalParameterUncertainty: Float # km^3/s^2 — ±1σ uncertainty in GM
+                     mass: Float # 6.2526e13 example format
+                     rockyCoreMass: Float # Mc/M — Core mass as a fraction of total mass
                 
-                    # ORBITAL DYNAMICS & ROTATION:
-                    orbitalVelocity: Float # km/s — Mean orbital speed
-                    siderealOrbitPeriodD: Float # d — Orbit period in days
-                    siderealOrbitPeriodY: Float # y — Orbit period in years
-                    obliquityToOrbit: Float # degrees — Axial tilt relative to orbital plane
-                    siderealRotationRate: Float # rad/s — Angular rotation rate
-                    siderealRotationPeriod: Float # h or d — Time to complete 1 full rotation
-                    solarDayLength: Float # h or d — Length of a solar day on the planet
+                     # ORBITAL DYNAMICS & ROTATION:
+                     orbitalVelocity: Float # km/s — Mean orbital speed
+                     siderealOrbitPeriodD: Float # d — Orbit period in days
+                     siderealOrbitPeriodY: Float # y — Orbit period in years
+                     obliquityToOrbit: Float # degrees — Axial tilt relative to orbital plane
+                     siderealRotationRate: Float # rad/s — Angular rotation rate
+                     siderealRotationPeriod: Float # h or d — Time to complete 1 full rotation
+                     solarDayLength: Float # h or d — Length of a solar day on the planet
                 
-                    # ATMOSPHERIC & OPTICAL:
-                    albedo: Float # Unitless — Fraction of light reflected
-                    visualMagnitude: Float # mag — Brightness seen from Earth (1 AU)
-                    visualMagnitudeOpposition: Float # mag — Brightness at opposition
+                     # ATMOSPHERIC & OPTICAL:
+                     albedo: Float # Unitless — Fraction of light reflected
+                     visualMagnitude: Float # mag — Brightness seen from Earth (1 AU)
+                     visualMagnitudeOpposition: Float # mag — Brightness at opposition
                 
-                    # SPECIALIZED PARAMETERS:
-                    rocheLimit: Float # Rp — Distance within which a satellite disintegrates
+                     # SPECIALIZED PARAMETERS:
+                     rocheLimit: Float # Rp — Distance within which a satellite disintegrates
                 
-                    solarConstant: OrbitalRadiation # W/m^2 — Solar energy received
-                    maxIR: OrbitalRadiation # W/m^2 — Max planetary infrared output
-                    minIR: OrbitalRadiation # W/m^2 — Min planetary infrared output
+                     solarConstant: OrbitalRadiation # W/m^2 — Solar energy received
+                     maxIR: OrbitalRadiation # W/m^2 — Max planetary infrared output
+                     minIR: OrbitalRadiation # W/m^2 — Min planetary infrared output
                 
-                    description: String # a short inviting phrase about the planet. example: A deep blue and distant gas giant with turbulent weather.
-                    expandedDescription: String # description: a playful description about the planet. around 50 words example: Neptune, the eighth planet from the Sun, is known for its striking blue color and dynamic atmosphere, which includes the fastest winds in the solar system. This gas giant, discovered in 1846, has a prominent role in understanding planetary formation and atmospheric dynamics due to its complex weather patterns and unique position in the outer solar system.
-                    facts: [String] # array of 3-5 facts. example fact: "A day on Neptune is 16 hours, but a year lasts 165 Earth years. Barely one Neptune year has passed since the planet’s discovery in 1846."
-                    visual: String # first sight of the planet. example: neptune: September 23, 1846, could be a range or for earth, its was already discovered.
-                    orbitalInclination: Float # not in the api, have to fit the value from elsewhere
-                    atmosphere: [Component] # all known gaseous components in a planet's atmosphere. example: oxygen gas, 32, O₂, 18.8%
-                }
+                     description: String # a short inviting phrase about the planet. example: A deep blue and distant gas giant with turbulent weather.
+                     expandedDescription: String # description: a playful description about the planet. around 50 words example: Neptune, the eighth planet from the Sun, is known for its striking blue color and dynamic atmosphere, which includes the fastest winds in the solar system. This gas giant, discovered in 1846, has a prominent role in understanding planetary formation and atmospheric dynamics due to its complex weather patterns and unique position in the outer solar system.
+                     facts: [String] # array of 3-5 facts. example fact: "A day on Neptune is 16 hours, but a year lasts 165 Earth years. Barely one Neptune year has passed since the planet’s discovery in 1846."
+                     visual: String # first sight of the planet. example: neptune: September 23, 1846, could be a range or for earth, its was already discovered.
+                     orbitalInclination: Float # not in the api, have to fit the value from elsewhere
+                     atmosphere: [Component] # all known gaseous components in a planet's atmosphere. example: oxygen gas, 32, O₂, 18.8%
+                 }
                 
-                type Component {
-                    name: String
-                    molar: Int # molar mass
-                    formula: String # example He, Ar, CO₂, H₂O
-                    percentage: Float # example: 57.7%
-                }
+                 type Component {
+                     name: String
+                     molar: Int # molar mass
+                     formula: String # example He, Ar, CO₂, H₂O
+                     percentage: Float # example: 57.7%
+                 }
                 
-                type OrbitalRadiation {
-                    perihelion: Float # perihelion
-                    aphelion: Float # aphelion
-                    mean: Float # mean
-                }
+                 type OrbitalRadiation {
+                     perihelion: Float # perihelion
+                     aphelion: Float # aphelion
+                     mean: Float # mean
+                 }
+                
+                 Example Response:
+                       {
+                         "moons": 14,
+                         "name": "Neptune",
+                         "obliquityToOrbit": 28.32,
+                         "orbitalInclination": 1.76917,
+                         "orbitalVelocity": 5.43,
+                         "albedo": 0.41,
+                         "angularDiameter": 2.3,
+                         "atmosphere": [
+                           {
+                             "formula": "H₂",
+                             "molar": 2,
+                             "name": "Molecular hydrogen",
+                             "percentage": 80
+                           },
+                           {
+                             "formula": "He",
+                             "molar": 4,
+                             "name": "Helium",
+                             "percentage": 19
+                           },
+                           {
+                             "formula": "CH₄",
+                             "molar": 16,
+                             "name": "Methane",
+                             "percentage": 1.5
+                           },
+                           {
+                             "formula": "NH₃",
+                             "molar": 17,
+                             "name": "Ammonia (trace)",
+                             "percentage": 0.2
+                           },
+                           {
+                             "formula": "H₂O",
+                             "molar": 18,
+                             "name": "Water vapor (trace)",
+                             "percentage": 0.15
+                           },
+                           {
+                             "formula": "C₂H₆",
+                             "molar": 30,
+                             "name": "Ethane (trace)",
+                             "percentage": 0.05
+                           },
+                           {
+                             "formula": "C₂H₂",
+                             "molar": 26,
+                             "name": "Acetylene (trace)",
+                             "percentage": 0.03
+                           },
+                           {
+                             "formula": "N₂",
+                             "molar": 28,
+                             "name": "Molecular nitrogen (trace)",
+                             "percentage": 0.02
+                           }
+                         ],
+                         "density": 1.638,
+                         "description": "A distant, deep-blue ice giant with dynamic weather and icy interiors.",
+                         "escapeVelocity": 23.5,
+                         "expandedDescription": "Neptune, the eighth planet from the Sun, is a cold blue ice giant marked by strong winds, methane-rich clouds, and a mysterious interior. Discovered as a planet in 1846, it challenges our understanding of planetary dynamics and hosts a compact system of rings and diverse moons in a remote icy realm.",
+                         "facts": [
+                           "Neptune completes one orbit in about 164.8 Earth years.",
+                           "A day on Neptune lasts about 16.11 hours.",
+                           "Neptune's strong methane absorption gives it a striking blue color.",
+                           "Neptune has 14 known moons and a faint system of rings."
+                         ],
+                         "flattening": 0.0171,
+                         "gravitationalParameter": 6835099.97,
+                         "gravitationalParameterUncertainty": 10,
+                         "gravityEquatorial": 11.15,
+                         "gravityPolar": 11.41,
+                         "id": 899,
+                         "lastUpdated": "2021-05-03",
+                         "mass": 1.02409e+26,
+                         "maxIR": {
+                           "aphelion": 0.52,
+                           "mean": 0.52,
+                           "perihelion": 0.52
+                         },
+                         "minIR": {
+                           "aphelion": 0.52,
+                           "mean": 0.52,
+                           "perihelion": 0.52
+                         },
+                         "pressure": 1,
+                         "radiusEquatorial": 24766,
+                         "momentOfInertia": null,
+                         "radiusCore": null,
+                         "radiusHillsSphere": 4700,
+                         "radiusPolar": 24342,
+                         "rocheLimit": 2.98,
+                         "rings": 5,
+                         "siderealOrbitPeriodD": 60189,
+                         "rockyCoreMass": null,
+                         "siderealOrbitPeriodY": 164.788501027,
+                         "siderealRotationRate": 0.000108338,
+                         "siderealRotationPeriod": 16.11,
+                         "solarConstant": {
+                           "perihelion": 1.54,
+                           "mean": 1.51,
+                           "aphelion": 1.49
+                         },
+                         "solarDayLength": 16.11,
+                         "temperature": 72,
+                         "visual": "First telescopic sighting: 1612 (Galileo); recognized as a planet: September 23, 1846",
+                         "visualMagnitude": -6.87,
+                         "visualMagnitudeOpposition": 7.84,
+                         "volume": 6.254e13,
+                         "volumetricMeanRadius": 24624
+                       }
+                
                 """;
 
         String prompt = instruction + "\nResponse: " + response;
