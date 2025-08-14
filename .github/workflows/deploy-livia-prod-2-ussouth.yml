@@ -1,4 +1,4 @@
-name: deploy-livia-prod-2-useast
+name: deploy-livia-prod-2-ussouth
 on:
   workflow_run:
     workflows: [ build ]
@@ -8,7 +8,7 @@ on:
 jobs:
   deploy:
     if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch' }}
-    environment: livia-prod-2-useast
+    environment: livia-prod-2-ussouth
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
