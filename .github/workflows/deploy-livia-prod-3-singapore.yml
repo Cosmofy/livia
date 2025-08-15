@@ -1,18 +1,25 @@
 name: deploy-livia-prod-3-singapore
+
 on:
-  workflow_run:
+  workflow_dispatch:      # allow manual run
+  workflow_run:           # also run after build
     workflows: [ build ]
     types: [ completed ]
-  workflow_dispatch:
 
 jobs:
   deploy:
-    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch' }}
-    environment: livia-prod-3-singapore
+    if: |
+      github.event_name == 'push' ||
+      github.event_name == 'workflow_dispatch' ||
+      github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
+    environment: livia-prod-3-singapore
+
     steps:
       - uses: actions/checkout@v4
-      - uses: burnett01/rsync-deployments@7.0.2
+
+      - name: Sync repo to server (~/livia)
+        uses: burnett01/rsync-deployments@7.0.2
         with:
           switches: -avzr --delete
           path: .
@@ -20,18 +27,29 @@ jobs:
           remote_host: ${{ secrets.SSH_HOST }}
           remote_user: ${{ secrets.SSH_USER }}
           remote_key: ${{ secrets.SSH_KEY }}
-      - uses: appleboy/ssh-action@v1.0.3
+
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
           script: |
+            set -euo pipefail
             docker login ghcr.io -u ${{ secrets.GHCR_USER }} -p ${{ secrets.GHCR_TOKEN }}
             cd ${{ secrets.APP_DIR }}
-            docker pull ghcr.io/${{ secrets.GHCR_ORG }}/${{ secrets.IMAGE_NAME }}:latest || true
-            if [ -f infra/compose/app.compose.yml ]; then
-              cd infra/compose
-              docker compose -f app.compose.yml pull || true
-              docker compose -f app.compose.yml up -d --remove-orphans
+
+            FILE=""
+            for c in docker-compose.yml compose.yml app.compose.yml infra/compose/app.compose.yml; do
+              if [ -f "$c" ]; then FILE="$c"; break; fi
+            done
+            if [ -z "$FILE" ]; then
+              echo "No compose file found."
+              exit 1
             fi
+
+            docker pull ghcr.io/${{ secrets.GHCR_ORG }}/${{ secrets.IMAGE_NAME }}:latest || true
+            docker compose -f "$FILE" pull || true
+            docker compose -f "$FILE" up -d --remove-orphans
             docker image prune -f
+            docker compose -f "$FILE" ps

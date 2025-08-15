@@ -1,8 +1,6 @@
 name: deploy-livia-prod-2-ussouth
 
 on:
-  push:
-    branches: [ main ]   # run on push
   workflow_dispatch:      # allow manual run
   workflow_run:           # also run after build
     workflows: [ build ]
