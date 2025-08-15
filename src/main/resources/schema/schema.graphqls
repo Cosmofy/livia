@@ -1,4 +1,5 @@
 type Query {
+    server: String
     time: Float
     articles: [Article]
     picture(date: String): Picture

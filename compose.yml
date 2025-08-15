@@ -9,8 +9,16 @@ services:
     env_file:
       - .env
     environment:
+      SPRING_DATA_REDIS_HOST: redis
+      SPRING_DATA_REDIS_PORT: 6379
       SPRING_DATA_MONGODB_HOST: mongo
       SPRING_DATA_MONGODB_PORT: 27017
+
+  redis:
+    image: redis:7
+    container_name: redis
+    ports:
+      - 6379:6379
 
   mongo:
     image: mongo:7

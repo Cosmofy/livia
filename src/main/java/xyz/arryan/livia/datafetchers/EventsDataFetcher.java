@@ -19,7 +19,7 @@ import xyz.arryan.livia.codegen.types.Event;
 import xyz.arryan.livia.codegen.types.Source;
 import xyz.arryan.livia.codegen.types.Geometry;
 import org.springframework.web.reactive.function.client.ExchangeStrategies;
-
+import org.springframework.cache.annotation.Cacheable;
 
 import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
@@ -58,6 +58,7 @@ public class EventsDataFetcher {
     }
 
     @DgsQuery
+    @Cacheable(value = "events", key = "'current'")
     public List<Event> events(@InputArgument Optional<Integer> daysInput) {
         // ===== A. Input logging & defaults =====
         // INFO: entry + input echo

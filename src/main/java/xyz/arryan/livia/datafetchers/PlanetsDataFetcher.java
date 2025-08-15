@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.reactive.function.client.WebClient;
 import xyz.arryan.livia.codegen.types.Planet;
 import xyz.arryan.livia.codegen.types.OrbitalRadiation;
+import org.springframework.cache.annotation.Cacheable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -33,6 +34,7 @@ public class PlanetsDataFetcher {
     }
 
     @DgsQuery
+    @Cacheable(value = "planets", key = "'all'")
     public List<Planet> planets() {
         // ===== A. Entry =====
         logger.info(lp("entry: fetching planets from JPL Horizons"));
