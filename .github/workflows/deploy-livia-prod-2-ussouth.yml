@@ -1,15 +1,22 @@
 name: deploy-livia-prod-2-ussouth
+
 on:
-  workflow_run:
+  push:
+    branches: [ main ]   # run on push
+  workflow_dispatch:      # allow manual run
+  workflow_run:           # also run after build
     workflows: [ build ]
     types: [ completed ]
-  workflow_dispatch:
 
 jobs:
   deploy:
-    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch' }}
-    environment: livia-prod-2-ussouth
+    if: |
+      github.event_name == 'push' ||
+      github.event_name == 'workflow_dispatch' ||
+      github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
+    environment: livia-prod-2-ussouth
+
     steps:
       - uses: actions/checkout@v4
 
@@ -30,14 +37,21 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
           script: |
+            set -euo pipefail
             docker login ghcr.io -u ${{ secrets.GHCR_USER }} -p ${{ secrets.GHCR_TOKEN }}
             cd ${{ secrets.APP_DIR }}
-            # pull latest image for arm64
-            docker pull ghcr.io/${{ secrets.GHCR_ORG }}/${{ secrets.IMAGE_NAME }}:latest || true
-            # bring up your compose stack (adjust filenames as you add them)
-            if [ -f infra/compose/app.compose.yml ]; then
-              cd infra/compose
-              docker compose -f app.compose.yml pull || true
-              docker compose -f app.compose.yml up -d --remove-orphans
+
+            FILE=""
+            for c in docker-compose.yml compose.yml app.compose.yml infra/compose/app.compose.yml; do
+              if [ -f "$c" ]; then FILE="$c"; break; fi
+            done
+            if [ -z "$FILE" ]; then
+              echo "No compose file found."
+              exit 1
             fi
+
+            docker pull ghcr.io/${{ secrets.GHCR_ORG }}/${{ secrets.IMAGE_NAME }}:latest || true
+            docker compose -f "$FILE" pull || true
+            docker compose -f "$FILE" up -d --remove-orphans
             docker image prune -f
+            docker compose -f "$FILE" ps
