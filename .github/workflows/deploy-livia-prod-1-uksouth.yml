@@ -36,22 +36,12 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           script: |
             set -euo pipefail
-            
+  
             docker login ghcr.io -u "${{ secrets.GHCR_USER }}" -p "${{ secrets.GHCR_TOKEN }}"
-            cd "${{ secrets.APP_DIR }}"
-            
-            # Find compose file
-            FILE=""
-            for c in docker-compose.yml compose.yml app.compose.yml infra/compose/app.compose.yml; do
-            if [ -f "$c" ]; then FILE="$c"; break; fi
-            done
-            if [ -z "$FILE" ]; then
-            echo "No compose file found."
-            exit 1
-            fi
+            cd ~/livia
             
             echo "=== Stopping & removing containers ==="
-            docker compose -f "$FILE" down --remove-orphans || true
+            docker compose -f compose.yml down --remove-orphans || true
             
             echo "=== Removing all app images ==="
             docker images "ghcr.io/${{ secrets.GHCR_ORG }}/${{ secrets.IMAGE_NAME }}" --format "{{.Repository}}:{{.Tag}}" | while read img; do
@@ -65,8 +55,7 @@ jobs:
             docker pull "ghcr.io/${{ secrets.GHCR_ORG }}/${{ secrets.IMAGE_NAME }}:latest"
             
             echo "=== Starting clean containers ==="
-            docker compose -f "$FILE" up -d
+            docker compose -f compose.yml up -d
             
             echo "=== Deployment complete ==="
-            docker compose -f "$FILE" ps
-
+            docker compose -f compose.yml ps
