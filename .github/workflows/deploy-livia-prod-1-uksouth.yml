@@ -48,7 +48,8 @@ jobs:
               exit 1
             fi
 
-            docker pull --no-cache ghcr.io/${{ secrets.GHCR_ORG }}/${{ secrets.IMAGE_NAME }}:latest
+            docker rmi ghcr.io/${{ secrets.GHCR_ORG }}/${{ secrets.IMAGE_NAME }}:latest || true
+            docker pull ghcr.io/${{ secrets.GHCR_ORG }}/${{ secrets.IMAGE_NAME }}:latest
             docker compose -f "$FILE" pull || true
             docker compose -f "$FILE" up -d --remove-orphans
             docker image prune -f
