@@ -21,7 +21,7 @@ jobs:
       - name: Sync repo to server (~/livia)
         uses: burnett01/rsync-deployments@7.0.2
         with:
-          switches: -avzr --delete
+          switches: -avzr --delete --exclude='.env'
           path: .
           remote_path: ${{ secrets.APP_DIR }}
           remote_host: ${{ secrets.SSH_HOST }}
