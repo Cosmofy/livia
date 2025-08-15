@@ -36,9 +36,9 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           script: |
             set -euo pipefail
-  
-            docker login ghcr.io -u "${GHCR_USER}" -p "${GHCR_TOKEN}"
-            cd "${APP_DIR}"
+            
+            docker login ghcr.io -u "${{ secrets.GHCR_USER }}" -p "${{ secrets.GHCR_TOKEN }}"
+            cd "${{ secrets.APP_DIR }}"
             
             # Find compose file
             FILE=""
@@ -54,7 +54,7 @@ jobs:
             docker compose -f "$FILE" down --remove-orphans || true
             
             echo "=== Removing all app images ==="
-            docker images "ghcr.io/${GHCR_ORG}/${IMAGE_NAME}" --format "{{.Repository}}:{{.Tag}}" | while read img; do
+            docker images "ghcr.io/${{ secrets.GHCR_ORG }}/${{ secrets.IMAGE_NAME }}" --format "{{.Repository}}:{{.Tag}}" | while read img; do
             docker rmi -f "$img" || true
             done
             
@@ -62,7 +62,7 @@ jobs:
             docker system prune -af || true
             
             echo "=== Pulling fresh image ==="
-            docker pull "ghcr.io/${GHCR_ORG}/${IMAGE_NAME}:latest"
+            docker pull "ghcr.io/${{ secrets.GHCR_ORG }}/${{ secrets.IMAGE_NAME }}:latest"
             
             echo "=== Starting clean containers ==="
             docker compose -f "$FILE" up -d
