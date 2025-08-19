@@ -1,0 +1,164 @@
+[
+  {
+    "location": "aus",
+    "test": "1. Ping prod1 (Oracle UK)",
+    "response_time_ms": 272.07,
+    "response_size_bytes": 0,
+    "status_code": 200,
+    "timestamp": "2025-08-18T05:21:34.936811",
+    "notes": "ping"
+  },
+  {
+    "location": "aus",
+    "test": "2. Ping prod2 (Google US)",
+    "response_time_ms": 175.03,
+    "response_size_bytes": 0,
+    "status_code": 200,
+    "timestamp": "2025-08-18T05:21:37.116258",
+    "notes": "ping"
+  },
+  {
+    "location": "aus",
+    "test": "3. Ping prod3 (AWS Singapore)",
+    "response_time_ms": 92.54,
+    "response_size_bytes": 0,
+    "status_code": 200,
+    "timestamp": "2025-08-18T05:21:39.218819",
+    "notes": "ping"
+  },
+  {
+    "location": "aus",
+    "test": "4. Ping default (Route53)",
+    "response_time_ms": 92.58,
+    "response_size_bytes": 0,
+    "status_code": 200,
+    "timestamp": "2025-08-18T05:21:41.322744",
+    "notes": "ping"
+  },
+  {
+    "location": "aus",
+    "test": "5. NASA APOD Today Direct",
+    "response_time_ms": 765.44,
+    "response_size_bytes": 1318,
+    "status_code": 200,
+    "timestamp": "2025-08-18T05:21:42.088463",
+    "notes": ""
+  },
+  {
+    "location": "aus",
+    "test": "6. NASA APOD Jan 1 2000 Direct",
+    "response_time_ms": 756.04,
+    "response_size_bytes": 1038,
+    "status_code": 200,
+    "timestamp": "2025-08-18T05:21:42.844557",
+    "notes": ""
+  },
+  {
+    "location": "aus",
+    "test": "7. GraphQL APOD Today Non-Cached",
+    "response_time_ms": 23872.81,
+    "response_size_bytes": 2740,
+    "status_code": 200,
+    "timestamp": "2025-08-18T05:22:06.717427",
+    "notes": ""
+  },
+  {
+    "location": "aus",
+    "test": "8. GraphQL APOD Today Cached",
+    "response_time_ms": 294.62,
+    "response_size_bytes": 2740,
+    "status_code": 200,
+    "timestamp": "2025-08-18T05:22:07.012132",
+    "notes": ""
+  },
+  {
+    "location": "aus",
+    "test": "9. GraphQL APOD Jan 1 2000 Non-Cached",
+    "response_time_ms": 20291.89,
+    "response_size_bytes": 2268,
+    "status_code": 200,
+    "timestamp": "2025-08-18T05:22:27.304078",
+    "notes": ""
+  },
+  {
+    "location": "aus",
+    "test": "10. GraphQL APOD Jan 1 2000 Cached",
+    "response_time_ms": 292.74,
+    "response_size_bytes": 2268,
+    "status_code": 200,
+    "timestamp": "2025-08-18T05:22:27.596874",
+    "notes": ""
+  },
+  {
+    "location": "aus",
+    "test": "11. NASA EONET Direct",
+    "response_time_ms": 12082.67,
+    "response_size_bytes": 3810081,
+    "status_code": 200,
+    "timestamp": "2025-08-18T05:22:39.679612",
+    "notes": ""
+  },
+  {
+    "location": "aus",
+    "test": "12. GraphQL Events Non-Cached",
+    "response_time_ms": 3617.33,
+    "response_size_bytes": 58695,
+    "status_code": 200,
+    "timestamp": "2025-08-18T05:22:43.297007",
+    "notes": ""
+  },
+  {
+    "location": "aus",
+    "test": "13. GraphQL Events Cached",
+    "response_time_ms": 497.65,
+    "response_size_bytes": 58695,
+    "status_code": 200,
+    "timestamp": "2025-08-18T05:22:43.794716",
+    "notes": ""
+  },
+  {
+    "location": "aus",
+    "test": "14. JPL Planets 1-8 Single Thread",
+    "response_time_ms": 4005.18,
+    "response_size_bytes": 1168,
+    "status_code": 200,
+    "timestamp": "2025-08-18T05:22:47.799963",
+    "notes": ""
+  },
+  {
+    "location": "aus",
+    "test": "15. JPL Planets 1-8 Multi Thread",
+    "response_time_ms": 529.12,
+    "response_size_bytes": 1168,
+    "status_code": 200,
+    "timestamp": "2025-08-18T05:22:48.329139",
+    "notes": ""
+  },
+  {
+    "location": "aus",
+    "test": "16. GraphQL Planets Non-Cached",
+    "response_time_ms": 61156.69,
+    "response_size_bytes": 4238,
+    "status_code": 200,
+    "timestamp": "2025-08-18T05:23:49.485934",
+    "notes": ""
+  },
+  {
+    "location": "aus",
+    "test": "17. GraphQL Planets Cached",
+    "response_time_ms": 293.51,
+    "response_size_bytes": 4238,
+    "status_code": 200,
+    "timestamp": "2025-08-18T05:23:49.779503",
+    "notes": ""
+  },
+  {
+    "location": "aus",
+    "test": "18. GraphQL Articles",
+    "response_time_ms": 291.5,
+    "response_size_bytes": 6284,
+    "status_code": 200,
+    "timestamp": "2025-08-18T05:23:50.071063",
+    "notes": ""
+  }
+]
