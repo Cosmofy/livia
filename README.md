@@ -16,7 +16,7 @@ The backend integrates with:
 - **OpenAI**
 - **MongoDB**
 - **Redis/Valkey**
-- **Cloudflare CDN**
+- **AWS Route 53**
 
 
 Backend is deployed to Oracle Cloud and is open-source under the [Cosmofy GitHub organization](https://github.com/Cosmofy).
