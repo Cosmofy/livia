@@ -1,12 +1,12 @@
 #!/bin/bash
 
-# Update system and install Python 3.13
+# Update system and install Python 3.11
 sudo apt update
-sudo apt install -y python3-full python3-venv python3-dev
+sudo apt install -y python3.11 python3.11-venv python3.11-dev
 sudo apt install -y python3-pip
 
-# Create and activate virtual environment using python3 (which is 3.13)
-python3 -m venv venv
+# Create and activate virtual environment
+python3.11 -m venv venv
 source venv/bin/activate
 
 # Install dependencies
