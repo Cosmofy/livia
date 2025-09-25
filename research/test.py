@@ -116,11 +116,11 @@ except:
 # =====================================
 # TEST 5-10: APOD TESTS
 # =====================================
-time.sleep(2)
+
 print("\nTest 5-10: APOD Performance Tests")
 print("-" * 40)
 today = datetime.now(ZoneInfo("US/Mountain")).strftime("%Y-%m-%d")
-
+time.sleep(2)
 # Test 5: NASA APOD today direct
 try:
     start_time = time.time()
@@ -129,6 +129,7 @@ try:
     save_result("5. NASA APOD Today Direct", end_time - start_time, len(response.content), response.status_code, "ping nasa apod success")
 except Exception as e:
     save_result("5. NASA APOD Today Direct", 0, 0, 999, f"error: {str(e)}")
+
 time.sleep(2)
 # Test 6: NASA APOD Jan 1 2000 direct
 try:
@@ -138,6 +139,7 @@ try:
     save_result("6. NASA APOD Jan 1 2000 Direct", end_time - start_time, len(response.content), response.status_code, "ping nasa apod historical success")
 except Exception as e:
     save_result("6. NASA APOD Jan 1 2000 Direct", 0, 0, 999, f"error: {str(e)}")
+
 time.sleep(2)
 # Test 7: GraphQL APOD today non-cached
 # print("NOTE: Make sure Redis cache is CLEARED for non-cached tests!")
@@ -169,6 +171,7 @@ try:
     save_result("7. GraphQL APOD Today Non-Cached", end_time - start_time, len(response.content), response.status_code, "ping route53 apod success")
 except Exception as e:
     save_result("7. GraphQL APOD Today Non-Cached", 0, 0, 999, f"error: {str(e)}")
+
 time.sleep(2)
 # Test 8: GraphQL APOD today cached (run same query again)
 try:
@@ -181,6 +184,7 @@ try:
     save_result("8. GraphQL APOD Today Cached", end_time - start_time, len(response.content), response.status_code, "ping route53 apod success")
 except Exception as e:
     save_result("8. GraphQL APOD Today Cached", 0, 0, 999, f"error: {str(e)}")
+
 time.sleep(2)
 # Test 9: GraphQL APOD Jan 1 2000 non-cached
 apod_old_query = {
@@ -208,9 +212,10 @@ try:
                            headers={"Content-Type": "application/json"},
                            timeout=160)
     end_time = time.time()
-    save_result("9. GraphQL APOD Jan 1 2000 Non-Cached", end_time - start_time, len(response.content), response.status_code)
+    save_result("9. GraphQL APOD Jan 1 2000 Non-Cached", end_time - start_time, len(response.content), response.status_code, "ping route53 apod historical success")
 except Exception as e:
     save_result("9. GraphQL APOD Jan 1 2000 Non-Cached", 0, 0, 999, f"error: {str(e)}")
+
 time.sleep(2)
 # Test 10: GraphQL APOD Jan 1 2000 cached
 try:
@@ -220,7 +225,7 @@ try:
                            headers={"Content-Type": "application/json"},
                            timeout=130)
     end_time = time.time()
-    save_result("10. GraphQL APOD Jan 1 2000 Cached", end_time - start_time, len(response.content), response.status_code)
+    save_result("10. GraphQL APOD Jan 1 2000 Cached", end_time - start_time, len(response.content), response.status_code, "ping route53 apod success")
 except Exception as e:
     save_result("10. GraphQL APOD Jan 1 2000 Cached", 0, 0, 999, f"error: {str(e)}")
 
@@ -236,9 +241,10 @@ try:
     start_time = time.time()
     response = requests.get("https://eonet.gsfc.nasa.gov/api/v3/events?start=2025-09-11&end=2030-09-24&status=all", timeout=30)
     end_time = time.time()
-    save_result("11. NASA EONET Direct", end_time - start_time, len(response.content), response.status_code)
+    save_result("11. NASA EONET Direct", end_time - start_time, len(response.content), response.status_code, "ping nasa eonet success")
 except Exception as e:
     save_result("11. NASA EONET Direct", 0, 0, 999, f"error: {str(e)}")
+
 time.sleep(2)
 # Test 12: GraphQL Events non-cached
 # print("NOTE: Clear Redis cache before this test for non-cached results!")
@@ -267,9 +273,10 @@ try:
                            headers={"Content-Type": "application/json"},
                            timeout=130)
     end_time = time.time()
-    save_result("12. GraphQL Events Non-Cached", end_time - start_time, len(response.content), response.status_code)
+    save_result("12. GraphQL Events Non-Cached", end_time - start_time, len(response.content), response.status_code, "ping route53 eonet success")
 except Exception as e:
     save_result("12. GraphQL Events Non-Cached", 0, 0, 999, f"error: {str(e)}")
+
 time.sleep(2)
 # Test 13: GraphQL Events cached
 try:
@@ -279,19 +286,20 @@ try:
                            headers={"Content-Type": "application/json"},
                            timeout=130)
     end_time = time.time()
-    save_result("13. GraphQL Events Cached", end_time - start_time, len(response.content), response.status_code)
+    save_result("13. GraphQL Events Cached", end_time - start_time, len(response.content), response.status_code, "ping route53 eonet success")
 except Exception as e:
     save_result("13. GraphQL Events Cached", 0, 0, 999, f"error: {str(e)}")
 
 # =====================================
 # TEST 14-17: JPL PLANETS TESTS
 # =====================================
-time.sleep(2)
+
 print("\n Test 14-17: JPL Planets Performance Tests")
 print("-" * 40)
 
 planet_ids = ['199', '299', '399', '499', '599', '699', '799', '899']  # Mercury to Neptune
 
+time.sleep(2)
 # Test 14: JPL Planets 1-8 single thread
 print("Testing JPL single threaded...")
 start_time = time.time()
@@ -303,7 +311,8 @@ for planet_id in planet_ids:
     except:
         pass
 end_time = time.time()
-save_result("14. JPL Planets 1-8 Single Thread", end_time - start_time, total_size, 200)
+save_result("14. JPL Planets 1-8 Single Thread", end_time - start_time, total_size, 200, "ping nasa jpl single success")
+
 time.sleep(2)
 # Test 15: JPL Planets 1-8 multi thread (parallel)
 print("Testing JPL multi threaded...")
@@ -315,7 +324,7 @@ def fetch_jpl_planet(planet_id, results_list):
         results_list.append(len(response.content))
     except:
         results_list.append(0)
-time.sleep(2)
+
 start_time = time.time()
 threads = []
 for planet_id in planet_ids:
@@ -328,7 +337,8 @@ for thread in threads:
 
 end_time = time.time()
 total_parallel_size = sum(jpl_results)
-save_result("15. JPL Planets 1-8 Multi Thread", end_time - start_time, total_parallel_size, 200)
+save_result("15. JPL Planets 1-8 Multi Thread", end_time - start_time, total_parallel_size, 200, "ping nasa jpl multi success")
+
 time.sleep(2)
 # Test 16: GraphQL Planets non-cached
 # print("NOTE: Clear Redis cache before this test for non-cached results!")
@@ -358,10 +368,11 @@ try:
                            headers={"Content-Type": "application/json"},
                            timeout=160)  # Longer timeout for AI processing
     end_time = time.time()
-    save_result("16. GraphQL Planets Non-Cached", end_time - start_time, len(response.content), response.status_code)
+    save_result("16. GraphQL Planets Non-Cached", end_time - start_time, len(response.content), response.status_code, "ping route53 jpl success")
 except Exception as e:
     save_result("16. GraphQL Planets Non-Cached", 0, 0, 999, f"error: {str(e)}")
-time.sleep(1)
+
+time.sleep(5)
 # Test 17: GraphQL Planets cached
 try:
     start_time = time.time()
@@ -370,7 +381,7 @@ try:
                            headers={"Content-Type": "application/json"},
                            timeout=130)
     end_time = time.time()
-    save_result("17. GraphQL Planets Cached", end_time - start_time, len(response.content), response.status_code)
+    save_result("17. GraphQL Planets Cached", end_time - start_time, len(response.content), response.status_code, "ping route53 jpl success")
 except Exception as e:
     save_result("17. GraphQL Planets Cached", 0, 0, 999, f"error: {str(e)}")
 
@@ -381,6 +392,7 @@ except Exception as e:
 print("\nTest 18: Articles Performance Test")
 print("-" * 40)
 
+time.sleep(2)
 # Test 18: GraphQL Articles (always cached)
 articles_query = {
     "query": """
@@ -406,14 +418,14 @@ try:
                            headers={"Content-Type": "application/json"},
                            timeout=130)
     end_time = time.time()
-    save_result("18. GraphQL Articles", end_time - start_time, len(response.content), response.status_code)
+    save_result("18. GraphQL Articles", end_time - start_time, len(response.content), response.status_code, "ping route53 articles success")
 except Exception as e:
     save_result("18. GraphQL Articles", 0, 0, 999, f"error: {str(e)}")
 
 # =====================================
 # SAVE RESULTS AND SUMMARY
 # =====================================
-
+time.sleep(1)
 print("\nSaving Results...")
 print("-" * 40)
 
@@ -432,6 +444,7 @@ for result in results:
     print(f"{status} {result['test']}: {result['response_time_ms']}ms")
 
 print(f"\nAll {len(results)} tests completed!")
+time.sleep(1)
 print(f"Results file: {filename}")
 
 
