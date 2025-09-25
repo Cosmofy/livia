@@ -1,0 +1,164 @@
+[
+  {
+    "location": "S\u00e3oPauloBrazil",
+    "test": "1. Ping prod1 (Oracle UK)",
+    "response_time_ms": 188.89,
+    "response_size_bytes": 0,
+    "status_code": 200,
+    "timestamp": "2025-09-25T17:00:39.535691",
+    "notes": "ping prod1 success"
+  },
+  {
+    "location": "S\u00e3oPauloBrazil",
+    "test": "2. Ping prod2 (Google US)",
+    "response_time_ms": 142.73,
+    "response_size_bytes": 0,
+    "status_code": 200,
+    "timestamp": "2025-09-25T17:00:42.687447",
+    "notes": "ping prod2 success"
+  },
+  {
+    "location": "S\u00e3oPauloBrazil",
+    "test": "3. Ping prod3 (AWS Singapore)",
+    "response_time_ms": 328.48,
+    "response_size_bytes": 0,
+    "status_code": 200,
+    "timestamp": "2025-09-25T17:00:46.024663",
+    "notes": "ping prod3 success"
+  },
+  {
+    "location": "S\u00e3oPauloBrazil",
+    "test": "4. Ping default (Route53)",
+    "response_time_ms": 142.78,
+    "response_size_bytes": 0,
+    "status_code": 200,
+    "timestamp": "2025-09-25T17:00:53.177274",
+    "notes": "ping route53 success"
+  },
+  {
+    "location": "S\u00e3oPauloBrazil",
+    "test": "5. NASA APOD Today Direct",
+    "response_time_ms": 1012.6,
+    "response_size_bytes": 1137,
+    "status_code": 200,
+    "timestamp": "2025-09-25T17:00:56.191881",
+    "notes": "ping nasa apod success"
+  },
+  {
+    "location": "S\u00e3oPauloBrazil",
+    "test": "6. NASA APOD Jan 1 2000 Direct",
+    "response_time_ms": 864.28,
+    "response_size_bytes": 1038,
+    "status_code": 200,
+    "timestamp": "2025-09-25T17:00:59.056360",
+    "notes": "ping nasa apod historical success"
+  },
+  {
+    "location": "S\u00e3oPauloBrazil",
+    "test": "7. GraphQL APOD Today Non-Cached",
+    "response_time_ms": 36406.83,
+    "response_size_bytes": 2449,
+    "status_code": 200,
+    "timestamp": "2025-09-25T17:01:37.463415",
+    "notes": "ping route53 apod success"
+  },
+  {
+    "location": "S\u00e3oPauloBrazil",
+    "test": "8. GraphQL APOD Today Cached",
+    "response_time_ms": 514.22,
+    "response_size_bytes": 2449,
+    "status_code": 200,
+    "timestamp": "2025-09-25T17:01:39.977840",
+    "notes": "ping route53 apod success"
+  },
+  {
+    "location": "S\u00e3oPauloBrazil",
+    "test": "9. GraphQL APOD Jan 1 2000 Non-Cached",
+    "response_time_ms": 33844.1,
+    "response_size_bytes": 2411,
+    "status_code": 200,
+    "timestamp": "2025-09-25T17:02:15.822144",
+    "notes": "ping route53 apod historical success"
+  },
+  {
+    "location": "S\u00e3oPauloBrazil",
+    "test": "10. GraphQL APOD Jan 1 2000 Cached",
+    "response_time_ms": 502.57,
+    "response_size_bytes": 2411,
+    "status_code": 200,
+    "timestamp": "2025-09-25T17:02:18.324924",
+    "notes": "ping route53 apod success"
+  },
+  {
+    "location": "S\u00e3oPauloBrazil",
+    "test": "11. NASA EONET Direct",
+    "response_time_ms": 2139.66,
+    "response_size_bytes": 164003,
+    "status_code": 200,
+    "timestamp": "2025-09-25T17:02:22.464802",
+    "notes": "ping nasa eonet success"
+  },
+  {
+    "location": "S\u00e3oPauloBrazil",
+    "test": "12. GraphQL Events Non-Cached",
+    "response_time_ms": 2439.15,
+    "response_size_bytes": 50466,
+    "status_code": 200,
+    "timestamp": "2025-09-25T17:02:26.904167",
+    "notes": "ping route53 eonet success"
+  },
+  {
+    "location": "S\u00e3oPauloBrazil",
+    "test": "13. GraphQL Events Cached",
+    "response_time_ms": 845.1,
+    "response_size_bytes": 50466,
+    "status_code": 200,
+    "timestamp": "2025-09-25T17:02:29.749534",
+    "notes": "ping route53 eonet success"
+  },
+  {
+    "location": "S\u00e3oPauloBrazil",
+    "test": "14. JPL Planets 1-8 Single Thread",
+    "response_time_ms": 4860.04,
+    "response_size_bytes": 1168,
+    "status_code": 200,
+    "timestamp": "2025-09-25T17:02:36.609835",
+    "notes": "ping nasa jpl single success"
+  },
+  {
+    "location": "S\u00e3oPauloBrazil",
+    "test": "15. JPL Planets 1-8 Multi Thread",
+    "response_time_ms": 879.1,
+    "response_size_bytes": 1168,
+    "status_code": 200,
+    "timestamp": "2025-09-25T17:02:39.489185",
+    "notes": "ping nasa jpl multi success"
+  },
+  {
+    "location": "S\u00e3oPauloBrazil",
+    "test": "16. GraphQL Planets Non-Cached",
+    "response_time_ms": 71275.62,
+    "response_size_bytes": 4220,
+    "status_code": 200,
+    "timestamp": "2025-09-25T17:03:52.765006",
+    "notes": "ping route53 jpl success"
+  },
+  {
+    "location": "S\u00e3oPauloBrazil",
+    "test": "17. GraphQL Planets Cached",
+    "response_time_ms": 498.57,
+    "response_size_bytes": 4220,
+    "status_code": 200,
+    "timestamp": "2025-09-25T17:03:58.263780",
+    "notes": "ping route53 jpl success"
+  },
+  {
+    "location": "S\u00e3oPauloBrazil",
+    "test": "18. GraphQL Articles",
+    "response_time_ms": 498.38,
+    "response_size_bytes": 6284,
+    "status_code": 200,
+    "timestamp": "2025-09-25T17:04:00.762384",
+    "notes": "ping route53 articles success"
+  }
+]
