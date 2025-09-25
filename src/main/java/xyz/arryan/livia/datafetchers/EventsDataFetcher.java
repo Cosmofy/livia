@@ -8,7 +8,6 @@ import com.netflix.graphql.dgs.DgsComponent;
 import com.netflix.graphql.dgs.DgsQuery;
 import com.netflix.graphql.dgs.InputArgument;
 import graphql.GraphQLException;
-import org.bson.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +19,6 @@ import xyz.arryan.livia.codegen.types.Source;
 import xyz.arryan.livia.codegen.types.Geometry;
 import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import org.springframework.cache.annotation.Cacheable;
-
 import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
