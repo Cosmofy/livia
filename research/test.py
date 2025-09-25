@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Cosmofy GraphQL Performance Testing Script
-Usage: python test_performance.py
+Usage: python test.py
 """
 
 import requests
@@ -45,6 +45,7 @@ def save_result(test_name, response_time_seconds, response_size_bytes, status_co
 print("\nTest 1-4: Infrastructure Ping Tests")
 print("-" * 40)
 
+time.sleep(1)
 # Test 1: Ping prod1 (Oracle UK)
 try:
     result = subprocess.run(['ping', '-c', '3', 'prod1.livia.arryan.xyz'],
@@ -61,6 +62,7 @@ try:
 except:
     save_result("1. Ping prod1 (Oracle UK)", 0, 0, 999, "ping error")
 
+time.sleep(1)
 # Test 2: Ping prod2 (Google US)
 try:
     result = subprocess.run(['ping', '-c', '3', 'prod2.livia.arryan.xyz'],
@@ -77,6 +79,7 @@ try:
 except:
     save_result("2. Ping prod2 (Google US)", 0, 0, 999, "ping error")
 
+time.sleep(1)
 # Test 3: Ping prod3 (AWS Singapore)
 try:
     result = subprocess.run(['ping', '-c', '3', 'prod3.livia.arryan.xyz'],
@@ -94,7 +97,6 @@ except:
     save_result("3. Ping prod3 (AWS Singapore)", 0, 0, 999, "ping error")
 
 time.sleep(5)
-
 # Test 4: Ping default (Route53)
 try:
     result = subprocess.run(['ping', '-c', '3', 'livia.arryan.xyz'],
@@ -138,7 +140,7 @@ except Exception as e:
     save_result("6. NASA APOD Jan 1 2000 Direct", 0, 0, 999, f"error: {str(e)}")
 time.sleep(2)
 # Test 7: GraphQL APOD today non-cached
-print("NOTE: Make sure Redis cache is CLEARED for non-cached tests!")
+# print("NOTE: Make sure Redis cache is CLEARED for non-cached tests!")
 apod_query = {
     "query": """
     query GetAPOD($date: String) {
@@ -232,14 +234,14 @@ time.sleep(2)
 # Test 11: NASA EONET direct
 try:
     start_time = time.time()
-    response = requests.get("https://eonet.gsfc.nasa.gov/api/v3/events", timeout=30)
+    response = requests.get("https://eonet.gsfc.nasa.gov/api/v3/events?start=2025-09-11&end=2030-09-24&status=all", timeout=30)
     end_time = time.time()
     save_result("11. NASA EONET Direct", end_time - start_time, len(response.content), response.status_code)
 except Exception as e:
     save_result("11. NASA EONET Direct", 0, 0, 999, f"error: {str(e)}")
-
+time.sleep(2)
 # Test 12: GraphQL Events non-cached
-print("NOTE: Clear Redis cache before this test for non-cached results!")
+# print("NOTE: Clear Redis cache before this test for non-cached results!")
 events_query = {
     "query": """
     query GetEvents {
@@ -268,7 +270,7 @@ try:
     save_result("12. GraphQL Events Non-Cached", end_time - start_time, len(response.content), response.status_code)
 except Exception as e:
     save_result("12. GraphQL Events Non-Cached", 0, 0, 999, f"error: {str(e)}")
-
+time.sleep(2)
 # Test 13: GraphQL Events cached
 try:
     start_time = time.time()
@@ -284,7 +286,7 @@ except Exception as e:
 # =====================================
 # TEST 14-17: JPL PLANETS TESTS
 # =====================================
-
+time.sleep(2)
 print("\n Test 14-17: JPL Planets Performance Tests")
 print("-" * 40)
 
@@ -302,7 +304,7 @@ for planet_id in planet_ids:
         pass
 end_time = time.time()
 save_result("14. JPL Planets 1-8 Single Thread", end_time - start_time, total_size, 200)
-
+time.sleep(2)
 # Test 15: JPL Planets 1-8 multi thread (parallel)
 print("Testing JPL multi threaded...")
 jpl_results = []
@@ -313,7 +315,7 @@ def fetch_jpl_planet(planet_id, results_list):
         results_list.append(len(response.content))
     except:
         results_list.append(0)
-
+time.sleep(2)
 start_time = time.time()
 threads = []
 for planet_id in planet_ids:
@@ -327,9 +329,9 @@ for thread in threads:
 end_time = time.time()
 total_parallel_size = sum(jpl_results)
 save_result("15. JPL Planets 1-8 Multi Thread", end_time - start_time, total_parallel_size, 200)
-
+time.sleep(2)
 # Test 16: GraphQL Planets non-cached
-print("NOTE: Clear Redis cache before this test for non-cached results!")
+# print("NOTE: Clear Redis cache before this test for non-cached results!")
 planets_query = {
     "query": """
     query GetPlanets {
@@ -432,17 +434,8 @@ for result in results:
 print(f"\nAll {len(results)} tests completed!")
 print(f"Results file: {filename}")
 
-"""
 
+"""
 sudo docker exec -it mongo mongosh --eval 'db.getMongo().getDBNames().forEach(function(n){ if(!["admin","config","local"].includes(n)){ db.getSiblingDB(n).dropDatabase(); } })'
 sudo docker exec -it redis redis-cli FLUSHALL
-
-
-sudo apt update
-sudo apt install -y python3.11 python3.11-venv python3.11-dev
-sudo apt install -y python3-pip
-python3.11 -m venv venv
-source venv/bin/activate
-pip install requests
-nano script.py
 """
