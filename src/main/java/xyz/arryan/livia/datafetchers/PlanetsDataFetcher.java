@@ -296,7 +296,7 @@ public class PlanetsDataFetcher {
         String prompt = instruction + "\nResponse: " + response;
         ResponseCreateParams createParams = ResponseCreateParams.builder()
                 .input(prompt)
-                .model(ChatModel.GPT_5)
+                .model(ChatModel.GPT_5_MINI)
                 .build();
         CompletableFuture<Planet> future = new CompletableFuture<>();
         client.responses()
