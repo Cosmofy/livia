@@ -1,0 +1,164 @@
+[
+  {
+    "location": "AbuDhabiUAE",
+    "test": "1. Ping prod1 (Oracle UK)",
+    "response_time_ms": 111.15,
+    "response_size_bytes": 0,
+    "status_code": 200,
+    "timestamp": "2025-09-25T12:14:11.157378",
+    "notes": "ping prod1 success"
+  },
+  {
+    "location": "AbuDhabiUAE",
+    "test": "2. Ping prod2 (Google US)",
+    "response_time_ms": 224.99,
+    "response_size_bytes": 0,
+    "status_code": 200,
+    "timestamp": "2025-09-25T12:14:14.407952",
+    "notes": "ping prod2 success"
+  },
+  {
+    "location": "AbuDhabiUAE",
+    "test": "3. Ping prod3 (AWS Singapore)",
+    "response_time_ms": 231.67,
+    "response_size_bytes": 0,
+    "status_code": 200,
+    "timestamp": "2025-09-25T12:14:17.663008",
+    "notes": "ping prod3 success"
+  },
+  {
+    "location": "AbuDhabiUAE",
+    "test": "4. Ping default (Route53)",
+    "response_time_ms": 113.71,
+    "response_size_bytes": 0,
+    "status_code": 200,
+    "timestamp": "2025-09-25T12:14:24.800266",
+    "notes": "ping route53 success"
+  },
+  {
+    "location": "AbuDhabiUAE",
+    "test": "5. NASA APOD Today Direct",
+    "response_time_ms": 1455.69,
+    "response_size_bytes": 1093,
+    "status_code": 200,
+    "timestamp": "2025-09-25T12:14:28.257813",
+    "notes": "ping nasa apod success"
+  },
+  {
+    "location": "AbuDhabiUAE",
+    "test": "6. NASA APOD Jan 1 2000 Direct",
+    "response_time_ms": 1374.48,
+    "response_size_bytes": 1038,
+    "status_code": 200,
+    "timestamp": "2025-09-25T12:14:31.632489",
+    "notes": "ping nasa apod historical success"
+  },
+  {
+    "location": "AbuDhabiUAE",
+    "test": "7. GraphQL APOD Today Non-Cached",
+    "response_time_ms": 29551.58,
+    "response_size_bytes": 2401,
+    "status_code": 200,
+    "timestamp": "2025-09-25T12:15:03.184279",
+    "notes": "ping route53 apod success"
+  },
+  {
+    "location": "AbuDhabiUAE",
+    "test": "8. GraphQL APOD Today Cached",
+    "response_time_ms": 426.23,
+    "response_size_bytes": 2401,
+    "status_code": 200,
+    "timestamp": "2025-09-25T12:15:05.610694",
+    "notes": "ping route53 apod success"
+  },
+  {
+    "location": "AbuDhabiUAE",
+    "test": "9. GraphQL APOD Jan 1 2000 Non-Cached",
+    "response_time_ms": 22615.31,
+    "response_size_bytes": 2262,
+    "status_code": 200,
+    "timestamp": "2025-09-25T12:15:30.226193",
+    "notes": "ping route53 apod historical success"
+  },
+  {
+    "location": "AbuDhabiUAE",
+    "test": "10. GraphQL APOD Jan 1 2000 Cached",
+    "response_time_ms": 448.98,
+    "response_size_bytes": 2262,
+    "status_code": 200,
+    "timestamp": "2025-09-25T12:15:32.675365",
+    "notes": "ping route53 apod success"
+  },
+  {
+    "location": "AbuDhabiUAE",
+    "test": "11. NASA EONET Direct",
+    "response_time_ms": 2597.96,
+    "response_size_bytes": 163469,
+    "status_code": 200,
+    "timestamp": "2025-09-25T12:15:37.273524",
+    "notes": "ping nasa eonet success"
+  },
+  {
+    "location": "AbuDhabiUAE",
+    "test": "12. GraphQL Events Non-Cached",
+    "response_time_ms": 2008.88,
+    "response_size_bytes": 50288,
+    "status_code": 200,
+    "timestamp": "2025-09-25T12:15:41.282652",
+    "notes": "ping route53 eonet success"
+  },
+  {
+    "location": "AbuDhabiUAE",
+    "test": "13. GraphQL Events Cached",
+    "response_time_ms": 711.51,
+    "response_size_bytes": 50288,
+    "status_code": 200,
+    "timestamp": "2025-09-25T12:15:43.994386",
+    "notes": "ping route53 eonet success"
+  },
+  {
+    "location": "AbuDhabiUAE",
+    "test": "14. JPL Planets 1-8 Single Thread",
+    "response_time_ms": 7416.64,
+    "response_size_bytes": 1168,
+    "status_code": 200,
+    "timestamp": "2025-09-25T12:15:53.411403",
+    "notes": "ping nasa jpl single success"
+  },
+  {
+    "location": "AbuDhabiUAE",
+    "test": "15. JPL Planets 1-8 Multi Thread",
+    "response_time_ms": 1087.34,
+    "response_size_bytes": 1168,
+    "status_code": 200,
+    "timestamp": "2025-09-25T12:15:56.499024",
+    "notes": "ping nasa jpl multi success"
+  },
+  {
+    "location": "AbuDhabiUAE",
+    "test": "16. GraphQL Planets Non-Cached",
+    "response_time_ms": 84843.78,
+    "response_size_bytes": 4336,
+    "status_code": 200,
+    "timestamp": "2025-09-25T12:17:23.342992",
+    "notes": "ping route53 jpl success"
+  },
+  {
+    "location": "AbuDhabiUAE",
+    "test": "17. GraphQL Planets Cached",
+    "response_time_ms": 441.19,
+    "response_size_bytes": 4336,
+    "status_code": 200,
+    "timestamp": "2025-09-25T12:17:28.784342",
+    "notes": "ping route53 jpl success"
+  },
+  {
+    "location": "AbuDhabiUAE",
+    "test": "18. GraphQL Articles",
+    "response_time_ms": 479.1,
+    "response_size_bytes": 6284,
+    "status_code": 200,
+    "timestamp": "2025-09-25T12:17:31.263628",
+    "notes": "ping route53 articles success"
+  }
+]
