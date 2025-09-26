@@ -1,0 +1,164 @@
+[
+  {
+    "location": "CapeTownSouthAfrica",
+    "test": "1. Ping prod1 (Oracle UK)",
+    "response_time_ms": 146.31,
+    "response_size_bytes": 0,
+    "status_code": 200,
+    "timestamp": "2025-09-25T18:21:41.508184",
+    "notes": "ping prod1 success"
+  },
+  {
+    "location": "CapeTownSouthAfrica",
+    "test": "2. Ping prod2 (Google US)",
+    "response_time_ms": 264.88,
+    "response_size_bytes": 0,
+    "status_code": 200,
+    "timestamp": "2025-09-25T18:21:44.778912",
+    "notes": "ping prod2 success"
+  },
+  {
+    "location": "CapeTownSouthAfrica",
+    "test": "3. Ping prod3 (AWS Singapore)",
+    "response_time_ms": 324.17,
+    "response_size_bytes": 0,
+    "status_code": 200,
+    "timestamp": "2025-09-25T18:21:48.111888",
+    "notes": "ping prod3 success"
+  },
+  {
+    "location": "CapeTownSouthAfrica",
+    "test": "4. Ping default (Route53)",
+    "response_time_ms": 324.17,
+    "response_size_bytes": 0,
+    "status_code": 200,
+    "timestamp": "2025-09-25T18:21:55.444808",
+    "notes": "ping route53 success"
+  },
+  {
+    "location": "CapeTownSouthAfrica",
+    "test": "5. NASA APOD Today Direct",
+    "response_time_ms": 1298.6,
+    "response_size_bytes": 185,
+    "status_code": 429,
+    "timestamp": "2025-09-25T18:21:58.743855",
+    "notes": "ping nasa apod success"
+  },
+  {
+    "location": "CapeTownSouthAfrica",
+    "test": "6. NASA APOD Jan 1 2000 Direct",
+    "response_time_ms": 1124.83,
+    "response_size_bytes": 185,
+    "status_code": 429,
+    "timestamp": "2025-09-25T18:22:01.868877",
+    "notes": "ping nasa apod historical success"
+  },
+  {
+    "location": "CapeTownSouthAfrica",
+    "test": "7. GraphQL APOD Today Non-Cached",
+    "response_time_ms": 57050.3,
+    "response_size_bytes": 2527,
+    "status_code": 200,
+    "timestamp": "2025-09-25T18:23:00.919372",
+    "notes": "ping route53 apod success"
+  },
+  {
+    "location": "CapeTownSouthAfrica",
+    "test": "8. GraphQL APOD Today Cached",
+    "response_time_ms": 1041.41,
+    "response_size_bytes": 2527,
+    "status_code": 200,
+    "timestamp": "2025-09-25T18:23:03.960983",
+    "notes": "ping route53 apod success"
+  },
+  {
+    "location": "CapeTownSouthAfrica",
+    "test": "9. GraphQL APOD Jan 1 2000 Non-Cached",
+    "response_time_ms": 26604.98,
+    "response_size_bytes": 2280,
+    "status_code": 200,
+    "timestamp": "2025-09-25T18:23:32.566172",
+    "notes": "ping route53 apod historical success"
+  },
+  {
+    "location": "CapeTownSouthAfrica",
+    "test": "10. GraphQL APOD Jan 1 2000 Cached",
+    "response_time_ms": 1041.05,
+    "response_size_bytes": 2280,
+    "status_code": 200,
+    "timestamp": "2025-09-25T18:23:35.607427",
+    "notes": "ping route53 apod success"
+  },
+  {
+    "location": "CapeTownSouthAfrica",
+    "test": "11. NASA EONET Direct",
+    "response_time_ms": 2747.76,
+    "response_size_bytes": 164003,
+    "status_code": 200,
+    "timestamp": "2025-09-25T18:23:40.355429",
+    "notes": "ping nasa eonet success"
+  },
+  {
+    "location": "CapeTownSouthAfrica",
+    "test": "12. GraphQL Events Non-Cached",
+    "response_time_ms": 4026.46,
+    "response_size_bytes": 50466,
+    "status_code": 200,
+    "timestamp": "2025-09-25T18:23:46.382095",
+    "notes": "ping route53 eonet success"
+  },
+  {
+    "location": "CapeTownSouthAfrica",
+    "test": "13. GraphQL Events Cached",
+    "response_time_ms": 1676.5,
+    "response_size_bytes": 50466,
+    "status_code": 200,
+    "timestamp": "2025-09-25T18:23:50.058792",
+    "notes": "ping route53 eonet success"
+  },
+  {
+    "location": "CapeTownSouthAfrica",
+    "test": "14. JPL Planets 1-8 Single Thread",
+    "response_time_ms": 7138.87,
+    "response_size_bytes": 1168,
+    "status_code": 200,
+    "timestamp": "2025-09-25T18:23:59.197905",
+    "notes": "ping nasa jpl single success"
+  },
+  {
+    "location": "CapeTownSouthAfrica",
+    "test": "15. JPL Planets 1-8 Multi Thread",
+    "response_time_ms": 1181.02,
+    "response_size_bytes": 1168,
+    "status_code": 200,
+    "timestamp": "2025-09-25T18:24:02.379174",
+    "notes": "ping nasa jpl multi success"
+  },
+  {
+    "location": "CapeTownSouthAfrica",
+    "test": "16. GraphQL Planets Non-Cached",
+    "response_time_ms": 71195.55,
+    "response_size_bytes": 4295,
+    "status_code": 200,
+    "timestamp": "2025-09-25T18:25:15.574933",
+    "notes": "ping route53 jpl success"
+  },
+  {
+    "location": "CapeTownSouthAfrica",
+    "test": "17. GraphQL Planets Cached",
+    "response_time_ms": 1038.43,
+    "response_size_bytes": 4295,
+    "status_code": 200,
+    "timestamp": "2025-09-25T18:25:21.613564",
+    "notes": "ping route53 jpl success"
+  },
+  {
+    "location": "CapeTownSouthAfrica",
+    "test": "18. GraphQL Articles",
+    "response_time_ms": 1015.62,
+    "response_size_bytes": 6284,
+    "status_code": 200,
+    "timestamp": "2025-09-25T18:25:24.629395",
+    "notes": "ping route53 articles success"
+  }
+]

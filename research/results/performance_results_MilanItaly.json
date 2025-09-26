@@ -1,0 +1,164 @@
+[
+  {
+    "location": "MilanItaly",
+    "test": "1. Ping prod1 (Oracle UK)",
+    "response_time_ms": 24.58,
+    "response_size_bytes": 0,
+    "status_code": 200,
+    "timestamp": "2025-09-25T19:12:44.469339",
+    "notes": "ping prod1 success"
+  },
+  {
+    "location": "MilanItaly",
+    "test": "2. Ping prod2 (Google US)",
+    "response_time_ms": 130.0,
+    "response_size_bytes": 0,
+    "status_code": 200,
+    "timestamp": "2025-09-25T19:12:47.607123",
+    "notes": "ping prod2 success"
+  },
+  {
+    "location": "MilanItaly",
+    "test": "3. Ping prod3 (AWS Singapore)",
+    "response_time_ms": 156.33,
+    "response_size_bytes": 0,
+    "status_code": 200,
+    "timestamp": "2025-09-25T19:12:50.769749",
+    "notes": "ping prod3 success"
+  },
+  {
+    "location": "MilanItaly",
+    "test": "4. Ping default (Route53)",
+    "response_time_ms": 24.58,
+    "response_size_bytes": 0,
+    "status_code": 200,
+    "timestamp": "2025-09-25T19:12:57.804100",
+    "notes": "ping route53 success"
+  },
+  {
+    "location": "MilanItaly",
+    "test": "5. NASA APOD Today Direct",
+    "response_time_ms": 754.3,
+    "response_size_bytes": 1137,
+    "status_code": 200,
+    "timestamp": "2025-09-25T19:13:00.558895",
+    "notes": "ping nasa apod success"
+  },
+  {
+    "location": "MilanItaly",
+    "test": "6. NASA APOD Jan 1 2000 Direct",
+    "response_time_ms": 731.83,
+    "response_size_bytes": 1038,
+    "status_code": 200,
+    "timestamp": "2025-09-25T19:13:03.290930",
+    "notes": "ping nasa apod historical success"
+  },
+  {
+    "location": "MilanItaly",
+    "test": "7. GraphQL APOD Today Non-Cached",
+    "response_time_ms": 25411.37,
+    "response_size_bytes": 2484,
+    "status_code": 200,
+    "timestamp": "2025-09-25T19:13:30.702519",
+    "notes": "ping route53 apod success"
+  },
+  {
+    "location": "MilanItaly",
+    "test": "8. GraphQL APOD Today Cached",
+    "response_time_ms": 147.15,
+    "response_size_bytes": 2484,
+    "status_code": 200,
+    "timestamp": "2025-09-25T19:13:32.849956",
+    "notes": "ping route53 apod success"
+  },
+  {
+    "location": "MilanItaly",
+    "test": "9. GraphQL APOD Jan 1 2000 Non-Cached",
+    "response_time_ms": 25130.37,
+    "response_size_bytes": 2419,
+    "status_code": 200,
+    "timestamp": "2025-09-25T19:13:59.980540",
+    "notes": "ping route53 apod historical success"
+  },
+  {
+    "location": "MilanItaly",
+    "test": "10. GraphQL APOD Jan 1 2000 Cached",
+    "response_time_ms": 145.67,
+    "response_size_bytes": 2419,
+    "status_code": 200,
+    "timestamp": "2025-09-25T19:14:02.126409",
+    "notes": "ping route53 apod success"
+  },
+  {
+    "location": "MilanItaly",
+    "test": "11. NASA EONET Direct",
+    "response_time_ms": 1249.91,
+    "response_size_bytes": 164003,
+    "status_code": 200,
+    "timestamp": "2025-09-25T19:14:05.376617",
+    "notes": "ping nasa eonet success"
+  },
+  {
+    "location": "MilanItaly",
+    "test": "12. GraphQL Events Non-Cached",
+    "response_time_ms": 1455.25,
+    "response_size_bytes": 50466,
+    "status_code": 200,
+    "timestamp": "2025-09-25T19:14:08.832081",
+    "notes": "ping route53 eonet success"
+  },
+  {
+    "location": "MilanItaly",
+    "test": "13. GraphQL Events Cached",
+    "response_time_ms": 177.63,
+    "response_size_bytes": 50466,
+    "status_code": 200,
+    "timestamp": "2025-09-25T19:14:11.009925",
+    "notes": "ping route53 eonet success"
+  },
+  {
+    "location": "MilanItaly",
+    "test": "14. JPL Planets 1-8 Single Thread",
+    "response_time_ms": 4126.5,
+    "response_size_bytes": 1168,
+    "status_code": 200,
+    "timestamp": "2025-09-25T19:14:17.136667",
+    "notes": "ping nasa jpl single success"
+  },
+  {
+    "location": "MilanItaly",
+    "test": "15. JPL Planets 1-8 Multi Thread",
+    "response_time_ms": 809.96,
+    "response_size_bytes": 1168,
+    "status_code": 200,
+    "timestamp": "2025-09-25T19:14:19.946867",
+    "notes": "ping nasa jpl multi success"
+  },
+  {
+    "location": "MilanItaly",
+    "test": "16. GraphQL Planets Non-Cached",
+    "response_time_ms": 83259.72,
+    "response_size_bytes": 4369,
+    "status_code": 200,
+    "timestamp": "2025-09-25T19:15:45.206776",
+    "notes": "ping route53 jpl success"
+  },
+  {
+    "location": "MilanItaly",
+    "test": "17. GraphQL Planets Cached",
+    "response_time_ms": 141.96,
+    "response_size_bytes": 4369,
+    "status_code": 200,
+    "timestamp": "2025-09-25T19:15:50.348942",
+    "notes": "ping route53 jpl success"
+  },
+  {
+    "location": "MilanItaly",
+    "test": "18. GraphQL Articles",
+    "response_time_ms": 133.35,
+    "response_size_bytes": 6284,
+    "status_code": 200,
+    "timestamp": "2025-09-25T19:15:52.482591",
+    "notes": "ping route53 articles success"
+  }
+]

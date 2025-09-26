@@ -1,0 +1,164 @@
+[
+  {
+    "location": "PennsylvaniaUSA",
+    "test": "1. Ping prod1 (Oracle UK)",
+    "response_time_ms": 84.95,
+    "response_size_bytes": 0,
+    "status_code": 200,
+    "timestamp": "2025-09-25T18:07:35.664014",
+    "notes": "ping prod1 success"
+  },
+  {
+    "location": "PennsylvaniaUSA",
+    "test": "2. Ping prod2 (Google US)",
+    "response_time_ms": 51.61,
+    "response_size_bytes": 0,
+    "status_code": 200,
+    "timestamp": "2025-09-25T18:07:38.763983",
+    "notes": "ping prod2 success"
+  },
+  {
+    "location": "PennsylvaniaUSA",
+    "test": "3. Ping prod3 (AWS Singapore)",
+    "response_time_ms": 242.46,
+    "response_size_bytes": 0,
+    "status_code": 200,
+    "timestamp": "2025-09-25T18:07:42.104760",
+    "notes": "ping prod3 success"
+  },
+  {
+    "location": "PennsylvaniaUSA",
+    "test": "4. Ping default (Route53)",
+    "response_time_ms": 47.35,
+    "response_size_bytes": 0,
+    "status_code": 200,
+    "timestamp": "2025-09-25T18:07:49.198126",
+    "notes": "ping route53 success"
+  },
+  {
+    "location": "PennsylvaniaUSA",
+    "test": "5. NASA APOD Today Direct",
+    "response_time_ms": 641.67,
+    "response_size_bytes": 1136,
+    "status_code": 200,
+    "timestamp": "2025-09-25T18:07:51.849505",
+    "notes": "ping nasa apod success"
+  },
+  {
+    "location": "PennsylvaniaUSA",
+    "test": "6. NASA APOD Jan 1 2000 Direct",
+    "response_time_ms": 403.05,
+    "response_size_bytes": 1038,
+    "status_code": 200,
+    "timestamp": "2025-09-25T18:07:54.254843",
+    "notes": "ping nasa apod historical success"
+  },
+  {
+    "location": "PennsylvaniaUSA",
+    "test": "7. GraphQL APOD Today Non-Cached",
+    "response_time_ms": 32208.62,
+    "response_size_bytes": 2625,
+    "status_code": 200,
+    "timestamp": "2025-09-25T18:08:28.464236",
+    "notes": "ping route53 apod success"
+  },
+  {
+    "location": "PennsylvaniaUSA",
+    "test": "8. GraphQL APOD Today Cached",
+    "response_time_ms": 228.38,
+    "response_size_bytes": 2625,
+    "status_code": 200,
+    "timestamp": "2025-09-25T18:08:30.694917",
+    "notes": "ping route53 apod success"
+  },
+  {
+    "location": "PennsylvaniaUSA",
+    "test": "9. GraphQL APOD Jan 1 2000 Non-Cached",
+    "response_time_ms": 24831.27,
+    "response_size_bytes": 2170,
+    "status_code": 200,
+    "timestamp": "2025-09-25T18:08:57.530337",
+    "notes": "ping route53 apod historical success"
+  },
+  {
+    "location": "PennsylvaniaUSA",
+    "test": "10. GraphQL APOD Jan 1 2000 Cached",
+    "response_time_ms": 231.94,
+    "response_size_bytes": 2170,
+    "status_code": 200,
+    "timestamp": "2025-09-25T18:08:59.764199",
+    "notes": "ping route53 apod success"
+  },
+  {
+    "location": "PennsylvaniaUSA",
+    "test": "11. NASA EONET Direct",
+    "response_time_ms": 529.54,
+    "response_size_bytes": 164003,
+    "status_code": 200,
+    "timestamp": "2025-09-25T18:09:02.295091",
+    "notes": "ping nasa eonet success"
+  },
+  {
+    "location": "PennsylvaniaUSA",
+    "test": "12. GraphQL Events Non-Cached",
+    "response_time_ms": 1743.06,
+    "response_size_bytes": 50466,
+    "status_code": 200,
+    "timestamp": "2025-09-25T18:09:06.043278",
+    "notes": "ping route53 eonet success"
+  },
+  {
+    "location": "PennsylvaniaUSA",
+    "test": "13. GraphQL Events Cached",
+    "response_time_ms": 370.49,
+    "response_size_bytes": 50466,
+    "status_code": 200,
+    "timestamp": "2025-09-25T18:09:08.416023",
+    "notes": "ping route53 eonet success"
+  },
+  {
+    "location": "PennsylvaniaUSA",
+    "test": "14. JPL Planets 1-8 Single Thread",
+    "response_time_ms": 2786.42,
+    "response_size_bytes": 1168,
+    "status_code": 200,
+    "timestamp": "2025-09-25T18:09:13.203777",
+    "notes": "ping nasa jpl single success"
+  },
+  {
+    "location": "PennsylvaniaUSA",
+    "test": "15. JPL Planets 1-8 Multi Thread",
+    "response_time_ms": 360.41,
+    "response_size_bytes": 1168,
+    "status_code": 200,
+    "timestamp": "2025-09-25T18:09:15.567398",
+    "notes": "ping nasa jpl multi success"
+  },
+  {
+    "location": "PennsylvaniaUSA",
+    "test": "16. GraphQL Planets Non-Cached",
+    "response_time_ms": 71970.7,
+    "response_size_bytes": 4364,
+    "status_code": 200,
+    "timestamp": "2025-09-25T18:10:29.539487",
+    "notes": "ping route53 jpl success"
+  },
+  {
+    "location": "PennsylvaniaUSA",
+    "test": "17. GraphQL Planets Cached",
+    "response_time_ms": 219.79,
+    "response_size_bytes": 4364,
+    "status_code": 200,
+    "timestamp": "2025-09-25T18:10:34.764495",
+    "notes": "ping route53 jpl success"
+  },
+  {
+    "location": "PennsylvaniaUSA",
+    "test": "18. GraphQL Articles",
+    "response_time_ms": 216.25,
+    "response_size_bytes": 6284,
+    "status_code": 200,
+    "timestamp": "2025-09-25T18:10:36.985897",
+    "notes": "ping route53 articles success"
+  }
+]

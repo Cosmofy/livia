@@ -1,0 +1,164 @@
+[
+  {
+    "location": "SydneyAustralia",
+    "test": "1. Ping prod1 (Oracle UK)",
+    "response_time_ms": 275.25,
+    "response_size_bytes": 0,
+    "status_code": 200,
+    "timestamp": "2025-09-25T21:25:24.576523",
+    "notes": "ping prod1 success"
+  },
+  {
+    "location": "SydneyAustralia",
+    "test": "2. Ping prod2 (Google US)",
+    "response_time_ms": 198.97,
+    "response_size_bytes": 0,
+    "status_code": 200,
+    "timestamp": "2025-09-25T21:25:27.783933",
+    "notes": "ping prod2 success"
+  },
+  {
+    "location": "SydneyAustralia",
+    "test": "3. Ping prod3 (AWS Singapore)",
+    "response_time_ms": 92.26,
+    "response_size_bytes": 0,
+    "status_code": 200,
+    "timestamp": "2025-09-25T21:25:30.885289",
+    "notes": "ping prod3 success"
+  },
+  {
+    "location": "SydneyAustralia",
+    "test": "4. Ping default (Route53)",
+    "response_time_ms": 92.21,
+    "response_size_bytes": 0,
+    "status_code": 200,
+    "timestamp": "2025-09-25T21:25:37.986905",
+    "notes": "ping route53 success"
+  },
+  {
+    "location": "SydneyAustralia",
+    "test": "5. NASA APOD Today Direct",
+    "response_time_ms": 849.31,
+    "response_size_bytes": 1136,
+    "status_code": 200,
+    "timestamp": "2025-09-25T21:25:40.836725",
+    "notes": "ping nasa apod success"
+  },
+  {
+    "location": "SydneyAustralia",
+    "test": "6. NASA APOD Jan 1 2000 Direct",
+    "response_time_ms": 681.57,
+    "response_size_bytes": 1038,
+    "status_code": 200,
+    "timestamp": "2025-09-25T21:25:43.518484",
+    "notes": "ping nasa apod historical success"
+  },
+  {
+    "location": "SydneyAustralia",
+    "test": "7. GraphQL APOD Today Non-Cached",
+    "response_time_ms": 27515.56,
+    "response_size_bytes": 2436,
+    "status_code": 200,
+    "timestamp": "2025-09-25T21:26:13.034274",
+    "notes": "ping route53 apod success"
+  },
+  {
+    "location": "SydneyAustralia",
+    "test": "8. GraphQL APOD Today Cached",
+    "response_time_ms": 346.6,
+    "response_size_bytes": 2436,
+    "status_code": 200,
+    "timestamp": "2025-09-25T21:26:15.381089",
+    "notes": "ping route53 apod success"
+  },
+  {
+    "location": "SydneyAustralia",
+    "test": "9. GraphQL APOD Jan 1 2000 Non-Cached",
+    "response_time_ms": 24700.93,
+    "response_size_bytes": 2289,
+    "status_code": 200,
+    "timestamp": "2025-09-25T21:26:42.082220",
+    "notes": "ping route53 apod historical success"
+  },
+  {
+    "location": "SydneyAustralia",
+    "test": "10. GraphQL APOD Jan 1 2000 Cached",
+    "response_time_ms": 345.07,
+    "response_size_bytes": 2289,
+    "status_code": 200,
+    "timestamp": "2025-09-25T21:26:44.427491",
+    "notes": "ping route53 apod success"
+  },
+  {
+    "location": "SydneyAustralia",
+    "test": "11. NASA EONET Direct",
+    "response_time_ms": 2917.26,
+    "response_size_bytes": 164003,
+    "status_code": 200,
+    "timestamp": "2025-09-25T21:26:49.344985",
+    "notes": "ping nasa eonet success"
+  },
+  {
+    "location": "SydneyAustralia",
+    "test": "12. GraphQL Events Non-Cached",
+    "response_time_ms": 3086.33,
+    "response_size_bytes": 50466,
+    "status_code": 200,
+    "timestamp": "2025-09-25T21:26:54.431526",
+    "notes": "ping route53 eonet success"
+  },
+  {
+    "location": "SydneyAustralia",
+    "test": "13. GraphQL Events Cached",
+    "response_time_ms": 522.84,
+    "response_size_bytes": 50466,
+    "status_code": 200,
+    "timestamp": "2025-09-25T21:26:56.954581",
+    "notes": "ping route53 eonet success"
+  },
+  {
+    "location": "SydneyAustralia",
+    "test": "14. JPL Planets 1-8 Single Thread",
+    "response_time_ms": 4032.29,
+    "response_size_bytes": 1168,
+    "status_code": 200,
+    "timestamp": "2025-09-25T21:27:02.987256",
+    "notes": "ping nasa jpl single success"
+  },
+  {
+    "location": "SydneyAustralia",
+    "test": "15. JPL Planets 1-8 Multi Thread",
+    "response_time_ms": 781.72,
+    "response_size_bytes": 1168,
+    "status_code": 200,
+    "timestamp": "2025-09-25T21:27:05.769235",
+    "notes": "ping nasa jpl multi success"
+  },
+  {
+    "location": "SydneyAustralia",
+    "test": "16. GraphQL Planets Non-Cached",
+    "response_time_ms": 77291.28,
+    "response_size_bytes": 4203,
+    "status_code": 200,
+    "timestamp": "2025-09-25T21:28:25.060709",
+    "notes": "ping route53 jpl success"
+  },
+  {
+    "location": "SydneyAustralia",
+    "test": "17. GraphQL Planets Cached",
+    "response_time_ms": 351.91,
+    "response_size_bytes": 4203,
+    "status_code": 200,
+    "timestamp": "2025-09-25T21:28:30.413004",
+    "notes": "ping route53 jpl success"
+  },
+  {
+    "location": "SydneyAustralia",
+    "test": "18. GraphQL Articles",
+    "response_time_ms": 345.29,
+    "response_size_bytes": 6284,w
+    "status_code": 200,
+    "timestamp": "2025-09-25T21:28:32.758517",
+    "notes": "ping route53 articles success"
+  }
+]
