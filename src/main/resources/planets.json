@@ -1,0 +1,871 @@
+[
+    {
+        "_id": "690e2fe4b34414c4104f87fe",
+        "name": "Mercury",
+        "id": 199,
+        "mass": 3.302e+23,
+        "density": 5.427,
+        "temperature": 440,
+        "pressure": 5e-15,
+        "radiusEquatorial": 2440.53,
+        "radiusPolar": 2439.4,
+        "radiusCore": 1600,
+        "radiusHillsSphere": 94.4,
+        "angularDiameter": 11,
+        "momentOfInertia": 0.33,
+        "volumetricMeanRadius": 2439,
+        "volume": 60850000000,
+        "moons": 0,
+        "rings": 0,
+        "gravityEquatorial": 3.701,
+        "gravityPolar": 3.703,
+        "escapeVelocity": 4.435,
+        "flattening": 0.000463,
+        "gravitationalParameter": 22031.86855,
+        "gravitationalParameterUncertainty": null,
+        "rockyCoreMass": 0.7,
+        "orbitalVelocity": 47.362,
+        "siderealOrbitPeriodD": 87.969257,
+        "siderealOrbitPeriodY": 0.2408467,
+        "obliquityToOrbit": 0.0351666667,
+        "siderealRotationRate": 1.24e-06,
+        "siderealRotationPeriod": 58.6463,
+        "solarDayLength": 175.9421,
+        "albedo": 0.106,
+        "visualMagnitude": -0.42,
+        "visualMagnitudeOpposition": -1.9,
+        "rocheLimit": 2.44,
+        "solarConstant": {
+            "perihelion": 14460,
+            "aphelion": 6278,
+            "mean": 9126
+        },
+        "maxIR": {
+            "perihelion": 12700,
+            "aphelion": 5500,
+            "mean": 8000
+        },
+        "minIR": {
+            "perihelion": 6,
+            "aphelion": 6,
+            "mean": 6
+        },
+        "description": "A small, iron-rich world scorched by the Sun.",
+        "expandedDescription": "Mercury, the smallest planet, is an iron-rich world scorched by intense sunlight. Its thin exosphere of atoms sputtered from the surface, ancient cratered terrains, and a massive metallic core make it geologically intriguing. Extreme temperature swings and rapid orbital motion create a harsh, fascinating environment close to the Sun.",
+        "facts": [
+            "Mercury completes an orbit in about 87.97 Earth days while rotating slowly: a sidereal day is 58.65 days.",
+            "A solar day on Mercury lasts about 175.94 Earth days because of its 3:2 spin-orbit resonance with the Sun.",
+            "Mercury's large iron core makes up roughly 70% of the planet's mass, giving it a very high bulk density.",
+            "Surface temperatures swing dramatically, exceeding 700 K at local noon and dropping below 100 K at night.",
+            "Mercury has no moons and only an extremely tenuous, sputtered exosphere of atoms like sodium and helium."
+        ],
+        "visual": "Known to ancient civilizations; telescopic observations since the early 17th century",
+        "orbitalInclination": 7.005,
+        "atmosphere": [
+            {
+                "name": "Sodium (exosphere)",
+                "molar": 23,
+                "formula": "Na",
+                "percentage": 30
+            },
+            {
+                "name": "Molecular hydrogen (exosphere)",
+                "molar": 2,
+                "formula": "H\u2082",
+                "percentage": 25
+            },
+            {
+                "name": "Helium (exosphere)",
+                "molar": 4,
+                "formula": "He",
+                "percentage": 20
+            },
+            {
+                "name": "Molecular oxygen (exosphere/trace)",
+                "molar": 32,
+                "formula": "O\u2082",
+                "percentage": 10
+            },
+            {
+                "name": "Potassium (exosphere)",
+                "molar": 39,
+                "formula": "K",
+                "percentage": 8
+            },
+            {
+                "name": "Calcium (exosphere/trace)",
+                "molar": 40,
+                "formula": "Ca",
+                "percentage": 4
+            },
+            {
+                "name": "Magnesium (exosphere/trace)",
+                "molar": 24,
+                "formula": "Mg",
+                "percentage": 3
+            }
+        ],
+        "lastUpdated": "2024-03-04"
+    },
+    {
+        "_id": "690e2fe4b34414c4104f87ff",
+        "name": "Venus",
+        "id": 299,
+        "mass": 4.869e+24,
+        "density": 5.204,
+        "temperature": 735,
+        "pressure": 90,
+        "radiusEquatorial": 6051.893,
+        "radiusPolar": 6051.84,
+        "radiusCore": 3200,
+        "radiusHillsSphere": 167.1,
+        "angularDiameter": 60.2,
+        "momentOfInertia": 0.33,
+        "volumetricMeanRadius": 6052,
+        "volume": 928400000000,
+        "moons": 0,
+        "rings": 0,
+        "gravityEquatorial": 8.87,
+        "gravityPolar": 8.87,
+        "escapeVelocity": 10.361,
+        "flattening": 8.76e-06,
+        "gravitationalParameter": 324858.592,
+        "gravitationalParameterUncertainty": 0.006,
+        "rockyCoreMass": 0.32,
+        "orbitalVelocity": 35.021,
+        "siderealOrbitPeriodD": 224.70079922,
+        "siderealOrbitPeriodY": 0.61519726,
+        "obliquityToOrbit": 177.3,
+        "siderealRotationRate": -2.99e-07,
+        "siderealRotationPeriod": 243.018484,
+        "solarDayLength": 116.749,
+        "albedo": 0.65,
+        "visualMagnitude": -4.4,
+        "visualMagnitudeOpposition": -4.89,
+        "rocheLimit": 2.44,
+        "solarConstant": {
+            "perihelion": 2759,
+            "aphelion": 2614,
+            "mean": 2650
+        },
+        "maxIR": {
+            "perihelion": 153,
+            "aphelion": 153,
+            "mean": 153
+        },
+        "minIR": {
+            "perihelion": 153,
+            "aphelion": 153,
+            "mean": 153
+        },
+        "description": "A hot, cloud-covered terrestrial world shrouded in sulfuric clouds.",
+        "expandedDescription": "Venus is a scorching terrestrial planet veiled by dense sulfuric clouds and a runaway greenhouse. Its surface hides rugged highlands and ancient plains beneath crushing pressure and searing heat. Similar in size to Earth, Venus offers a cautionary example of climate extremes and complex atmospheric chemistry.",
+        "facts": [
+            "Venus rotates slowly and retrograde: one sidereal day is about 243 Earth days.",
+            "Surface pressure is about 90 times that of Earth, with temperatures around 735 K.",
+            "Venus has no moons and no rings, and its dense CO\u2082 atmosphere creates a runaway greenhouse.",
+            "A solar day on Venus (sunrise to sunrise) is about 116.75 Earth days.",
+            "Venus's clouds are rich in sulfuric acid and obscure the surface in visible light."
+        ],
+        "visual": "Known since antiquity; telescopic observations from 1610 (Galileo)",
+        "orbitalInclination": 3.39471,
+        "atmosphere": [
+            {
+                "name": "Carbon dioxide",
+                "molar": 44,
+                "formula": "CO\u2082",
+                "percentage": 96.5
+            },
+            {
+                "name": "Molecular nitrogen",
+                "molar": 28,
+                "formula": "N\u2082",
+                "percentage": 3.5
+            },
+            {
+                "name": "Sulfur dioxide",
+                "molar": 64,
+                "formula": "SO\u2082",
+                "percentage": 0.015
+            },
+            {
+                "name": "Argon",
+                "molar": 40,
+                "formula": "Ar",
+                "percentage": 0.007
+            },
+            {
+                "name": "Carbon monoxide",
+                "molar": 28,
+                "formula": "CO",
+                "percentage": 0.002
+            },
+            {
+                "name": "Water vapor",
+                "molar": 18,
+                "formula": "H\u2082O",
+                "percentage": 0.002
+            },
+            {
+                "name": "Molecular oxygen (trace)",
+                "molar": 32,
+                "formula": "O\u2082",
+                "percentage": 0.0003
+            },
+            {
+                "name": "Helium (trace)",
+                "molar": 4,
+                "formula": "He",
+                "percentage": 7e-05
+            }
+        ],
+        "lastUpdated": "2021-04-12"
+    },
+    {
+        "_id": "690e2fe4b34414c4104f8800",
+        "name": "Earth",
+        "id": 399,
+        "mass": 5.972e+24,
+        "density": 5.51,
+        "temperature": 288,
+        "pressure": 1,
+        "radiusEquatorial": 6378.137,
+        "radiusPolar": 6356.752,
+        "radiusCore": 3480,
+        "radiusHillsSphere": 234.9,
+        "angularDiameter": null,
+        "momentOfInertia": 0.3308,
+        "volumetricMeanRadius": 6371,
+        "volume": 1083000000000,
+        "moons": 1,
+        "rings": 0,
+        "gravityEquatorial": 9.7803267715,
+        "gravityPolar": 9.8321863685,
+        "escapeVelocity": 11.186,
+        "flattening": 0.0033528106647474805,
+        "gravitationalParameter": 398600.435436,
+        "gravitationalParameterUncertainty": 0.0014,
+        "rockyCoreMass": 0.32338,
+        "orbitalVelocity": 29.79,
+        "siderealOrbitPeriodD": 365.25636,
+        "siderealOrbitPeriodY": 1.0000174,
+        "obliquityToOrbit": 23.4392911,
+        "siderealRotationRate": 7.29e-05,
+        "siderealRotationPeriod": 23.9344695944,
+        "solarDayLength": 24,
+        "albedo": 0.367,
+        "visualMagnitude": -3.86,
+        "visualMagnitudeOpposition": -3.86,
+        "rocheLimit": 2.46,
+        "solarConstant": {
+            "perihelion": 1414,
+            "aphelion": 1322,
+            "mean": 1368
+        },
+        "maxIR": {
+            "perihelion": 239.7,
+            "aphelion": 239.7,
+            "mean": 239.7
+        },
+        "minIR": {
+            "perihelion": 239.7,
+            "aphelion": 239.7,
+            "mean": 239.7
+        },
+        "description": "Our vibrant blue home, rich with water, life, and dynamic weather.",
+        "expandedDescription": "Earth, our vibrant blue planet, harbors abundant liquid water and diverse life across complex climates. A rocky world with a molten iron core and a protective atmosphere, it rotates once per day and orbits the Sun in one year. Earth\u2019s dynamic geology and weather sustain ecosystems and human civilization.",
+        "facts": [
+            "Earth completes one orbit around the Sun in about 365.256 days.",
+            "A sidereal day on Earth lasts 23.934 hours while the mean solar day is 24 hours.",
+            "Approximately 71% of Earth's surface is covered by oceans of liquid water.",
+            "Earth has one natural moon and a global magnetic field generated by its molten outer core.",
+            "Mean surface temperature is about 288 K (15 \u00b0C) and atmospheric pressure is 1 bar."
+        ],
+        "visual": "Known since prehistoric times",
+        "orbitalInclination": 0,
+        "atmosphere": [
+            {
+                "name": "Molecular nitrogen",
+                "molar": 28,
+                "formula": "N\u2082",
+                "percentage": 78.084
+            },
+            {
+                "name": "Molecular oxygen",
+                "molar": 32,
+                "formula": "O\u2082",
+                "percentage": 20.946
+            },
+            {
+                "name": "Argon",
+                "molar": 40,
+                "formula": "Ar",
+                "percentage": 0.934
+            },
+            {
+                "name": "Carbon dioxide",
+                "molar": 44,
+                "formula": "CO\u2082",
+                "percentage": 0.041
+            },
+            {
+                "name": "Water vapor (variable)",
+                "molar": 18,
+                "formula": "H\u2082O",
+                "percentage": 0.25
+            },
+            {
+                "name": "Neon (trace)",
+                "molar": 20,
+                "formula": "Ne",
+                "percentage": 0.0018
+            },
+            {
+                "name": "Helium (trace)",
+                "molar": 4,
+                "formula": "He",
+                "percentage": 0.0005
+            },
+            {
+                "name": "Methane (trace)",
+                "molar": 16,
+                "formula": "CH\u2084",
+                "percentage": 0.0002
+            }
+        ],
+        "lastUpdated": "2022-05-09"
+    },
+    {
+        "_id": "690e2fe4b34414c4104f8801",
+        "name": "Mars",
+        "id": 499,
+        "mass": 6.417e+23,
+        "density": 3.933,
+        "temperature": 210,
+        "pressure": 0.0056,
+        "radiusEquatorial": 3396.19,
+        "radiusPolar": 3376.201,
+        "radiusCore": 1700,
+        "radiusHillsSphere": 319.8,
+        "angularDiameter": 17.9,
+        "momentOfInertia": 0.3662,
+        "volumetricMeanRadius": 3390,
+        "volume": 163200000000,
+        "moons": 2,
+        "rings": 0,
+        "gravityEquatorial": 3.71,
+        "gravityPolar": 3.758,
+        "escapeVelocity": 5.027,
+        "flattening": 0.005889018,
+        "gravitationalParameter": 42828.375662,
+        "gravitationalParameterUncertainty": 0.00028,
+        "rockyCoreMass": 0.23,
+        "orbitalVelocity": 24.13,
+        "siderealOrbitPeriodD": 686.98,
+        "siderealOrbitPeriodY": 1.88081578,
+        "obliquityToOrbit": 25.19,
+        "siderealRotationRate": 7.09e-05,
+        "siderealRotationPeriod": 24.622962,
+        "solarDayLength": 24.65979,
+        "albedo": 0.15,
+        "visualMagnitude": -1.52,
+        "visualMagnitudeOpposition": -2.91,
+        "rocheLimit": 2.44,
+        "solarConstant": {
+            "perihelion": 717,
+            "aphelion": 493,
+            "mean": 589
+        },
+        "maxIR": {
+            "perihelion": 470,
+            "aphelion": 315,
+            "mean": 390
+        },
+        "minIR": {
+            "perihelion": 30,
+            "aphelion": 30,
+            "mean": 30
+        },
+        "description": "A rusty, exploration-ready world with dramatic landscapes.",
+        "expandedDescription": "Mars is a cold, rocky world with vast volcanoes, canyons, and polar ice caps. Its thin carbon-dioxide atmosphere and dusty surface have fascinated explorers and robots alike. With two small moons and seasons driven by a tilted axis, Mars remains a prime destination for studying planetary habitability and past water.",
+        "facts": [
+            "Mars has two small moons, Phobos and Deimos.",
+            "A day on Mars lasts about 24.66 hours; a year is 686.98 Earth days.",
+            "Surface pressure is only about 0.56% of Earth's average pressure.",
+            "Polar caps hold water ice beneath seasonal carbon dioxide frost.",
+            "Olympus Mons on Mars is the tallest volcano known in the Solar System."
+        ],
+        "visual": "Known since antiquity; telescopic records from the 17th century",
+        "orbitalInclination": 1.85,
+        "atmosphere": [
+            {
+                "name": "Carbon dioxide",
+                "molar": 44,
+                "formula": "CO\u2082",
+                "percentage": 95.32
+            },
+            {
+                "name": "Molecular nitrogen",
+                "molar": 28,
+                "formula": "N\u2082",
+                "percentage": 2.7
+            },
+            {
+                "name": "Argon",
+                "molar": 40,
+                "formula": "Ar",
+                "percentage": 1.6
+            },
+            {
+                "name": "Molecular oxygen",
+                "molar": 32,
+                "formula": "O\u2082",
+                "percentage": 0.13
+            },
+            {
+                "name": "Carbon monoxide",
+                "molar": 28,
+                "formula": "CO",
+                "percentage": 0.08
+            },
+            {
+                "name": "Water vapor",
+                "molar": 18,
+                "formula": "H\u2082O",
+                "percentage": 0.03
+            }
+        ],
+        "lastUpdated": "2025-06-02"
+    },
+    {
+        "_id": "690e2fe4b34414c4104f8802",
+        "name": "Jupiter",
+        "id": 599,
+        "mass": 1.898e+27,
+        "density": 1.3262,
+        "temperature": 165,
+        "pressure": 1,
+        "radiusEquatorial": 71492,
+        "radiusPolar": 66854,
+        "radiusCore": 15000,
+        "radiusHillsSphere": 740,
+        "angularDiameter": 50,
+        "momentOfInertia": 0.254,
+        "volumetricMeanRadius": 69910,
+        "volume": 1431000000000000,
+        "moons": 95,
+        "rings": 4,
+        "gravityEquatorial": 24.79,
+        "gravityPolar": 28.34,
+        "escapeVelocity": 59.5,
+        "flattening": 0.06487,
+        "gravitationalParameter": 126700000,
+        "gravitationalParameterUncertainty": 1.2732,
+        "rockyCoreMass": 0.0261,
+        "orbitalVelocity": 13.0697,
+        "siderealOrbitPeriodD": 4332.589,
+        "siderealOrbitPeriodY": 11.861982204,
+        "obliquityToOrbit": 3.13,
+        "siderealRotationRate": 0.000176,
+        "siderealRotationPeriod": 9.924919,
+        "solarDayLength": 9.9259,
+        "albedo": 0.52,
+        "visualMagnitude": -9.4,
+        "visualMagnitudeOpposition": -2.7,
+        "rocheLimit": 2.76,
+        "solarConstant": {
+            "perihelion": 56,
+            "aphelion": 46,
+            "mean": 51
+        },
+        "maxIR": {
+            "perihelion": 13.7,
+            "aphelion": 13.4,
+            "mean": 13.6
+        },
+        "minIR": {
+            "perihelion": 13.7,
+            "aphelion": 13.4,
+            "mean": 13.6
+        },
+        "description": "A massive banded gas giant with roaring storms and a faint ring system.",
+        "expandedDescription": "Jupiter, the largest planet in the solar system, is a luminous gas giant dominated by colorful bands, gigantic storms like the Great Red Spot, and a strong magnetic field. Its many moons and faint rings reveal a complex system shaped by immense gravity and turbulent atmospheric dynamics over billions of years.",
+        "facts": [
+            "Jupiter completes an orbit in about 11.86 Earth years and dominates the outer solar system.",
+            "A Jovian day is about 9.93 hours, making it the fastest-spinning planet in the solar system.",
+            "The Great Red Spot is a storm larger than Earth that has persisted for centuries.",
+            "Jupiter's strong gravity sculpted the solar system and protects inner planets by deflecting comets.",
+            "It has a powerful magnetic field and a rich system of moons, including the large Galilean satellites."
+        ],
+        "visual": "First telescopic observations: 1610 (Galileo)",
+        "orbitalInclination": 1.304,
+        "atmosphere": [
+            {
+                "name": "Molecular hydrogen",
+                "molar": 2,
+                "formula": "H\u2082",
+                "percentage": 89.8
+            },
+            {
+                "name": "Helium",
+                "molar": 4,
+                "formula": "He",
+                "percentage": 10
+            },
+            {
+                "name": "Methane",
+                "molar": 16,
+                "formula": "CH\u2084",
+                "percentage": 0.1
+            },
+            {
+                "name": "Ammonia",
+                "molar": 17,
+                "formula": "NH\u2083",
+                "percentage": 0.03
+            },
+            {
+                "name": "Water vapor (trace)",
+                "molar": 18,
+                "formula": "H\u2082O",
+                "percentage": 0.05
+            },
+            {
+                "name": "Ethane (trace)",
+                "molar": 30,
+                "formula": "C\u2082H\u2086",
+                "percentage": 0.02
+            }
+        ],
+        "lastUpdated": "2025-01-30"
+    },
+    {
+        "_id": "690e2fe4b34414c4104f8803",
+        "name": "Saturn",
+        "id": 699,
+        "mass": 5.683e+26,
+        "density": 0.687,
+        "temperature": 134,
+        "pressure": 1,
+        "radiusEquatorial": 60268,
+        "radiusPolar": 54364,
+        "radiusCore": 10890,
+        "radiusHillsSphere": 1100,
+        "angularDiameter": 20,
+        "momentOfInertia": 0.22,
+        "volumetricMeanRadius": 58230,
+        "volume": 827600000000000,
+        "moons": 82,
+        "rings": 7,
+        "gravityEquatorial": 10.44,
+        "gravityPolar": 12.14,
+        "escapeVelocity": 35.5,
+        "flattening": 0.09796,
+        "gravitationalParameter": 37930000,
+        "gravitationalParameterUncertainty": 98,
+        "rockyCoreMass": 0.1027,
+        "orbitalVelocity": 9.68,
+        "siderealOrbitPeriodD": 10755.698,
+        "siderealOrbitPeriodY": 29.447498,
+        "obliquityToOrbit": 26.73,
+        "siderealRotationRate": 0.000164,
+        "siderealRotationPeriod": 10.656,
+        "solarDayLength": 10.656,
+        "albedo": 0.47,
+        "visualMagnitude": -8.88,
+        "visualMagnitudeOpposition": 0.67,
+        "rocheLimit": 2.71,
+        "solarConstant": {
+            "perihelion": 16.8,
+            "aphelion": 13.6,
+            "mean": 15.1
+        },
+        "maxIR": {
+            "perihelion": 4.7,
+            "aphelion": 4.5,
+            "mean": 4.6
+        },
+        "minIR": {
+            "perihelion": 4.7,
+            "aphelion": 4.5,
+            "mean": 4.6
+        },
+        "description": "A majestic ringed gas giant with swirling bands and deep interior storms.",
+        "expandedDescription": "Saturn, the sixth planet from the Sun, is famed for its spectacular rings and banded atmosphere. Beneath those rings lies a dense, rocky core shrouded by vast layers of hydrogen and helium, which drive powerful winds and seasonal storms. Its many moons and rings reveal complex gravitational interactions.",
+        "facts": [
+            "Saturn completes one orbit around the Sun in about 29.45 Earth years.",
+            "A sidereal day on Saturn is about 10.66 hours long.",
+            "Saturn\u2019s spectacular ring system is composed of ice and rock and spans hundreds of thousands of kilometers.",
+            "Saturn\u2019s mean density is less than water, so it would float if placed in a sufficiently large ocean.",
+            "Saturn has dozens of moons and a diverse satellite system influencing its rings."
+        ],
+        "visual": "Known since antiquity; telescopic observations by Galileo in 1610; rings identified by Christiaan Huygens in 1655",
+        "orbitalInclination": 2.485,
+        "atmosphere": [
+            {
+                "name": "Molecular hydrogen",
+                "molar": 2,
+                "formula": "H\u2082",
+                "percentage": 96.3
+            },
+            {
+                "name": "Helium",
+                "molar": 4,
+                "formula": "He",
+                "percentage": 3.25
+            },
+            {
+                "name": "Methane",
+                "molar": 16,
+                "formula": "CH\u2084",
+                "percentage": 0.45
+            },
+            {
+                "name": "Ammonia",
+                "molar": 17,
+                "formula": "NH\u2083",
+                "percentage": 0.002
+            },
+            {
+                "name": "Water vapor (trace)",
+                "molar": 18,
+                "formula": "H\u2082O",
+                "percentage": 0.001
+            },
+            {
+                "name": "Phosphine (trace)",
+                "molar": 34,
+                "formula": "PH\u2083",
+                "percentage": 0.0007
+            },
+            {
+                "name": "Ethane (trace)",
+                "molar": 30,
+                "formula": "C\u2082H\u2086",
+                "percentage": 0.0003
+            }
+        ],
+        "lastUpdated": "2022-01-26"
+    },
+    {
+        "_id": "690e2fe4b34414c4104f8804",
+        "name": "Uranus",
+        "id": 799,
+        "mass": 8.681e+25,
+        "density": 1.271,
+        "temperature": 76,
+        "pressure": 1,
+        "radiusEquatorial": 25559,
+        "radiusPolar": 24973,
+        "radiusCore": 3500,
+        "radiusHillsSphere": 2700,
+        "angularDiameter": 3.7,
+        "momentOfInertia": 0.22,
+        "volumetricMeanRadius": 25360,
+        "volume": 67490000000000,
+        "moons": 27,
+        "rings": 13,
+        "gravityEquatorial": 8.87,
+        "gravityPolar": 9.19,
+        "escapeVelocity": 21.3,
+        "flattening": 0.02293,
+        "gravitationalParameter": 5794000,
+        "gravitationalParameterUncertainty": 4.3,
+        "rockyCoreMass": 0.0012,
+        "orbitalVelocity": 6.8,
+        "siderealOrbitPeriodD": 30685.4,
+        "siderealOrbitPeriodY": 84.0120465,
+        "obliquityToOrbit": 97.77,
+        "siderealRotationRate": -0.000101,
+        "siderealRotationPeriod": 17.24,
+        "solarDayLength": 17.24,
+        "albedo": 0.51,
+        "visualMagnitude": -7.11,
+        "visualMagnitudeOpposition": 5.52,
+        "rocheLimit": 2.2,
+        "solarConstant": {
+            "perihelion": 4.09,
+            "aphelion": 3.39,
+            "mean": 3.71
+        },
+        "maxIR": {
+            "perihelion": 0.72,
+            "aphelion": 0.55,
+            "mean": 0.63
+        },
+        "minIR": {
+            "perihelion": 0.72,
+            "aphelion": 0.55,
+            "mean": 0.63
+        },
+        "description": "An ice giant tipped on its side with cyan hues and brisk winds.",
+        "expandedDescription": "Uranus is an ice giant tipped on its side with a striking cyan color, extreme axial tilt, and a cold, methane-rich atmosphere. Discovered in 1781, it has a complex magnetic field, faint rings, and 27 known moons. Studying Uranus reveals ice giant formation and diverse planetary interiors.",
+        "facts": [
+            "Uranus completes one orbit in about 84 Earth years.",
+            "A day on Uranus lasts about 17.24 hours.",
+            "Uranus is tilted over 97 degrees, appearing to roll around the Sun.",
+            "Uranus has 27 known moons and a faint system of rings.",
+            "The atmosphere is cold and methane gives Uranus its cyan-blue color."
+        ],
+        "visual": "First telescopic sightings: 1690 (Flamsteed); discovered as a planet: March 13, 1781 (William Herschel)",
+        "orbitalInclination": 0.77,
+        "atmosphere": [
+            {
+                "name": "Molecular hydrogen",
+                "molar": 2,
+                "formula": "H\u2082",
+                "percentage": 82.5
+            },
+            {
+                "name": "Helium",
+                "molar": 4,
+                "formula": "He",
+                "percentage": 15.2
+            },
+            {
+                "name": "Methane",
+                "molar": 16,
+                "formula": "CH\u2084",
+                "percentage": 2.25
+            },
+            {
+                "name": "Ammonia (trace)",
+                "molar": 17,
+                "formula": "NH\u2083",
+                "percentage": 0.03
+            },
+            {
+                "name": "Hydrogen sulfide (trace)",
+                "molar": 34,
+                "formula": "H\u2082S",
+                "percentage": 0.01
+            },
+            {
+                "name": "Water vapor (trace)",
+                "molar": 18,
+                "formula": "H\u2082O",
+                "percentage": 0.005
+            },
+            {
+                "name": "Molecular nitrogen (trace)",
+                "molar": 28,
+                "formula": "N\u2082",
+                "percentage": 0.005
+            }
+        ],
+        "lastUpdated": "2025-09-25"
+    },
+    {
+        "_id": "690e2fe4b34414c4104f8805",
+        "name": "Neptune",
+        "id": 899,
+        "mass": 1.024e+26,
+        "density": 1.638,
+        "temperature": 72,
+        "pressure": 1,
+        "radiusEquatorial": 24766,
+        "radiusPolar": 24342,
+        "radiusCore": null,
+        "radiusHillsSphere": 4700,
+        "angularDiameter": 2.3,
+        "momentOfInertia": null,
+        "volumetricMeanRadius": 24620,
+        "volume": 62540000000000,
+        "moons": 14,
+        "rings": 5,
+        "gravityEquatorial": 11.15,
+        "gravityPolar": 11.41,
+        "escapeVelocity": 23.5,
+        "flattening": 0.0171,
+        "gravitationalParameter": 6835000,
+        "gravitationalParameterUncertainty": 10,
+        "rockyCoreMass": null,
+        "orbitalVelocity": 5.43,
+        "siderealOrbitPeriodD": 60189,
+        "siderealOrbitPeriodY": 164.788501027,
+        "obliquityToOrbit": 28.32,
+        "siderealRotationRate": 0.000108,
+        "siderealRotationPeriod": 16.11,
+        "solarDayLength": 16.11,
+        "albedo": 0.41,
+        "visualMagnitude": -6.87,
+        "visualMagnitudeOpposition": 7.84,
+        "rocheLimit": 2.98,
+        "solarConstant": {
+            "perihelion": 1.54,
+            "aphelion": 1.49,
+            "mean": 1.51
+        },
+        "maxIR": {
+            "perihelion": 0.52,
+            "aphelion": 0.52,
+            "mean": 0.52
+        },
+        "minIR": {
+            "perihelion": 0.52,
+            "aphelion": 0.52,
+            "mean": 0.52
+        },
+        "description": "A distant, deep-blue ice giant with dynamic weather and icy interiors.",
+        "expandedDescription": "Neptune is the eighth planet, a cold blue ice giant with fierce winds, methane-tinted clouds, and an interior of ices and rock. Discovered in 1846, it has a compact ring system, fourteen moons, and emits more internal heat than it receives, challenging models of giant planet formation and dynamics.",
+        "facts": [
+            "Neptune completes one orbit in about 164.79 Earth years.",
+            "A day on Neptune lasts about 16.11 hours.",
+            "Methane in Neptune's upper atmosphere gives it a striking blue color.",
+            "Neptune has 14 known moons and a faint system of rings."
+        ],
+        "visual": "First telescopic sighting: 1612 (Galileo); recognized as a planet: September 23, 1846",
+        "orbitalInclination": 1.76917,
+        "atmosphere": [
+            {
+                "name": "Molecular hydrogen",
+                "molar": 2,
+                "formula": "H\u2082",
+                "percentage": 80
+            },
+            {
+                "name": "Helium",
+                "molar": 4,
+                "formula": "He",
+                "percentage": 19
+            },
+            {
+                "name": "Methane",
+                "molar": 16,
+                "formula": "CH\u2084",
+                "percentage": 1.5
+            },
+            {
+                "name": "Ammonia (trace)",
+                "molar": 17,
+                "formula": "NH\u2083",
+                "percentage": 0.2
+            },
+            {
+                "name": "Water vapor (trace)",
+                "molar": 18,
+                "formula": "H\u2082O",
+                "percentage": 0.15
+            },
+            {
+                "name": "Ethane (trace)",
+                "molar": 30,
+                "formula": "C\u2082H\u2086",
+                "percentage": 0.1
+            },
+            {
+                "name": "Acetylene (trace)",
+                "molar": 26,
+                "formula": "C\u2082H\u2082",
+                "percentage": 0.03
+            },
+            {
+                "name": "Molecular nitrogen (trace)",
+                "molar": 28,
+                "formula": "N\u2082",
+                "percentage": 0.02
+            }
+        ],
+        "lastUpdated": "2021-05-03"
+    }
+]

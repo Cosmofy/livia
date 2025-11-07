@@ -101,14 +101,14 @@ public class PictureDataFetcher {
                     .block();
         } catch (Exception ex) {
             logger.error(lp("fetch failed: exception during HTTP call: {}"), ex.toString(), ex);
-            throw new GraphQLException("API Fetch failed.");
+            return getFallbackPicture(date);
         }
         final long httpMs = Duration.between(t0, Instant.now()).toMillis();
         logger.info(lp("fetch complete: {} ms"), httpMs);
 
         if (response == null) {
             logger.error(lp("fetch returned null body"));
-            throw new GraphQLException("API Fetch failed.");
+            return getFallbackPicture(date);
         }
         logger.debug(lp("response preview: {}"), response.substring(0, Math.min(response.length(), 400)));
 
@@ -119,11 +119,11 @@ public class PictureDataFetcher {
             map = gson.fromJson(response, type);
         } catch (Exception ex) {
             logger.error(lp("parse failed: invalid JSON: {}"), ex.toString(), ex);
-            throw new GraphQLException("API Parse failed.");
+            return getFallbackPicture(date);
         }
         if (map == null) {
             logger.error(lp("parse failed: root map is null"));
-            throw new GraphQLException("API Fetch failed.");
+            return getFallbackPicture(date);
         }
 
         // ===== E. Choose media (prefer HD if available) =====
@@ -263,5 +263,36 @@ public class PictureDataFetcher {
                     return null;
                 });
         return future;
+    }
+
+    private Picture getFallbackPicture(String requestedDate) {
+        logger.warn(lp("fallback: API failed, attempting to return cached picture"));
+
+        // Try to find the most recent picture in the database
+        try {
+            Document latestDoc = mongoTemplate.findOne(
+                new Query().with(org.springframework.data.domain.Sort.by(org.springframework.data.domain.Sort.Direction.DESC, "date")).limit(1),
+                Document.class,
+                "pictures"
+            );
+
+            if (latestDoc != null) {
+                logger.info(lp("fallback: returning cached picture from {}"), latestDoc.getString("date"));
+                return Picture.newBuilder()
+                        .title(latestDoc.getString("title"))
+                        .credit(latestDoc.getString("credit"))
+                        .date(latestDoc.getString("date"))
+                        .media(latestDoc.getString("media"))
+                        .copyright(latestDoc.getString("copyright"))
+                        .media_type(latestDoc.getString("media_type"))
+                        .build();
+            }
+        } catch (Exception e) {
+            logger.error(lp("fallback: failed to query MongoDB: {}"), e.toString(), e);
+        }
+
+        // Ultimate fallback: return null (GraphQL will handle gracefully)
+        logger.warn(lp("fallback: no cached pictures available, returning null"));
+        return null;
     }
 }
