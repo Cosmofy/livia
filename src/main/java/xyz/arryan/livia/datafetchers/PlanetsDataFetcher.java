@@ -74,9 +74,9 @@ public class PlanetsDataFetcher {
             }
 
             // Convert BSON documents to Planet objects
-            String json = documents.toString();
-            Type listType = new TypeToken<List<Planet>>() {}.getType();
-            List<Planet> planets = gson.fromJson(json, listType);
+            List<Planet> planets = documents.stream()
+                .map(doc -> gson.fromJson(doc.toJson(), Planet.class))
+                .toList();
 
             logger.info(lp("fetch complete: loaded planets={} from MongoDB"), planets.size());
             return planets;
