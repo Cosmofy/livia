@@ -1,20 +1,13 @@
-FROM eclipse-temurin:24-jdk
-
-# Install basic tools
-RUN apt-get update && apt-get install -y curl unzip
-
-# Set working directory
+# Build stage
+FROM eclipse-temurin:24-jdk AS builder
 WORKDIR /app
-
-# Copy source code
 COPY . .
-
-# Make Gradle wrapper executable
 RUN chmod +x ./gradlew
-RUN echo "Docker build reached: Gradle wrapper is executable"
+RUN ./gradlew bootJar --no-daemon
 
-# Expose port (adjust if needed)
+# Runtime stage
+FROM eclipse-temurin:24-jre-alpine
+WORKDIR /app
+COPY --from=builder /app/build/libs/*.jar app.jar
 EXPOSE 8080
-
-# Run the app (via Gradle)
-CMD ["./gradlew", "bootRun"]
+ENTRYPOINT ["java", "-jar", "app.jar"]

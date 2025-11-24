@@ -15,7 +15,7 @@ services:
       SPRING_DATA_MONGODB_PORT: 27017
 
   redis:
-    image: redis:7
+    image: redis:7-alpine
     container_name: redis
     ports:
       - 6379:6379
