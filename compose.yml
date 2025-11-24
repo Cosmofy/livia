@@ -3,7 +3,7 @@ services:
     build: .
     container_name: livia
     ports:
-      - 8080:8080
+      - 2259:2259
     depends_on:
       - mongo
     env_file:

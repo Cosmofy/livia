@@ -9,5 +9,5 @@ RUN ./gradlew bootJar --no-daemon
 FROM eclipse-temurin:24-jre-alpine
 WORKDIR /app
 COPY --from=builder /app/build/libs/*.jar app.jar
-EXPOSE 8080
+EXPOSE 2259
 ENTRYPOINT ["java", "-jar", "app.jar"]
