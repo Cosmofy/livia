@@ -29,7 +29,11 @@ jobs:
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_KEY }}" > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
-          ssh-keyscan -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts 2>/dev/null || true
+
+          echo "=== Testing SSH connection ==="
+          ssh -v -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no -o ConnectTimeout=30 ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "echo 'SSH OK' && hostname" || { echo "SSH connection failed"; exit 1; }
+
+          echo "=== Starting rsync ==="
           rsync -avzr --delete --exclude='.env' -e "ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no" . ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:~/livia
 
       - name: Deploy via SSH
