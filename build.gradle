@@ -60,4 +60,6 @@ tasks.named('test') {
 
 bootRun {
     jvmArgs '--enable-native-access=ALL-UNNAMED'
+    // Pass environment variables from shell to the JVM process
+    environment System.getenv()
 }

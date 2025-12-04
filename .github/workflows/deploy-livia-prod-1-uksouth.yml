@@ -43,26 +43,30 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           script: |
             set -euo pipefail
-  
+
             docker login ghcr.io -u "${{ secrets.GHCR_USER }}" -p "${{ secrets.GHCR_TOKEN }}"
             cd ~/livia
-            
+
             echo "=== Stopping & removing containers ==="
             docker compose -f compose.yml down --remove-orphans || true
-            
+
             echo "=== Removing all app images ==="
             docker images "ghcr.io/${{ secrets.GHCR_ORG }}/${{ secrets.IMAGE_NAME }}" --format "{{.Repository}}:{{.Tag}}" | while read img; do
             docker rmi -f "$img" || true
             done
-            
+
             echo "=== Full system prune (no volumes) ==="
             docker system prune -af || true
-            
-            echo "=== Pulling fresh image ==="
+
+            echo "=== Pulling fresh images ==="
             docker pull "ghcr.io/${{ secrets.GHCR_ORG }}/${{ secrets.IMAGE_NAME }}:latest"
-            
+            docker pull ghcr.io/berriai/litellm:main-stable
+
             echo "=== Starting clean containers ==="
             docker compose -f compose.yml up -d
-            
+
+            echo "=== Waiting for services to start ==="
+            sleep 10
+
             echo "=== Deployment complete ==="
             docker compose -f compose.yml ps

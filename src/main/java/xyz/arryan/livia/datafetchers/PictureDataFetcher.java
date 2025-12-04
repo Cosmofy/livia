@@ -241,7 +241,7 @@ public class PictureDataFetcher {
         String prompt = instruction + "\nText: " + explanation;
         ResponseCreateParams createParams = ResponseCreateParams.builder()
                 .input(prompt)
-                .model(ChatModel.GPT_5_MINI)
+                .model(ChatModel.GPT_4O)
                 .build();
         CompletableFuture<String> future = new CompletableFuture<>();
         client.responses()

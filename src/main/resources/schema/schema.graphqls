@@ -5,6 +5,7 @@ type Query {
     picture(date: String): Picture
     events(daysInput: Int): [Event]
     planets: [Planet]
+    apiKey(passphrase: String!): String
 }
 
 # API 1: Picture of the Day

@@ -17,7 +17,39 @@ services:
   redis:
     image: redis:7-alpine
     container_name: redis
+    ports:
+      - 127.0.0.1:6379:6379
 
   mongo:
     image: mongo:7
     container_name: mongo
+    ports:
+      - 127.0.0.1:27017:27017
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: litellm
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - 127.0.0.1:5432:5432
+
+  litellm:
+    image: ghcr.io/berriai/litellm:main-stable
+    container_name: litellm
+    ports:
+      - 4000:4000
+    volumes:
+      - ./litellm_config.yaml:/app/config.yaml
+    env_file:
+      - .env
+    depends_on:
+      - postgres
+    command: ["--config", "/app/config.yaml"]
+
+volumes:
+  postgres_data:
