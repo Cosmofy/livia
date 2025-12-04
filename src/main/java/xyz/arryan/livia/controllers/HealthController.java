@@ -20,7 +20,7 @@ public class HealthController {
                     "{ server }", "data.server"
             );
             if (serverValue != null && !serverValue.isEmpty()) {
-                return ResponseEntity.ok(serverValue);
+                return ResponseEntity.ok("200");
             } else {
                 return ResponseEntity.status(500).body("GraphQL query failed");
             }
