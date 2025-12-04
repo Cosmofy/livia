@@ -1,4 +1,4 @@
-name: deploy-livia-prod-1-uksouth
+name: deploy-livia-prod-2-uksouth
 
 on:
   workflow_dispatch:
@@ -12,7 +12,7 @@ jobs:
       github.event_name == 'workflow_dispatch' ||
       github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
-    environment: livia-prod-1-uksouth
+    environment: livia-prod-2-ussouth
 
     steps:
       - name: Connect to Tailscale
