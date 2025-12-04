@@ -26,47 +26,42 @@ jobs:
           tags: tag:ci
 
       - name: Sync repo to server
-        uses: burnett01/rsync-deployments@7.0.2
-        with:
-          switches: -avzr --delete --exclude='.env'
-          path: .
-          remote_path: ~/livia
-          remote_host: ${{ secrets.SSH_HOST }}
-          remote_user: ${{ secrets.SSH_USER }}
-          remote_key: ${{ secrets.SSH_KEY }}
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts 2>/dev/null || true
+          rsync -avzr --delete --exclude='.env' -e "ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no" . ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:~/livia
 
       - name: Deploy via SSH
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USER }}
-          key: ${{ secrets.SSH_KEY }}
-          script: |
-            set -euo pipefail
+        run: |
+          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'ENDSSH'
+          set -euo pipefail
 
-            docker login ghcr.io -u ${{ secrets.GHCR_USER }} -p ${{ secrets.GHCR_TOKEN }}
-            cd ~/livia
+          docker login ghcr.io -u ${{ secrets.GHCR_USER }} -p ${{ secrets.GHCR_TOKEN }}
+          cd ~/livia
 
-            echo "=== Stopping & removing containers ==="
-            docker compose -f compose.yml down --remove-orphans || true
+          echo "=== Stopping & removing containers ==="
+          docker compose -f compose.yml down --remove-orphans || true
 
-            echo "=== Removing all app images ==="
-            docker images "ghcr.io/${{ secrets.GHCR_USER }}/livia" --format "{{.Repository}}:{{.Tag}}" | while read img; do
-            docker rmi -f "$img" || true
-            done
+          echo "=== Removing all app images ==="
+          docker images "ghcr.io/${{ secrets.GHCR_USER }}/livia" --format "{{.Repository}}:{{.Tag}}" | while read img; do
+          docker rmi -f "$img" || true
+          done
 
-            echo "=== Full system prune (no volumes) ==="
-            docker system prune -af || true
+          echo "=== Full system prune (no volumes) ==="
+          docker system prune -af || true
 
-            echo "=== Pulling fresh images ==="
-            docker pull ghcr.io/${{ secrets.GHCR_USER }}/livia:latest
-            docker pull ghcr.io/berriai/litellm:main-stable
+          echo "=== Pulling fresh images ==="
+          docker pull ghcr.io/${{ secrets.GHCR_USER }}/livia:latest
+          docker pull ghcr.io/berriai/litellm:main-stable
 
-            echo "=== Starting clean containers ==="
-            docker compose -f compose.yml up -d
+          echo "=== Starting clean containers ==="
+          docker compose -f compose.yml up -d
 
-            echo "=== Waiting for services to start ==="
-            sleep 10
+          echo "=== Waiting for services to start ==="
+          sleep 10
 
-            echo "=== Deployment complete ==="
-            docker compose -f compose.yml ps
+          echo "=== Deployment complete ==="
+          docker compose -f compose.yml ps
+          ENDSSH
