@@ -1,23 +1,20 @@
 name: deploy-livia-prod-1-uksouth
 
 on:
-  workflow_dispatch:      # allow manual run
-  workflow_run:           # also run after build
+  workflow_dispatch:
+  workflow_run:
     workflows: [ build ]
     types: [ completed ]
 
 jobs:
   deploy:
     if: |
-      github.event_name == 'push' ||
       github.event_name == 'workflow_dispatch' ||
       github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     environment: livia-prod-1-uksouth
 
     steps:
-      - uses: actions/checkout@v4
-
       - name: Connect to Tailscale
         uses: tailscale/github-action@v4
         with:
@@ -25,48 +22,33 @@ jobs:
           oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
           tags: tag:ci
 
-      - name: Sync repo to server (~/livia)
-        uses: burnett01/rsync-deployments@7.0.2
-        with:
-          switches: -avzr --delete --exclude='.env'
-          path: .
-          remote_path: ${{ secrets.APP_DIR }}
-          remote_host: ${{ secrets.SSH_HOST }}
-          remote_user: ${{ secrets.SSH_USER }}
-          remote_key: ${{ secrets.SSH_KEY }}
-
       - name: Deploy via SSH
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USER }}
-          key: ${{ secrets.SSH_KEY }}
-          script: |
-            set -euo pipefail
+        env:
+          SSH_KEY: ${{ secrets.SSH_KEY }}
+          SSH_USER: ${{ secrets.SSH_USER }}
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          GHCR_USER: ${{ secrets.GHCR_USER }}
+          GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
+          GHCR_ORG: ${{ secrets.GHCR_ORG }}
+          IMAGE_NAME: ${{ secrets.IMAGE_NAME }}
+        run: |
+          mkdir -p ~/.ssh
+          echo "${SSH_KEY}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
 
-            docker login ghcr.io -u "${{ secrets.GHCR_USER }}" -p "${{ secrets.GHCR_TOKEN }}"
-            cd ~/livia
-
-            echo "=== Stopping & removing containers ==="
-            docker compose -f compose.yml down --remove-orphans || true
-
-            echo "=== Removing all app images ==="
-            docker images "ghcr.io/${{ secrets.GHCR_ORG }}/${{ secrets.IMAGE_NAME }}" --format "{{.Repository}}:{{.Tag}}" | while read img; do
-            docker rmi -f "$img" || true
-            done
-
-            echo "=== Full system prune (no volumes) ==="
-            docker system prune -af || true
-
-            echo "=== Pulling fresh images ==="
-            docker pull "ghcr.io/${{ secrets.GHCR_ORG }}/${{ secrets.IMAGE_NAME }}:latest"
-            docker pull ghcr.io/berriai/litellm:main-stable
-
-            echo "=== Starting clean containers ==="
-            docker compose -f compose.yml up -d
-
-            echo "=== Waiting for services to start ==="
-            sleep 10
-
-            echo "=== Deployment complete ==="
-            docker compose -f compose.yml ps
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/deploy_key ${SSH_USER}@${SSH_HOST} \
+            "echo '${GHCR_TOKEN}' | docker login ghcr.io -u '${GHCR_USER}' --password-stdin && \
+             docker pull ghcr.io/${GHCR_ORG}/${IMAGE_NAME}:latest && \
+             docker stop livia || true && \
+             docker rm livia || true && \
+             docker run -d --name livia \
+               --network livia_default \
+               -p 2259:2259 \
+               --env-file ~/livia/.env \
+               -e SPRING_DATA_REDIS_HOST=redis \
+               -e SPRING_DATA_REDIS_PORT=6379 \
+               -e SPRING_DATA_MONGODB_HOST=mongo \
+               -e SPRING_DATA_MONGODB_PORT=27017 \
+               ghcr.io/${GHCR_ORG}/${IMAGE_NAME}:latest && \
+             docker image prune -f && \
+             docker ps | grep livia"
