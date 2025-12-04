@@ -50,7 +50,7 @@ jobs:
           cd ~/livia
 
           echo "=== Stopping & removing containers ==="
-          docker compose -f compose.yml down --remove-orphans || true
+          docker compose -f compose.prod.yml down --remove-orphans || true
 
           echo "=== Removing all app images ==="
           docker images "ghcr.io/${GHCR_ORG}/${IMAGE_NAME}" --format "{{.Repository}}:{{.Tag}}" | while read img; do
@@ -65,11 +65,11 @@ jobs:
           docker pull ghcr.io/berriai/litellm:main-stable
 
           echo "=== Starting clean containers ==="
-          docker compose -f compose.yml up -d
+          docker compose -f compose.prod.yml up -d
 
           echo "=== Waiting for services to start ==="
           sleep 10
 
           echo "=== Deployment complete ==="
-          docker compose -f compose.yml ps
+          docker compose -f compose.prod.yml ps
           EOF

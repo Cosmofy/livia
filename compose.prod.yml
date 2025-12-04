@@ -1,0 +1,55 @@
+services:
+  livia:
+    image: ghcr.io/cosmofy/livia:latest
+    container_name: livia
+    ports:
+      - 2259:2259
+    depends_on:
+      - mongo
+    env_file:
+      - .env
+    environment:
+      SPRING_DATA_REDIS_HOST: redis
+      SPRING_DATA_REDIS_PORT: 6379
+      SPRING_DATA_MONGODB_HOST: mongo
+      SPRING_DATA_MONGODB_PORT: 27017
+
+  redis:
+    image: redis:7-alpine
+    container_name: redis
+    ports:
+      - 127.0.0.1:6379:6379
+
+  mongo:
+    image: mongo:7
+    container_name: mongo
+    ports:
+      - 127.0.0.1:27017:27017
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: litellm
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - 127.0.0.1:5432:5432
+
+  litellm:
+    image: ghcr.io/berriai/litellm:main-stable
+    container_name: litellm
+    ports:
+      - 4000:4000
+    volumes:
+      - ./litellm_config.yaml:/app/config.yaml
+    env_file:
+      - .env
+    depends_on:
+      - postgres
+    command: ["--config", "/app/config.yaml"]
+
+volumes:
+  postgres_data:
