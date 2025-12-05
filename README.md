@@ -8,9 +8,9 @@ A scalable, AI-augmented GraphQL backend powering the **Cosmofy** astronomy plat
 * Global DNS Routing: `https://livia.arryan.xyz/graphql`
 * Direct Servers:
 
-    * 🇬🇧 London (Oracle ARM): `https://prod1.livia.arryan.xyz/graphql`
-    * 🇺🇸 Dallas (Google Cloud x86): `https://prod2.livia.arryan.xyz/graphql`
-    * 🇸🇬 Singapore (AWS ARM): `https://prod3.livia.arryan.xyz/graphql`
+    * 🇺🇸 Raptor (Self-hosted x86): `https://prod1.livia.arryan.xyz/graphql`
+    * 🇬🇧 UK South (Oracle ARM): `https://prod2.livia.arryan.xyz/graphql`
+    * 🇸🇬 Singapore (Google Cloud x86): `https://prod3.livia.arryan.xyz/graphql`
 
 GraphiQL Playground: [https://livia.arryan.xyz/graphiql](https://livia.arryan.xyz/graphiql)
 
@@ -23,14 +23,14 @@ The backend integrates with:
 * **NASA APOD** (Astronomy Picture of the Day)
 * **NASA EONET** (Earth Observatory Natural Event Tracker)
 * **NASA JPL Horizons** (Jet Propulsion Laboratory orbital/planetary data)
-* **OpenAI GPT-5** (content generation, summarization, parsing)
+* **OpenAI GPT-5** (content generation, summarization)
 * **MongoDB** (persistent storage)
 * **Redis** (multi-region caching)
 * **AWS Route 53** (latency-based routing)
 
 
 
-Backend is deployed to Oracle Cloud and is open-source under the [Cosmofy GitHub organization](https://github.com/Cosmofy).
+Backend is open-source under the [Cosmofy GitHub organization](https://github.com/Cosmofy).
 
 
 
@@ -44,9 +44,9 @@ Backend is deployed to Oracle Cloud and is open-source under the [Cosmofy GitHub
 | **CI/CD**            | GitHub Actions                                  |
 | **Caching**          | Redis                                           |
 | **DB**               | MongoDB                                         |
-| **AI Models**        | OpenAI GPT-5 and 5-Mini for parsing & summaries |
-| **Hosting**          | Multi-cloud (Oracle, GCP, AWS)                  |
-| **Routing**          | AWS Route 53 latency-based DNS                  |
+| **AI Models**        | OpenAI GPT-5 for content generation & summaries |
+| **Hosting**          | Multi-cloud (Self-hosted, Oracle, GCP)          |
+| **Routing**          | AWS Route 53                                    |
 
 
 ## Features
@@ -54,19 +54,19 @@ Backend is deployed to Oracle Cloud and is open-source under the [Cosmofy GitHub
 - Schema-first GraphQL API (`.graphqls`)
 - Dynamic per-device data filtering
 - Redis/Valkey TTL-based caching
-- GPT-powered content generation and parsing
+- GPT-powered content generation and summarization
 - Cron jobs for APOD preloading
 - Open-source, modular, and containerized
 
 
 
 ## Modules & TTLs
-| Module     | Source(s) + Processing     | TTL / Storage                         |
-| ---------- | -------------------------- | ------------------------------------- |
-| `planets`  | JPL Horizons + GPT parsing | 30 days (Redis)                       |
-| `picture`  | NASA APOD + AI summaries   | Day-end invalidation (MongoDB)        |
-| `events`   | NASA EONET + geo filtering | 1 hour (Redis)                        |
-| `articles` | Curated monthly content    | Month-end invalidation (JSON/MongoDB) |
+| Module     | Source(s) + Processing     | TTL / Storage              |
+| ---------- | -------------------------- | -------------------------- |
+| `planets`  | JPL Horizons + manual      | Static (JSON)              |
+| `picture`  | NASA APOD + AI summaries   | Day-end invalidation (MongoDB) |
+| `events`   | NASA EONET + geo filtering | 1 hour (Redis)             |
+| `articles` | Curated monthly content    | Static (JSON)              |
 
 
 
@@ -78,6 +78,7 @@ Backend is deployed to Oracle Cloud and is open-source under the [Cosmofy GitHub
 Full Schema Example Query:
 ```
 query FullSchema {
+  server
   time
   planets {
     moons

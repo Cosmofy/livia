@@ -11,7 +11,7 @@ Livia is a scalable, AI-augmented GraphQL backend powering the Cosmofy astronomy
 **Production Endpoints**:
 - Global DNS: `https://livia.arryan.xyz/graphql`
 - GraphiQL Playground: `https://livia.arryan.xyz/graphiql`
-- Multi-region deployment: London (Oracle ARM), Dallas (GCP x86), Singapore (AWS ARM)
+- Multi-region deployment: Raptor (US), UK South, Singapore
 
 ## Commands
 
@@ -37,6 +37,7 @@ docker-compose up
 Create a `.env` file with:
 ```
 OPENAI_API_KEY=your_key_here
+NASA_API_KEY=your_nasa_api_key
 LIVIA_REGION=your_region
 ```
 
@@ -54,7 +55,7 @@ Each GraphQL query is implemented as a `@DgsComponent` with `@DgsQuery` methods 
 
 - **PlanetsDataFetcher**: Loads static planetary data from MongoDB (primary) or `src/main/resources/planets.json` (fallback). Data was initially generated using AI (GPT-5-Mini) to parse NASA JPL Horizons API responses. Now stored statically for manual verification/editing via MongoDB Compass. Cached for 30 days in Redis.
 
-- **PictureDataFetcher**: Retrieves NASA APOD (Astronomy Picture of the Day) with AI-generated summaries and kid-friendly explanations. Stored in MongoDB with day-end invalidation.
+- **PictureDataFetcher**: Fetches from the official NASA APOD API (`api.nasa.gov/planetary/apod`) with AI-generated summaries and kid-friendly explanations. Includes retry logic (2 attempts) and proper error handling. Stored in MongoDB with day-end invalidation. Requires `NASA_API_KEY` environment variable.
 
 - **EventsDataFetcher**: Pulls natural disaster events from NASA EONET with geographic filtering. Cached for 1 hour in Redis.
 
