@@ -88,7 +88,8 @@ public class PictureDataFetcher {
         logger.info(lp("cache miss: no picture for {}; will fetch"), date);
 
         // ===== C. Fetch from API (with retry) =====
-        final String api_source = "https://apod.ellanan.com/api?date=" + date;
+        final String nasaApiKey = System.getenv("NASA_API_KEY");
+        final String api_source = "https://api.nasa.gov/planetary/apod?api_key=" + nasaApiKey + "&date=" + date;
         final String response = fetchWithRetry(api_source, 2);
         if (response == null) {
             throw new GraphQLException("Failed to fetch picture for " + date + " after multiple attempts. Please try again later.");
