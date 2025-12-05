@@ -14,6 +14,8 @@ A scalable, AI-augmented GraphQL backend powering the **Cosmofy** astronomy plat
 
 GraphiQL Playground: [https://livia.arryan.xyz/graphiql](https://livia.arryan.xyz/graphiql)
 
+Status Page: [https://status.cosmofy.arryan.xyz](https://status.cosmofy.arryan.xyz)
+
 
 ## Overview
 
