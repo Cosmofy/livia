@@ -87,28 +87,11 @@ public class PictureDataFetcher {
         }
         logger.info(lp("cache miss: no picture for {}; will fetch"), date);
 
-        // ===== C. Fetch from API =====
+        // ===== C. Fetch from API (with retry) =====
         final String api_source = "https://apod.ellanan.com/api?date=" + date;
-        logger.info(lp("fetch begin: GET {}"), api_source);
-        final Instant t0 = Instant.now();
-        final String response;
-        try {
-            response = webClient
-                    .get()
-                    .uri(api_source)
-                    .retrieve()
-                    .bodyToMono(String.class)
-                    .block();
-        } catch (Exception ex) {
-            logger.error(lp("fetch failed: exception during HTTP call: {}"), ex.toString(), ex);
-            return getFallbackPicture(date);
-        }
-        final long httpMs = Duration.between(t0, Instant.now()).toMillis();
-        logger.info(lp("fetch complete: {} ms"), httpMs);
-
+        final String response = fetchWithRetry(api_source, 2);
         if (response == null) {
-            logger.error(lp("fetch returned null body"));
-            return getFallbackPicture(date);
+            throw new GraphQLException("Failed to fetch picture for " + date + " after multiple attempts. Please try again later.");
         }
         logger.debug(lp("response preview: {}"), response.substring(0, Math.min(response.length(), 400)));
 
@@ -119,11 +102,11 @@ public class PictureDataFetcher {
             map = gson.fromJson(response, type);
         } catch (Exception ex) {
             logger.error(lp("parse failed: invalid JSON: {}"), ex.toString(), ex);
-            return getFallbackPicture(date);
+            throw new GraphQLException("Failed to parse picture data for " + date);
         }
         if (map == null) {
             logger.error(lp("parse failed: root map is null"));
-            return getFallbackPicture(date);
+            throw new GraphQLException("Failed to parse picture data for " + date);
         }
 
         // ===== E. Choose media (prefer HD if available) =====
@@ -265,34 +248,29 @@ public class PictureDataFetcher {
         return future;
     }
 
-    private Picture getFallbackPicture(String requestedDate) {
-        logger.warn(lp("fallback: API failed, attempting to return cached picture"));
-
-        // Try to find the most recent picture in the database
-        try {
-            Document latestDoc = mongoTemplate.findOne(
-                new Query().with(org.springframework.data.domain.Sort.by(org.springframework.data.domain.Sort.Direction.DESC, "date")).limit(1),
-                Document.class,
-                "pictures"
-            );
-
-            if (latestDoc != null) {
-                logger.info(lp("fallback: returning cached picture from {}"), latestDoc.getString("date"));
-                return Picture.newBuilder()
-                        .title(latestDoc.getString("title"))
-                        .credit(latestDoc.getString("credit"))
-                        .date(latestDoc.getString("date"))
-                        .media(latestDoc.getString("media"))
-                        .copyright(latestDoc.getString("copyright"))
-                        .media_type(latestDoc.getString("media_type"))
-                        .build();
+    private String fetchWithRetry(String url, int maxAttempts) {
+        for (int attempt = 1; attempt <= maxAttempts; attempt++) {
+            logger.info(lp("fetch attempt {}/{}: GET {}"), attempt, maxAttempts, url);
+            final Instant t0 = Instant.now();
+            try {
+                String response = webClient
+                        .get()
+                        .uri(url)
+                        .retrieve()
+                        .bodyToMono(String.class)
+                        .block();
+                final long httpMs = Duration.between(t0, Instant.now()).toMillis();
+                if (response != null) {
+                    logger.info(lp("fetch complete: {} ms (attempt {})"), httpMs, attempt);
+                    return response;
+                }
+                logger.warn(lp("fetch returned null body (attempt {})"), attempt);
+            } catch (Exception ex) {
+                final long httpMs = Duration.between(t0, Instant.now()).toMillis();
+                logger.error(lp("fetch failed after {} ms (attempt {}): {}"), httpMs, attempt, ex.toString());
             }
-        } catch (Exception e) {
-            logger.error(lp("fallback: failed to query MongoDB: {}"), e.toString(), e);
         }
-
-        // Ultimate fallback: return null (GraphQL will handle gracefully)
-        logger.warn(lp("fallback: no cached pictures available, returning null"));
+        logger.error(lp("all {} fetch attempts failed for {}"), maxAttempts, url);
         return null;
     }
 }
