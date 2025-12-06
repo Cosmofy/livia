@@ -42,6 +42,7 @@ jobs:
              docker stop livia || true && \
              docker rm livia || true && \
              docker run -d --name livia \
+               --restart=always \
                --network livia_default \
                -p 2259:2259 \
                --env-file ~/livia/.env \
