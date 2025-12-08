@@ -164,7 +164,7 @@
         "url": "https://www.quantamagazine.org/how-nearly-nothing-might-solve-cosmologys-biggest-questions-20230725/",
         "source": "Quanta Magazine",
         "banner": {
-            "image": "https://www.quantamagazine.org/wp-content/uploads/2023/07/CosmicVoids-byTNGCollaboration-Lede.mp4",
+            "image": "https://cosmofy-articles.s3.us-east-2.amazonaws.com/cosmic-voids.jpg",
             "designer": "TNG Collaboration"
         },
         "authors": [
@@ -180,10 +180,10 @@
         "year": 2025,
         "title": "New Maps of the Bizarre, Chaotic Space-Time Inside Black Holes",
         "subtitle": " Physicists hope that understanding the churning region near singularities might help them reconcile gravity and quantum mechanics.",
-        "url": "https://www.quantamagazine.org/the-best-neighborhoods-for-starting-a-life-in-the-galaxy-20240124/",
+        "url": "https://www.quantamagazine.org/new-maps-of-the-bizarre-chaotic-space-time-inside-black-holes-20250224/",
         "source": "Quanta Magazine",
         "banner": {
-            "image": "https://www.quantamagazine.org/wp-content/uploads/2025/02/MixmasterSingularities_DaveWhyte_Lede.mp4",
+            "image": "https://cosmofy-articles.s3.us-east-2.amazonaws.com/mixmaster-singularities.jpg",
             "designer": "Dave Whyte for Quanta Magazine"
         },
         "authors": [
@@ -240,7 +240,7 @@
         "url": "https://www.quantamagazine.org/cosmologists-try-a-new-way-to-measure-the-shape-of-the-universe-20250127/",
         "source": "Quanta Magazine",
         "banner": {
-            "image": "/thumbnails/topology-universe-2025-06.webp",
+            "image": "https://cosmofy-articles.s3.us-east-2.amazonaws.com/topology-universe.jpg",
             "designer": "DVDP for Quanta Magazine"
         },
         "authors": [
@@ -267,6 +267,63 @@
                 "name": "Elise Cutts",
                 "title": "Contributing Writer",
                 "image": "https://www.quantamagazine.org/wp-content/uploads/2023/06/Elise_Cutts.jpg"
+            }
+        ]
+    },
+    {
+        "month": 8,
+        "year": 2025,
+        "title": "Clashing Cosmic Numbers Challenge Our Best Theory of the Universe",
+        "subtitle": "As measurements of distant stars and galaxies become more precise, cosmologists are struggling to make sense of sparring values.",
+        "url": "https://www.quantamagazine.org/clashing-cosmic-numbers-challenge-our-best-theory-of-the-universe-20240119/",
+        "source": "Quanta Magazine",
+        "banner": {
+            "image": "https://www.quantamagazine.org/wp-content/uploads/2024/01/CosmologicalTensions-byKouzouSakai-Lede-2048x1152.webp",
+            "designer": "Kouzou Sakai for Quanta Magazine"
+        },
+        "authors": [
+            {
+                "name": "Liz Kruesi",
+                "title": "Contributing Writer",
+                "image": "https://www.quantamagazine.org/wp-content/uploads/2017/04/Kruesi_Liz1.jpg"
+            }
+        ]
+    },
+    {
+        "month": 9,
+        "year": 2025,
+        "title": "Why Is Venus Hell and Earth an Eden?",
+        "subtitle": "A team of scientists has investigated how Earth’s twin became so inhospitable, and whether the same will happen to our planet.",
+        "url": "https://www.quantamagazine.org/why-is-venus-hell-and-earth-an-eden-20250915/",
+        "source": "Quanta Magazine",
+        "banner": {
+            "image": "https://www.quantamagazine.org/wp-content/uploads/2025/09/08-VENUS-vs-EARTH-cr.Mark-Belan-Lede-1720x963.webp",
+            "designer": "Mark Belan/Quanta Magazine"
+        },
+        "authors": [
+            {
+                "name": "Robin George Andrews",
+                "title": "Contributing Writer",
+                "image": "https://www.quantamagazine.org/wp-content/uploads/2019/09/Andrews-Robin.jpg"
+            }
+        ]
+    },
+    {
+        "month": 10,
+        "year": 2025,
+        "title": "The Ends of the Earth",
+        "subtitle": "Building an accurate model of Earth’s climate requires a lot of data. Photography reveals the extreme efforts scientists have undertaken to measure gases, glaciers, clouds and more.",
+        "url": "https://www.quantamagazine.org/photos-capture-the-extreme-beautiful-work-of-climate-science-20250915/",
+        "source": "Quanta Magazine",
+        "banner": {
+            "image": "https://www.quantamagazine.org/wp-content/uploads/2025/09/01-PHOTO-ESSAY-cr.Mark-Belan-Lede-1720x927.webp",
+            "designer": "Mark Belan/Quanta Magazine"
+        },
+        "authors": [
+            {
+                "name": "Robin George Andrews",
+                "title": "Contributing Writer",
+                "image": "https://www.quantamagazine.org/wp-content/uploads/2019/09/Andrews-Robin.jpg"
             }
         ]
     },
