@@ -43,9 +43,9 @@ jobs:
              docker rm livia || true && \
              docker run -d --name livia \
                --restart=always \
-               --network livia_default \
+               --network livia_prod \
                -p 2259:2259 \
-               --env-file ~/livia/.env \
+               --env-file /srv/infra/livia/.env \
                -e SPRING_DATA_REDIS_HOST=redis \
                -e SPRING_DATA_REDIS_PORT=6379 \
                -e SPRING_DATA_MONGODB_HOST=mongo \
