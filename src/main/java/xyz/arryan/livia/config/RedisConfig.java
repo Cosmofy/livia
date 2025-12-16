@@ -30,9 +30,29 @@ public class RedisConfig {
                 .serializeValuesWith(jsonSerializer)
                 .entryTtl(Duration.ofHours(1));
 
+        RedisCacheConfiguration auroraSpaceWeatherConfig = RedisCacheConfiguration.defaultCacheConfig()
+                .serializeValuesWith(jsonSerializer)
+                .entryTtl(Duration.ofMinutes(5));
+
+        RedisCacheConfiguration auroraSolarWindConfig = RedisCacheConfiguration.defaultCacheConfig()
+                .serializeValuesWith(jsonSerializer)
+                .entryTtl(Duration.ofMinutes(1));
+
+        RedisCacheConfiguration auroraOvalConfig = RedisCacheConfiguration.defaultCacheConfig()
+                .serializeValuesWith(jsonSerializer)
+                .entryTtl(Duration.ofMinutes(10));
+
+        RedisCacheConfiguration auroraWebcamsConfig = RedisCacheConfiguration.defaultCacheConfig()
+                .serializeValuesWith(jsonSerializer)
+                .entryTtl(Duration.ofDays(7));
+
         Map<String, RedisCacheConfiguration> configs = new HashMap<>();
         configs.put("planets", planetsConfig);
         configs.put("events", eventsConfig);
+        configs.put("aurora:kp", auroraSpaceWeatherConfig);
+        configs.put("aurora:solar_wind", auroraSolarWindConfig);
+        configs.put("aurora:oval", auroraOvalConfig);
+        configs.put("aurora:webcams", auroraWebcamsConfig);
 
         return RedisCacheManager.builder(connectionFactory)
                 .withInitialCacheConfigurations(configs)

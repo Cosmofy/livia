@@ -1,0 +1,92 @@
+[
+  {
+    "name": "Churchill Northern Studies Centre",
+    "location": "Churchill, Manitoba, Canada",
+    "url": "https://www.youtube.com/embed/Cx5lHPhikDM",
+    "streamType": "youtube",
+    "lat": 58.7684,
+    "lon": -94.1650,
+    "active": true
+  },
+  {
+    "name": "Fairbanks Aurora Cam",
+    "location": "Fairbanks, Alaska, USA",
+    "url": "https://www.youtube.com/embed/SHGSHAXAeJA",
+    "streamType": "youtube",
+    "lat": 64.8378,
+    "lon": -147.7164,
+    "active": true
+  },
+  {
+    "name": "Abisko Sky Station",
+    "location": "Abisko, Sweden",
+    "url": "https://www.youtube.com/embed/tHJeMrJhE8c",
+    "streamType": "youtube",
+    "lat": 68.3496,
+    "lon": 18.8306,
+    "active": true
+  },
+  {
+    "name": "Yellowknife Aurora Cam",
+    "location": "Yellowknife, Northwest Territories, Canada",
+    "url": "https://www.youtube.com/embed/qk7T0JhevHM",
+    "streamType": "youtube",
+    "lat": 62.4540,
+    "lon": -114.3718,
+    "active": true
+  },
+  {
+    "name": "Tromso Northern Lights",
+    "location": "Tromso, Norway",
+    "url": "https://www.youtube.com/embed/zGPL0uWM7rI",
+    "streamType": "youtube",
+    "lat": 69.6496,
+    "lon": 18.9560,
+    "active": true
+  },
+  {
+    "name": "Reykjavik Sky Cam",
+    "location": "Reykjavik, Iceland",
+    "url": "https://www.youtube.com/embed/rXVZ1qRvcpE",
+    "streamType": "youtube",
+    "lat": 64.1466,
+    "lon": -21.9426,
+    "active": true
+  },
+  {
+    "name": "Kiruna Aurora",
+    "location": "Kiruna, Sweden",
+    "url": "https://www.youtube.com/embed/kJOREHLX9zU",
+    "streamType": "youtube",
+    "lat": 67.8558,
+    "lon": 20.2253,
+    "active": true
+  },
+  {
+    "name": "Rovaniemi Arctic Circle",
+    "location": "Rovaniemi, Finland",
+    "url": "https://www.youtube.com/embed/hJHuv9k8R2A",
+    "streamType": "youtube",
+    "lat": 66.5039,
+    "lon": 25.7294,
+    "active": true
+  },
+  {
+    "name": "Svalbard Polar Night",
+    "location": "Longyearbyen, Svalbard, Norway",
+    "url": "https://www.youtube.com/embed/JYLWBgZ0YCw",
+    "streamType": "youtube",
+    "lat": 78.2232,
+    "lon": 15.6267,
+    "active": true
+  },
+  {
+    "name": "Tasmania Aurora Australis",
+    "location": "Hobart, Tasmania, Australia",
+    "url": "https://www.youtube.com/embed/southern_lights_cam",
+    "streamType": "youtube",
+    "lat": -42.8821,
+    "lon": 147.3272,
+    "active": false
+  }
+]
