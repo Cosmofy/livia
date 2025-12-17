@@ -542,40 +542,92 @@ public class AuroraDataFetcher {
                 .build();
     }
 
-    // ===== NEARBY PREDICTIONS (1200 points) =====
+    // ===== NEARBY PREDICTIONS (~315 points) =====
     private List<NearbyPrediction> fetchNearbyPredictions(double centerLat, double centerLon) {
         logger.info(lp("generating nearby predictions for lat={}, lon={}"), centerLat, centerLon);
 
-        List<NearbyPrediction> predictions = new ArrayList<>();
-        int rings = 10;
-        int pointsPerRing = 120; // every 3 degrees
-        double[] distances = {50, 100, 150, 200, 250, 300, 350, 400, 450, 500}; // miles
+        // Configuration
+        final double MAX_RADIUS_MILES = 250.0;    // ~4 hour drive
+        final double RING_SPACING_MILES = 50.0;   // 5 rings
+        final double POINT_SPACING_MILES = 15.0;  // arc distance between points
 
-        // Generate all coordinates
+        List<NearbyPrediction> predictions = new ArrayList<>();
         List<Map<String, Object>> locations = new ArrayList<>();
-        for (int ring = 0; ring < rings; ring++) {
-            double distanceMiles = distances[ring];
-            for (int point = 0; point < pointsPerRing; point++) {
-                int bearing = point * 3; // every 3 degrees
-                double[] dest = destinationPoint(centerLat, centerLon, distanceMiles, bearing);
+
+        // Generate rings with variable point density
+        for (double radius = RING_SPACING_MILES; radius <= MAX_RADIUS_MILES; radius += RING_SPACING_MILES) {
+            // Points per ring = circumference / point spacing
+            double circumference = 2 * Math.PI * radius;
+            int pointsInRing = (int) Math.round(circumference / POINT_SPACING_MILES);
+            double degreesPerPoint = 360.0 / pointsInRing;
+
+            logger.debug(lp("ring radius={} mi, circumference={} mi, points={}"),
+                    radius, Math.round(circumference), pointsInRing);
+
+            for (int i = 0; i < pointsInRing; i++) {
+                int bearing = (int) Math.round(i * degreesPerPoint) % 360;
+                double[] dest = destinationPoint(centerLat, centerLon, radius, bearing);
                 locations.add(Map.of(
                         "latitude", dest[0],
                         "longitude", dest[1],
                         "bearing", bearing,
-                        "distanceMiles", (int) distanceMiles
+                        "distanceMiles", (int) radius
                 ));
             }
         }
 
-        // For now, return placeholder data - batch endpoint needed for real implementation
-        // In production, this would call /predict/batch with all locations
+        logger.info(lp("generated {} nearby coordinates"), locations.size());
+
+        // Call batch prediction API
+        try {
+            String requestBody = gson.toJson(Map.of("locations",
+                    locations.stream().map(loc -> Map.of(
+                            "latitude", loc.get("latitude"),
+                            "longitude", loc.get("longitude")
+                    )).toList()));
+
+            String response = webClient.post()
+                    .uri(auroraMlApiUrl + "/predict/batch")
+                    .header("Content-Type", "application/json")
+                    .bodyValue(requestBody)
+                    .retrieve()
+                    .bodyToMono(String.class)
+                    .block();
+
+            if (response != null) {
+                JsonObject data = gson.fromJson(response, JsonObject.class);
+                JsonArray predictionArray = data.getAsJsonArray("predictions");
+
+                for (int i = 0; i < predictionArray.size() && i < locations.size(); i++) {
+                    JsonObject pred = predictionArray.get(i).getAsJsonObject();
+                    Map<String, Object> loc = locations.get(i);
+
+                    predictions.add(NearbyPrediction.newBuilder()
+                            .lat((Double) loc.get("latitude"))
+                            .lon((Double) loc.get("longitude"))
+                            .bearing((Integer) loc.get("bearing"))
+                            .distanceMiles((Integer) loc.get("distanceMiles"))
+                            .probability(pred.has("probability") ? pred.get("probability").getAsDouble() : 0.0)
+                            .cloudCover(pred.has("cloud_cover") && !pred.get("cloud_cover").isJsonNull()
+                                    ? pred.get("cloud_cover").getAsDouble() : null)
+                            .build());
+                }
+
+                logger.info(lp("batch predictions received: {}"), predictions.size());
+                return predictions;
+            }
+        } catch (Exception e) {
+            logger.error(lp("batch prediction failed: {}"), e.getMessage());
+        }
+
+        // Fallback: return coordinates without predictions
         for (Map<String, Object> loc : locations) {
             predictions.add(NearbyPrediction.newBuilder()
                     .lat((Double) loc.get("latitude"))
                     .lon((Double) loc.get("longitude"))
                     .bearing((Integer) loc.get("bearing"))
                     .distanceMiles((Integer) loc.get("distanceMiles"))
-                    .probability(0.0) // Placeholder - would come from batch API
+                    .probability(0.0)
                     .cloudCover(null)
                     .build());
         }
