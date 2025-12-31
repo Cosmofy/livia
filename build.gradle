@@ -10,7 +10,7 @@ version = '0.0.1-SNAPSHOT'
 
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(24)
+        languageVersion = JavaLanguageVersion.of(21)
     }
 }
 
@@ -32,10 +32,14 @@ dependencies {
     implementation 'com.netflix.graphql.dgs:graphql-dgs-spring-graphql-starter'
     implementation 'org.springframework.boot:spring-boot-starter-webflux'
     implementation 'com.google.code.gson:gson:2.13.1'
-    implementation("com.openai:openai-java:3.0.2")
+    // MongoDB
     implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
+    implementation("com.openai:openai-java:3.0.2")
     implementation 'com.fasterxml.jackson.core:jackson-databind'
-    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+    // JWT for WeatherKit authentication
+    implementation 'io.jsonwebtoken:jjwt-api:0.12.6'
+    runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.6'
+    runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.6'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'com.netflix.graphql.dgs:graphql-dgs-spring-graphql-starter-test'
     testImplementation 'io.projectreactor:reactor-test'

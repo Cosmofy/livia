@@ -1,0 +1,288 @@
+# Universe Hierarchical Schema
+# Structure: Universe > Supercluster > GalaxyCluster > Galaxy > StarSystem > Star/Planets > Moons
+
+# ============== ENUMS ==============
+
+enum GalaxyType {
+    SPIRAL
+    ELLIPTICAL
+    IRREGULAR
+    LENTICULAR
+}
+
+enum StarType {
+    O_TYPE
+    B_TYPE
+    A_TYPE
+    F_TYPE
+    G_TYPE
+    K_TYPE
+    M_TYPE
+    WHITE_DWARF
+    NEUTRON_STAR
+}
+
+enum PlanetType {
+    TERRESTRIAL
+    GAS_GIANT
+    ICE_GIANT
+}
+
+# ============== HIERARCHY ==============
+
+type Universe {
+    name: String!
+    age: Float                              # Billion years
+    diameter: Float                         # Billion light years
+    superclusters(names: [String!]): [Supercluster!]!
+}
+
+type Supercluster {
+    name: String!                           # "Laniakea"
+    diameter: Float                         # Million light years
+    galaxyClusters(names: [String!]): [GalaxyCluster!]!
+}
+
+type GalaxyCluster {
+    name: String!                           # "Local Group"
+    diameter: Float                         # Million light years
+    galaxyCount: Int
+    galaxies(names: [String!]): [Galaxy!]!
+}
+
+type Galaxy {
+    name: String!                           # "Milky Way"
+    type: GalaxyType
+    diameter: Float                         # Light years
+    starCount: String                       # "100-400 billion"
+    age: Float                              # Billion years
+    starSystems(names: [String!]): [StarSystem!]!
+}
+
+type StarSystem {
+    name: String!                           # "Sol"
+    age: Float                              # Billion years
+    star: Star!
+    planets(names: [String!]): [Planet!]!
+    dwarfPlanets(names: [String!]): [DwarfPlanet!]
+}
+
+# ============== CELESTIAL BODIES ==============
+
+# Star type - replaces root-level Sun
+type Star {
+    name: String!
+    id: Int
+    type: String
+    classification: String
+    mass: Float
+    volume: Float
+    density: Float
+    radius: Float
+    diameter: Float
+    circumference: Float
+    gravity: Float
+    escapeVelocity: Float
+    luminosity: Float
+    absoluteMagnitude: Float
+    apparentMagnitude: Float
+    age: Float
+    lifespan: Float
+    distanceFromEarth: StarDistance
+    temperature: StarTemperature
+    rotation: StarRotation
+    structure: StarStructure
+    composition: StarComposition
+    energy: StarEnergy
+    magneticField: StarMagneticField
+    galacticOrbit: StarGalacticOrbit
+    description: String
+    expandedDescription: String
+    facts: [String]
+    visual: String
+    solarActivity: StarSolarActivity
+}
+
+type StarDistance {
+    mean: Float
+    perihelion: Float
+    aphelion: Float
+    lightMinutes: Float
+}
+
+type StarTemperature {
+    core: Float
+    radiativeZone: Float
+    convectiveZone: Float
+    photosphere: Float
+    chromosphere: Float
+    transitionRegion: Float
+    corona: Float
+    sunspots: Float
+}
+
+type StarRotation {
+    equatorial: Float
+    polar: Float
+    meanSidereal: Float
+    axialTilt: Float
+}
+
+type StarStructure {
+    coreRadius: Float
+    coreRadiusFraction: Float
+    radiativeZoneOuter: Float
+    radiativeZoneFraction: Float
+    convectiveZoneOuter: Float
+    photosphereThickness: Float
+    chromosphereThickness: Float
+    coronaExtent: String
+}
+
+type StarComposition {
+    hydrogen: Float
+    helium: Float
+    oxygen: Float
+    carbon: Float
+    iron: Float
+    neon: Float
+    nitrogen: Float
+    silicon: Float
+    magnesium: Float
+    sulfur: Float
+}
+
+type StarEnergy {
+    powerOutput: Float
+    massConversionRate: Float
+    coreEnergyDensity: Float
+    corePressure: Float
+    solarConstant: Float
+}
+
+type StarMagneticField {
+    polarFieldStrength: Float
+    sunspotFieldStrength: Float
+    cycleLength: Int
+    currentCycle: Int
+    cycleStart: String
+}
+
+type StarGalacticOrbit {
+    distanceFromCenter: Float
+    orbitalPeriod: Float
+    orbitalVelocity: Float
+}
+
+type StarSolarActivity {
+    sunspots: String
+    solarFlares: String
+    coronalMassEjections: String
+    solarWind: String
+}
+
+# Satellite/Moon type - replaces root-level Moon
+type Satellite {
+    name: String!
+    id: Int
+    mass: Float
+    volume: Float
+    density: Float
+    radius: Float
+    radiusEquatorial: Float
+    radiusPolar: Float
+    gravity: Float
+    escapeVelocity: Float
+    albedo: Float
+    distanceFromPlanet: SatelliteDistance
+    orbitalPeriod: Float
+    synodicPeriod: Float
+    rotationPeriod: Float
+    orbitalVelocity: Float
+    orbitalInclination: Float
+    axialTilt: Float
+    temperature: SatelliteTemperature
+    structure: SatelliteStructure
+    composition: SatelliteComposition
+    atmosphere: SatelliteAtmosphere
+    magneticField: SatelliteMagneticField
+    recessionRate: Float
+    tidallyLocked: Boolean
+    age: Float
+    description: String
+    expandedDescription: String
+    facts: [String]
+    visual: String
+    exploration: SatelliteExploration
+}
+
+type SatelliteDistance {
+    mean: Float
+    perigee: Float
+    apogee: Float
+}
+
+type SatelliteTemperature {
+    mean: Float
+    max: Float
+    min: Float
+    dayside: Float
+    nightside: Float
+}
+
+type SatelliteStructure {
+    innerCoreRadius: Float
+    outerCoreRadius: Float
+    mantleRadius: Float
+    crustThicknessNearside: Float
+    crustThicknessFarside: Float
+}
+
+type SatelliteComposition {
+    crust: [SatelliteElement]
+}
+
+type SatelliteElement {
+    element: String
+    symbol: String
+    percentage: Float
+}
+
+type SatelliteAtmosphere {
+    surfacePressure: Float
+    components: [SatelliteAtmosphereComponent]
+}
+
+type SatelliteAtmosphereComponent {
+    name: String
+    formula: String
+    percentage: Float
+}
+
+type SatelliteMagneticField {
+    strength: Float
+    description: String
+}
+
+type SatelliteExploration {
+    firstFlyby: String
+    firstLanding: String
+    firstHumanLanding: String
+    samplesMassKg: Float
+    totalMissions: Int
+}
+
+# DwarfPlanet type
+type DwarfPlanet {
+    name: String!
+    id: Int
+    mass: Float
+    diameter: Float
+    density: Float
+    gravity: Float
+    escapeVelocity: Float
+    orbitalPeriod: Float
+    distanceFromStar: Float
+    satellites: [Satellite]
+    description: String
+}

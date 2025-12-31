@@ -4,24 +4,20 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Livia is a scalable, AI-augmented GraphQL backend powering the Cosmofy astronomy platform. It provides unified data access for planetary information, astronomy pictures, natural events, and curated articles across iOS/iPadOS, watchOS, tvOS, macOS, visionOS, and web platforms.
+Livia is a GraphQL backend powering the **Cosmofy** astronomy platform. It provides unified data access for planetary/universe information, astronomy pictures, natural events, aurora predictions, and curated articles across iOS/iPadOS, watchOS, tvOS, macOS, visionOS, and web platforms.
 
-**Tech Stack**: Java 24, Spring Boot, Netflix DGS (GraphQL), Redis/Valkey caching, MongoDB, OpenAI GPT-5/5-Mini, Docker
+**Tech Stack**: Java 21, Spring Boot 3.4, Netflix DGS (GraphQL), MongoDB Atlas, OpenAI, Docker
 
 **Production Endpoints**:
 - Global DNS: `https://livia.arryan.xyz/graphql`
 - GraphiQL Playground: `https://livia.arryan.xyz/graphiql`
-- Multi-region deployment: Raptor (US), UK South, Singapore
+- Status Page: `https://status.cosmofy.arryan.xyz`
 
 ## Commands
 
-### Development
 ```bash
-# Run the application locally (requires Java 24)
+# Run the application locally
 ./gradlew bootRun
-
-# Run with Docker Compose (includes Redis + MongoDB)
-docker-compose up
 
 # Build the project
 ./gradlew build
@@ -29,62 +25,79 @@ docker-compose up
 # Run tests
 ./gradlew test
 
+# Run a single test class
+./gradlew test --tests "xyz.arryan.livia.SomeTest"
+
 # Generate GraphQL types from schema
 ./gradlew generateJava
 ```
 
-### Environment Setup
-Create a `.env` file with:
-```
-OPENAI_API_KEY=your_key_here
-NASA_API_KEY=your_nasa_api_key
-LIVIA_REGION=your_region
-```
+### Environment Variables
+Required in `.env` or system environment:
+- `OPENAI_API_KEY` - For AI-generated content
+- `LIVIA_REGION` - Server region identifier (e.g., "dev", "prod1")
+- `WEATHERKIT_KEY_ID`, `WEATHERKIT_TEAM_ID`, `WEATHERKIT_SERVICE_ID`, `WEATHERKIT_PRIVATE_KEY` - For Aurora astronomy data via Apple WeatherKit
 
-Spring Boot will also need Redis and MongoDB configuration via environment variables or application.properties:
-- `SPRING_DATA_REDIS_HOST` / `SPRING_DATA_REDIS_PORT`
-- `SPRING_DATA_MONGODB_HOST` / `SPRING_DATA_MONGODB_PORT`
+Optional:
+- `ACCEPTED_PASSPHRASES` - For API key generation endpoint
+- `LITELLM_BASE_URL`, `LITELLM_MASTER_KEY` - For LiteLLM proxy
 
 ## Architecture
 
 ### GraphQL Schema-First Design
-The API is defined in `src/main/resources/schema/schema.graphqls`. The Netflix DGS Codegen plugin generates Java types from this schema into the `xyz.arryan.livia.codegen` package.
+Schema files are in `src/main/resources/schema/`:
+- `schema.graphqls` - Main schema with Query root, Picture, Article, Event, Planet, Aurora types
+- `universe.graphqls` - Hierarchical universe structure with enums and nested types
+
+Netflix DGS Codegen generates Java types into `build/generated/.../xyz.arryan.livia.codegen` package. Run `./gradlew generateJava` after schema changes.
 
 ### Data Fetchers (Resolvers)
-Each GraphQL query is implemented as a `@DgsComponent` with `@DgsQuery` methods in `src/main/java/xyz/arryan/livia/datafetchers/`:
+Located in `src/main/java/xyz/arryan/livia/datafetchers/`:
 
-- **PlanetsDataFetcher**: Loads static planetary data from MongoDB (primary) or `src/main/resources/planets.json` (fallback). Data was initially generated using AI (GPT-5-Mini) to parse NASA JPL Horizons API responses. Now stored statically for manual verification/editing via MongoDB Compass. Cached for 30 days in Redis.
+| Fetcher | Data Source | Cache Strategy |
+|---------|-------------|----------------|
+| **UniverseDataFetcher** | MongoDB `universe` collection | Instance-level cache |
+| **DeprecatedPlanetsDataFetcher** | `planets.json` (legacy) | Static file |
+| **PictureDataFetcher** | NASA APOD API + OpenAI | MongoDB persistent |
+| **ArticlesDataFetcher** | `articles.json` | Static file |
+| **EventsDataFetcher** | NASA EONET API | In-memory |
+| **AuroraDataFetcher** | NOAA SWPC, WeatherKit, ML API | ConcurrentHashMap with TTLs |
 
-- **PictureDataFetcher**: Fetches from the official NASA APOD API (`api.nasa.gov/planetary/apod`) with AI-generated summaries and kid-friendly explanations. Includes retry logic (2 attempts) and proper error handling. Stored in MongoDB with day-end invalidation. Requires `NASA_API_KEY` environment variable.
+### Universe Hierarchy
+The `universe` query provides a hierarchical structure stored as a single nested MongoDB document (`_id: "observable-universe"`):
+```
+Universe > Supercluster > GalaxyCluster > Galaxy > StarSystem > Star/Planets/DwarfPlanets > Satellites
+```
 
-- **EventsDataFetcher**: Pulls natural disaster events from NASA EONET with geographic filtering. Cached for 1 hour in Redis.
+Each level supports name filtering via `names: [String!]` argument.
 
-- **ArticlesDataFetcher**: Serves curated monthly astronomy articles from `src/main/resources/articles.json`. Month-end invalidation.
+### Aurora API Architecture
+The `aurora(lat, lon)` query aggregates multiple external data sources:
+- **NOAA SWPC**: KP index forecast, solar wind (DSCOVR 2-hour), X-ray flares, OVATION aurora oval images
+- **NASA SDO**: Sun imagery URLs (AIA wavelengths)
+- **WeatherKit**: Sunrise/sunset, moon phase via JWT-authenticated Apple API
+- **Aurora ML API**: ML predictions at `aurora.arryan.xyz`
+- **Nearby Predictions**: ~315 points in concentric rings (50mi spacing, 250mi radius)
 
-### Caching Strategy
-Redis caching is configured in `RedisConfig.java` with distinct TTLs:
-- `planets`: 30 days
-- `events`: 1 hour
-- APOD pictures use MongoDB with custom invalidation logic
+Uses selective field fetching via `DataFetchingEnvironment.getSelectionSet()` - only fetches data for GraphQL fields actually requested.
 
-### Editing Planet Data
-Planetary data is stored in MongoDB's `planets` collection (8 planets, ~50 fields each). Use **MongoDB Compass** for visual table editing:
-1. Install MongoDB Compass: https://www.mongodb.com/try/download/compass
-2. Connect to `mongodb://localhost:27017`
-3. Navigate to `livia` database → `planets` collection
-4. Edit fields directly in table/document view
-5. Changes are cached in Redis for 30 days - clear Redis cache to see updates immediately
+### Key Patterns
 
-### AI Integration (Historical)
-The planet data was initially generated by fetching raw text from NASA JPL Horizons API and using OpenAI's GPT-5-Mini to parse it into structured JSON. This AI-generated data now lives statically in MongoDB/JSON and can be manually verified/corrected.
+**DGS Annotations**:
+- `@DgsComponent` - Marks class as containing data fetchers
+- `@DgsQuery` - Root query resolver
+- `@DgsData(parentType, field)` - Nested field resolver
+- `@InputArgument` - GraphQL argument injection
+
+**Document Navigation**: UniverseDataFetcher uses recursive `findXxxDoc()` methods to traverse the nested MongoDB document structure.
 
 ### Key Configuration
-- **Virtual Threads**: Enabled for DGS (`dgs.graphql.virtualthreads.enabled=true`)
+- **Port**: 2259
+- **Virtual Threads**: Enabled (`dgs.graphql.virtualthreads.enabled=true`)
+- **Database**: MongoDB Atlas (`cosmofy` database, `universe` collection for hierarchy)
 - **Logging**: DEBUG level for `xyz.arryan.livia` with colorized console output
-- **Port**: 2259 (custom port)
 
 ### Deployment
-Multi-cloud deployment via GitHub Actions:
-- `build.yml`: Builds multi-arch Docker images (amd64/arm64) and pushes to GitHub Container Registry
-- Region-specific workflows deploy to Oracle Cloud, GCP, and AWS
-- DNS routing via AWS Route 53 with latency-based policies
+Multi-region via GitHub Actions to GHCR (`ghcr.io/cosmofy/livia`):
+- `build.yml` - Multi-arch Docker images (amd64/arm64)
+- Region workflows: `deploy-livia-prod-1-raptor.yml` (US), `deploy-livia-prod-2-uksouth.yml` (UK/Oracle), `deploy-livia-prod-3-singapore.yml` (GCP)

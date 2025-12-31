@@ -7,26 +7,25 @@ import com.openai.client.OpenAIClientAsync;
 import com.openai.client.okhttp.OpenAIOkHttpClientAsync;
 import com.openai.models.ChatModel;
 import com.openai.models.responses.ResponseCreateParams;
+import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.web.reactive.function.client.WebClient;
 import xyz.arryan.livia.codegen.types.Explanation;
 import xyz.arryan.livia.codegen.types.Picture;
+
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.format.DateTimeParseException;
+import java.util.HashMap;
 import java.util.Map;
 import java.lang.reflect.Type;
 import java.util.concurrent.CompletableFuture;
-import org.springframework.data.mongodb.core.MongoTemplate;
-import org.bson.Document;
 import graphql.GraphQLException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.Instant;
 
@@ -34,69 +33,64 @@ import java.time.Instant;
 @DgsComponent
 public class PictureDataFetcher {
 
+    private static final String COLLECTION = "pictures";
+
     private final WebClient webClient;
     private final Gson gson;
     private final MongoTemplate mongoTemplate;
+
     private static final Logger logger = LoggerFactory.getLogger(PictureDataFetcher.class);
     private static final String LOG_PREFIX = "API 3: PICTURE | ";
     private static String lp(String msg) { return LOG_PREFIX + msg; }
 
     @Autowired
-    public PictureDataFetcher(Gson gson, MongoTemplate mongoTemplate, WebClient webClient) {
+    public PictureDataFetcher(Gson gson, WebClient webClient, MongoTemplate mongoTemplate) {
         this.webClient = webClient;
         this.gson = gson;
         this.mongoTemplate = mongoTemplate;
+        logger.info(lp("constructor: initialized with MongoDB backend"));
     }
 
     @DgsQuery
     public Picture picture(@InputArgument String date) {
-        // ===== A. Input Logging & Defaults =====
         logger.info(lp("entry: fetching picture; input date: {}"), date);
         final ZoneId mountainTime = ZoneId.of("America/Denver");
         LocalDate inputDate;
-        if (date == null || date.isEmpty()) { // if date is empty set -> today's date (mountain time)
+        if (date == null || date.isEmpty()) {
             date = String.valueOf(LocalDate.now(mountainTime));
             logger.info(lp("no date provided; default applied (America/Denver): {}"), date);
         }
-        try { // YYYY-MM-DD format regardless of previous condition
+        try {
             inputDate = LocalDate.parse(date);
         } catch (DateTimeParseException e) {
             logger.error(lp("validation failed: cannot parse date: {}"), date, e);
             throw new GraphQLException("Invalid date format. Use yyyy-MM-dd.");
         }
-        LocalDate minDate = LocalDate.of(1995, 6, 16); // starting date of nasa apod
-        LocalDate maxDate = LocalDate.now(mountainTime); // ending date is today's date, 2 hours after API should be updated.
+        LocalDate minDate = LocalDate.of(1995, 6, 16);
+        LocalDate maxDate = LocalDate.now(mountainTime);
         if (inputDate.isBefore(minDate) || inputDate.isAfter(maxDate)) {
             logger.error(lp("validation failed: {} outside bounds [{}..{}]"), inputDate, minDate, maxDate);
             throw new GraphQLException("Date must be between 1995-06-16 and " + maxDate);
         }
         logger.info(lp("input valid: {} within [{}..{}]"), inputDate, minDate, maxDate);
 
-        // ===== B. Database Check =====
-        Document document = mongoTemplate.findOne(new Query(Criteria.where("date").is(date)), Document.class, "pictures");
-        if (document != null) {
-            logger.info(lp("cache hit: found picture for {}"), date);
-            return Picture.newBuilder()
-                    .title(document.getString("title"))
-                    .credit(document.getString("credit"))
-                    .date(document.getString("date"))
-                    .media(document.getString("media"))
-                    .copyright(document.getString("copyright"))
-                    .media_type(document.getString("media_type"))
-                    .build();
+        // Step 1: Check MongoDB for cached picture
+        Picture cachedPicture = getFromMongoDB(date);
+        if (cachedPicture != null) {
+            logger.info(lp("MongoDB cache hit: found picture for {}"), date);
+            return cachedPicture;
         }
-        logger.info(lp("cache miss: no picture for {}; will fetch"), date);
+        logger.info(lp("MongoDB cache miss: no picture for {}; will fetch and generate"), date);
 
-        // ===== C. Fetch from API (with retry) =====
-        final String nasaApiKey = System.getenv("NASA_API_KEY");
-        final String api_source = "https://api.nasa.gov/planetary/apod?api_key=" + nasaApiKey + "&date=" + date;
+        // Step 2: Fetch from Ellanan APOD API
+        final String api_source = "https://apod.ellanan.com/api/?date=" + date;
         final String response = fetchWithRetry(api_source, 2);
         if (response == null) {
             throw new GraphQLException("Failed to fetch picture for " + date + " after multiple attempts. Please try again later.");
         }
         logger.debug(lp("response preview: {}"), response.substring(0, Math.min(response.length(), 400)));
 
-        // ===== D. Parse JSON =====
+        // Parse JSON
         final Type type = new TypeToken<Map<String, String>>(){}.getType();
         final Map<String, String> map;
         try {
@@ -110,35 +104,37 @@ public class PictureDataFetcher {
             throw new GraphQLException("Failed to parse picture data for " + date);
         }
 
-        // ===== E. Choose media (prefer HD if available) =====
-        final String media;
-        if (map.get("hdurl") != null) {
-            media = map.get("hdurl");
-        } else {
-            media = map.get("url");
-        }
+        // Choose media (prefer HD if available)
+        final String media = map.get("hdurl") != null ? map.get("hdurl") : map.get("url");
         logger.info(lp("media selected: {}"), (map.get("hdurl") != null ? "hdurl" : "url"));
 
-        // ===== F. Cache response in database =====
-        try {
-            Document new_document = new Document();
-            new_document.put("date", map.get("date"));
-            new_document.put("title", map.get("title"));
-            new_document.put("credit", map.get("credit"));
-            new_document.put("media", media);
-            new_document.put("explanation_original", map.get("explanation"));
-            new_document.put("copyright", map.get("copyright"));
-            new_document.put("media_type", map.get("media_type"));
-            mongoTemplate.insert(new_document, "pictures");
-            logger.info(lp("cache write: stored picture for {}"), map.get("date"));
-        } catch (Exception ex) {
-            // Non-fatal for serving the response; log as error but still return the picture
-            logger.error(lp("cache write failed: {}"), ex.toString(), ex);
+        String explanationOriginal = map.get("explanation");
+        String explanationSummarized = explanationOriginal;
+        String explanationKids = explanationOriginal;
+
+        // Step 3: Generate AI explanations
+        if (explanationOriginal != null && !explanationOriginal.isEmpty()) {
+            try {
+                logger.info(lp("generating summarized explanation via OpenAI"));
+                explanationSummarized = generateSummary(clientBuilder(), explanationOriginal,
+                    "Summarize the following explanation into 4–5 concise sentences. Only return the summary itself — no introduction or extra text. It should be 1 paragraph like the explanation. It will be used in an app to describe an image. Don't use hyphens in your response.").join();
+                logger.info(lp("summarized explanation generated"));
+            } catch (Exception e) {
+                logger.error(lp("failed to generate summarized: {}"), e.getMessage());
+            }
+
+            try {
+                logger.info(lp("generating kids explanation via OpenAI"));
+                explanationKids = generateSummary(clientBuilder(), explanationOriginal,
+                    "Rewrite the following explanation in a fun, friendly, and simple way that a 7-year-old child can understand. Avoid complex words and explain anything tricky like you're telling a story to a curious kid. It should be 1 paragraph like the explanation. It will be used in an app to describe an image. Don't use hyphens in your response.").join();
+                logger.info(lp("kids explanation generated"));
+            } catch (Exception e) {
+                logger.error(lp("failed to generate kids: {}"), e.getMessage());
+            }
         }
 
-        // ===== G. Return DTO =====
-        logger.info(lp("returning picture for {}"), map.get("date"));
-        return Picture.newBuilder()
+        // Step 4: Build Picture object
+        Picture picture = Picture.newBuilder()
                 .title(map.get("title"))
                 .credit(map.get("credit"))
                 .date(map.get("date"))
@@ -146,71 +142,113 @@ public class PictureDataFetcher {
                 .copyright(map.get("copyright"))
                 .media_type(map.get("media_type"))
                 .build();
+
+        // Step 5: Only save to MongoDB if OpenAI generation succeeded for both
+        boolean summarizedSuccess = !explanationSummarized.equals(explanationOriginal);
+        boolean kidsSuccess = !explanationKids.equals(explanationOriginal);
+
+        if (summarizedSuccess && kidsSuccess) {
+            saveToMongoDB(date, picture, explanationOriginal, explanationSummarized, explanationKids);
+            logger.info(lp("saved picture to MongoDB for {}"), date);
+        } else {
+            logger.warn(lp("NOT caching - OpenAI generation failed (summarized={}, kids={})"), summarizedSuccess, kidsSuccess);
+        }
+
+        return picture;
     }
 
     @DgsData(parentType = "Picture", field = "explanation")
     public Explanation resolveExplanation(DgsDataFetchingEnvironment dfe) {
-        // ===== A. Entry & Source Validation =====
-        logger.info(lp("explanation: entry"));
+        logger.info(lp("explanation: resolving"));
         Picture picture = dfe.getSource();
-        logger.debug(lp("explanation: source picture: {}"), picture);
-        if (picture == null) {
+        if (picture == null || picture.getDate() == null) {
             logger.error(lp("explanation: no picture in DFE source"));
             throw new GraphQLException("Picture does not exist.");
         }
 
-        // ===== B. Document Lookup =====
-        Document document = mongoTemplate.findOne(
-                Query.query(Criteria.where("date").is(picture.getDate())),
-                Document.class,
-                "pictures"
-        );
-        if (document == null) {
-            logger.error(lp("explanation: document not found for date={}"), picture.getDate());
-            throw new GraphQLException("Document does not exist.");
-        }
+        // Get explanations from MongoDB
+        Map<String, String> explanations = getExplanationsFromMongoDB(picture.getDate());
 
-        // If both explanations already exist, return immediately
-        if (document.containsKey("explanation_kids") && document.containsKey("explanation_summarized")) {
-            logger.info(lp("explanation: cache hit for date={} (kids & summarized present)"), picture.getDate());
-            return Explanation.newBuilder()
-                    .original(document.getString("explanation_original"))
-                    .kids(document.getString("explanation_kids"))
-                    .summarized(document.getString("explanation_summarized"))
-                    .build();
-        }
-
-        // ===== C. Generate missing explanations via OpenAI =====
-        final String explanation_original = document.getString("explanation_original");
-        String explanation_summarized = document.getString("explanation_summarized");
-        String explanation_kids = document.getString("explanation_kids");
-
-        if (explanation_summarized == null || explanation_summarized.isBlank()) {
-            logger.info(lp("explanation: generating summarized text (date={})"), picture.getDate());
-            final Instant t0 = Instant.now();
-            explanation_summarized = generateSummary(clientBuilder(), explanation_original, "Summarize the following explanation into 4–5 concise sentences. Only return the summary itself — no introduction or extra text. It should be 1 paragraph like the explanation. It will be used in an app to describe an image. Don't use hyphens in your response.").join();
-            logger.info(lp("explanation: summarized generated in {} ms"), Duration.between(t0, Instant.now()).toMillis());
-            document.put("explanation_summarized", explanation_summarized);
-            mongoTemplate.save(document, "pictures");
-            logger.info(lp("explanation: updated summarized in DB (date={})"), picture.getDate());
-        }
-
-        if (explanation_kids == null || explanation_kids.isBlank()) {
-            logger.info(lp("explanation: generating kids text (date={})"), picture.getDate());
-            final Instant t0 = Instant.now();
-            explanation_kids = generateSummary(clientBuilder(), explanation_original, "Rewrite the following explanation in a fun, friendly, and simple way that a 7-year-old child can understand. Avoid complex words and explain anything tricky like you’re telling a story to a curious kid. It should be 1 paragraph like the explanation. It will be used in an app to describe an image. Don't use hyphens in your response.").join();
-            logger.info(lp("explanation: kids generated in {} ms"), Duration.between(t0, Instant.now()).toMillis());
-            document.put("explanation_kids", explanation_kids);
-            mongoTemplate.save(document, "pictures");
-            logger.info(lp("explanation: updated kids in DB (date={})"), picture.getDate());
-        }
-
-        logger.info(lp("explanation: returning explanations (date={})"), picture.getDate());
         return Explanation.newBuilder()
-                .original(explanation_original)
-                .kids(explanation_kids)
-                .summarized(explanation_summarized)
+                .original(explanations.getOrDefault("original", "Explanation not available"))
+                .summarized(explanations.getOrDefault("summarized", "Explanation not available"))
+                .kids(explanations.getOrDefault("kids", "Explanation not available"))
                 .build();
+    }
+
+    private Picture getFromMongoDB(String date) {
+        try {
+            Document doc = mongoTemplate.findOne(
+                Query.query(Criteria.where("date").is(date)),
+                Document.class,
+                COLLECTION
+            );
+
+            if (doc == null) {
+                return null;
+            }
+
+            return Picture.newBuilder()
+                    .date(doc.getString("date"))
+                    .title(doc.getString("title"))
+                    .credit(doc.getString("credit"))
+                    .media(doc.getString("media"))
+                    .copyright(doc.getString("copyright"))
+                    .media_type(doc.getString("media_type"))
+                    .build();
+        } catch (Exception e) {
+            logger.error(lp("MongoDB get failed: {}"), e.getMessage());
+            return null;
+        }
+    }
+
+    private Map<String, String> getExplanationsFromMongoDB(String date) {
+        Map<String, String> result = new HashMap<>();
+        try {
+            Document doc = mongoTemplate.findOne(
+                Query.query(Criteria.where("date").is(date)),
+                Document.class,
+                COLLECTION
+            );
+
+            if (doc != null) {
+                result.put("original", doc.getString("explanation_original"));
+                result.put("summarized", doc.getString("explanation_summarized"));
+                result.put("kids", doc.getString("explanation_kids"));
+            }
+        } catch (Exception e) {
+            logger.error(lp("MongoDB get explanations failed: {}"), e.getMessage());
+        }
+        return result;
+    }
+
+    private void saveToMongoDB(String date, Picture picture, String original, String summarized, String kids) {
+        try {
+            Document doc = new Document();
+            doc.put("date", date);
+
+            if (picture.getTitle() != null)
+                doc.put("title", picture.getTitle());
+            if (picture.getCredit() != null)
+                doc.put("credit", picture.getCredit());
+            if (picture.getMedia() != null)
+                doc.put("media", picture.getMedia());
+            if (picture.getCopyright() != null)
+                doc.put("copyright", picture.getCopyright());
+            if (picture.getMedia_type() != null)
+                doc.put("media_type", picture.getMedia_type());
+            if (original != null)
+                doc.put("explanation_original", original);
+            if (summarized != null)
+                doc.put("explanation_summarized", summarized);
+            if (kids != null)
+                doc.put("explanation_kids", kids);
+
+            // Upsert: update if exists, insert if not
+            mongoTemplate.save(doc, COLLECTION);
+        } catch (Exception e) {
+            logger.error(lp("MongoDB save failed: {}"), e.getMessage());
+        }
     }
 
     private OpenAIClientAsync clientBuilder() {
@@ -219,8 +257,7 @@ public class PictureDataFetcher {
                 .build();
     }
 
-
-    private static CompletableFuture<String> generateSummary(OpenAIClientAsync client, String explanation, String instruction) {
+    private CompletableFuture<String> generateSummary(OpenAIClientAsync client, String explanation, String instruction) {
         final Instant t0 = Instant.now();
         String prompt = instruction + "\nText: " + explanation;
         ResponseCreateParams createParams = ResponseCreateParams.builder()

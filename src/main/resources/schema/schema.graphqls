@@ -1,11 +1,18 @@
 type Query {
+    # New hierarchical structure
+    universe: Universe!
+
+    # Legacy API (backward compatibility) - reads from planets.json
+    planets(names: [String!]): [Planet!]!
+
+    # Other APIs
     server: String
     time: Float
     articles: [Article]
     picture(date: String): Picture
     events(daysInput: Int): [Event]
-    planets: [Planet]
     apiKey(passphrase: String!): String
+    aurora(lat: Float!, lon: Float!): Aurora
 }
 
 # API 1: Picture of the Day
@@ -133,7 +140,16 @@ type Planet {
     facts: [String] # array of 3-5 facts. example fact: "A day on Neptune is 16 hours, but a year lasts 165 Earth years. Barely one Neptune year has passed since the planet’s discovery in 1846."
     visual: String # first sight of the planet. example: neptune: September 23, 1846, could be a range or for earth, its was already discovered.
     orbitalInclination: Float # not in the api, have to fit the value from elsewhere
+    
+    # REAL-TIME POSITION (from JPL Horizons):
+    positionX: Float # AU — Current heliocentric X position
+    positionY: Float # AU — Current heliocentric Y position
+    positionZ: Float # AU — Current heliocentric Z position
+    distanceFromSun: Float # AU — Current distance from Sun
     atmosphere: [Component] # all known gaseous components in a planet's atmosphere. example: oxygen gas, 32, O₂, 18.8%
+
+    # Moons/satellites of this planet
+    satellites: [Satellite]
 }
 
 type Component {
@@ -148,3 +164,204 @@ type OrbitalRadiation {
     aphelion: Float # aphelion
     mean: Float # mean
 }
+
+
+
+# API 5: Aurora Borealis Data
+type Aurora {
+    location: AuroraLocation!
+    prediction: AuroraPrediction
+    nearbyPredictions: [NearbyPrediction!]
+    spaceWeather: SpaceWeather
+    solarWind: SolarWind
+    hemisphericPower: HemisphericPower
+    solarFlares: SolarFlares
+    auroraOval: AuroraOval
+    sunImagery: SunImagery
+    astronomy: Astronomy
+    lightPollution: LightPollution
+    webcams: [Webcam!]
+    meta: AuroraMeta!
+}
+
+type AuroraLocation {
+    lat: Float!
+    lon: Float!
+    timezone: String
+}
+
+# ML model prediction for the location
+type AuroraPrediction {
+    probability: Float!
+    confidence: String!
+    gbProbability: Float!
+    xgbProbability: Float!
+    conditions: AuroraConditions!
+}
+
+type AuroraConditions {
+    isDark: Boolean!
+    cloudCover: Float!
+    kpIndex: Float!
+    geomagneticStorm: Boolean!
+    moonInterference: Boolean!
+}
+
+# Nearby predictions for ring visualization (1200 points)
+type NearbyPrediction {
+    lat: Float!
+    lon: Float!
+    bearing: Int!
+    distanceMiles: Int!
+    probability: Float!
+    cloudCover: Float
+}
+
+# KP index (10-day: past, present, future from NOAA SWPC)
+type SpaceWeather {
+    current: KpReading!
+    forecast: [KpReading!]!
+}
+
+type KpReading {
+    timestamp: String!
+    kp: Float!
+    type: String! # "observed", "estimated", "predicted"
+    stormLevel: String # "G1", "G2", etc. or null
+}
+
+# Real-time solar wind from DSCOVR (1 hour history for charts)
+type SolarWind {
+    current: SolarWindReading!
+    history: [SolarWindReading!]!
+}
+
+type SolarWindReading {
+    bz: Float! # nT (negative = good for aurora)
+    bt: Float! # nT
+    speed: Float! # km/s
+    density: Float! # particles/cm3
+    timestamp: String!
+    earthArrivalMinutes: Int # minutes until impact
+}
+
+# Hemispheric power from NOAA
+type HemisphericPower {
+    current: Float! # GW
+    history: [HpReading!]!
+}
+
+type HpReading {
+    timestamp: String!
+    power: Float!
+}
+
+# X-ray flux and solar flares from NOAA GOES
+type SolarFlares {
+    current6h: String! # "C1.9"
+    current24h: String! # "C3.9"
+    events: [FlareEvent!]!
+}
+
+type FlareEvent {
+    classType: String! # "C", "M", "X"
+    scale: Float! # 1.9, 3.4, etc
+    timestamp: String!
+    peakTime: String
+}
+
+# Aurora oval from NOAA OVATION model
+type AuroraOval {
+    north: String! # Image URL
+    south: String! # Image URL
+    timestamp: String!
+    forecastLeadMinutes: Int!
+}
+
+# Sun imagery URLs from NASA SDO
+type SunImagery {
+    thematicMap: SunImage!
+    aia193: SunImage!
+    aia171: SunImage!
+    aia131: SunImage!
+    aia1700: SunImage!
+}
+
+type SunImage {
+    url: String!
+    timestamp: String
+    description: String
+}
+
+# Astronomy for a location (sun/moon/twilight)
+type Astronomy {
+    sun: SunTimes!
+    moon: MoonInfo!
+}
+
+type SunTimes {
+    isUp: Boolean!
+    altitude: Float!
+    sunrise: String!
+    sunset: String!
+    civilDawn: String
+    civilDusk: String
+    nauticalDawn: String
+    nauticalDusk: String
+    astronomicalDawn: String
+    astronomicalDusk: String
+}
+
+type MoonInfo {
+    isUp: Boolean!
+    altitude: Float!
+    moonrise: String
+    moonset: String
+    phase: String!
+    illumination: Float!
+}
+
+# Light pollution data
+type LightPollution {
+    bortle: Int! # 1-9 scale
+    description: String!
+    artificialBrightness: Float
+}
+
+type DarkZone {
+    distanceMiles: Float!
+    direction: String!
+    lat: Float!
+    lon: Float!
+    bortle: Int!
+}
+
+# Webcam streams for aurora viewing
+type Webcam {
+    name: String!
+    location: String!
+    url: String!
+    streamType: String! # "youtube", "embed", "hls"
+    lat: Float
+    lon: Float
+    active: Boolean!
+}
+
+# Metadata about the response (errors, stale data flags)
+type AuroraMeta {
+    timestamp: String!
+    predictionError: Boolean!
+    nearbyError: Boolean!
+    spaceWeatherError: Boolean!
+    spaceWeatherStale: Boolean!
+    solarWindError: Boolean!
+    solarWindStale: Boolean!
+    hemisphericPowerError: Boolean!
+    solarFlaresError: Boolean!
+    auroraOvalError: Boolean!
+    astronomyError: Boolean!
+    lightPollutionError: Boolean!
+}
+
+# Note: Sun and Moon types have been moved to universe.graphqls as Star and Satellite
+# Access via: universe.starSystem.star and universe.starSystem.planets[].satellites

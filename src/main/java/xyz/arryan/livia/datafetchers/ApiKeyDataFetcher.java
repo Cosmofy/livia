@@ -43,8 +43,11 @@ public class ApiKeyDataFetcher {
             logger.warn("API KEY | No LITELLM_MASTER_KEY configured");
         }
 
-        // LiteLLM base URL - use Docker service name when running in container
-        this.litellmBaseUrl = System.getenv().getOrDefault("LITELLM_BASE_URL", "http://litellm:4000");
+        // LiteLLM base URL from env (required)
+        this.litellmBaseUrl = System.getenv("LITELLM_BASE_URL");
+        if (this.litellmBaseUrl == null || this.litellmBaseUrl.isBlank()) {
+            logger.warn("API KEY | No LITELLM_BASE_URL configured");
+        }
 
         this.httpClient = HttpClient.newHttpClient();
         this.objectMapper = new ObjectMapper();
