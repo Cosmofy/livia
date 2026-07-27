@@ -91,9 +91,9 @@ public class EventsDataFetcher {
         logger.info(lp("input valid: start={} within [{}..{}]"), formattedDate, minDate, maxDate);
 
         // ===== C. API request build =====
-        // end date = now + 5 years (original logic preserved)
-        final LocalDate dynamicEndDate = LocalDate.now(mountainTime).plusYears(5);
-        final String formattedEndDate = dynamicEndDate.format(formatter);
+        // EONET's end date is inclusive. Keep the request bounded to today so the
+        // response contains only the requested historical window.
+        final String formattedEndDate = maxDate.format(formatter);
 
         final String api_source = "https://eonet.gsfc.nasa.gov/api/v3/events?start="
                 + formattedDate + "&end=" + formattedEndDate + "&status=all";
@@ -208,8 +208,7 @@ public class EventsDataFetcher {
                             magnitudeValue = number.floatValue();
                         }
 
-                        @SuppressWarnings("unchecked")
-                        List<Double> coords = (List<Double>) geoMap.get("coordinates");
+                        List<Double> coords = normalizeCoordinates(geoMap.get("coordinates"));
 
                         Geometry geometry = Geometry.newBuilder()
                                 // keep existing behavior: Double in builder from Float source
@@ -243,6 +242,34 @@ public class EventsDataFetcher {
 
         // ===== G. Return =====
         return finalEvents;
+    }
+
+    /**
+     * Nature Scope renders every geometry as a map marker, while EONET can return
+     * Point, Polygon, and MultiPolygon coordinate shapes. GraphQL exposes the
+     * marker location as a single [longitude, latitude] pair, so recursively find
+     * the first valid pair for nested shapes instead of passing nested arrays to
+     * the Float serializer.
+     */
+    static List<Double> normalizeCoordinates(Object rawCoordinates) {
+        if (!(rawCoordinates instanceof List<?> coordinates) || coordinates.isEmpty()) {
+            return List.of();
+        }
+
+        if (coordinates.size() >= 2
+                && coordinates.get(0) instanceof Number longitude
+                && coordinates.get(1) instanceof Number latitude) {
+            return List.of(longitude.doubleValue(), latitude.doubleValue());
+        }
+
+        for (Object nestedCoordinates : coordinates) {
+            List<Double> normalized = normalizeCoordinates(nestedCoordinates);
+            if (normalized.size() == 2) {
+                return normalized;
+            }
+        }
+
+        return List.of();
     }
 
 }

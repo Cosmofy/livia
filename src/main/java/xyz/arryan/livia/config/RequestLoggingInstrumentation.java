@@ -23,7 +23,10 @@ public class RequestLoggingInstrumentation extends SimplePerformantInstrumentati
             InstrumentationState state) {
 
         long startTime = System.currentTimeMillis();
-        String query = parameters.getQuery().replaceAll("\\s+", " ").trim();
+        String query = parameters.getQuery()
+                .replaceAll("\"(?:\\\\.|[^\"\\\\])*\"", "\"[REDACTED]\"")
+                .replaceAll("\\s+", " ")
+                .trim();
 
         String clientIp = "unknown";
         String region = System.getenv("LIVIA_REGION");

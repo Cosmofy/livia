@@ -83,7 +83,11 @@ public class PictureDataFetcher {
         logger.info(lp("MongoDB cache miss: no picture for {}; will fetch and generate"), date);
 
         // Step 2: Fetch from Ellanan APOD API
-        final String api_source = "https://apod.ellanan.com/api/?date=" + date;
+        final String nasaApiKey = System.getenv("NASA_API_KEY") != null
+                ? System.getenv("NASA_API_KEY")
+                : "DEMO_KEY";
+        final String api_source = "https://api.nasa.gov/planetary/apod?api_key="
+                + nasaApiKey + "&date=" + date;
         final String response = fetchWithRetry(api_source, 2);
         if (response == null) {
             throw new GraphQLException("Failed to fetch picture for " + date + " after multiple attempts. Please try again later.");
