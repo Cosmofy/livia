@@ -1,4 +1,4 @@
-name: deploy-slicer
+name: deploy-oracle
 
 on:
   workflow_dispatch:
@@ -33,16 +33,24 @@ jobs:
 
       - name: Deploy
         env:
-          SSH_KEY: ${{ secrets.SLICER_SSH_KEY }}
+          SSH_KEY: ${{ secrets.ORACLE_SSH_KEY }}
         run: |
           mkdir -p ~/.ssh
           echo "${SSH_KEY}" > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
 
-          ssh -o StrictHostKeyChecking=no -i ~/.ssh/deploy_key cougar@slicer << 'EOF'
-            cd /srv/infra/livia
-            git pull origin main
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/deploy_key ubuntu@oracle << 'EOF'
+            cd /home/ubuntu/livia-oracle
+            git pull --ff-only origin main
             sudo systemctl restart livia
-            sleep 10
-            systemctl is-active livia && echo "Deploy successful"
+            for attempt in $(seq 1 60); do
+              if curl --fail --silent http://127.0.0.1:2259/health > /dev/null; then
+                echo "Deploy successful"
+                exit 0
+              fi
+              sleep 1
+            done
+            echo "Deploy failed health check"
+            journalctl -u livia -n 100 --no-pager
+            exit 1
           EOF

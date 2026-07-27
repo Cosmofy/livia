@@ -80,7 +80,7 @@ public class ApiKeyDataFetcher {
 
             String requestBody = """
                 {
-                    "models": ["gpt-4o"],
+                    "models": ["gpt-5-nano", "gpt-4o"],
                     "max_budget": 0.40,
                     "duration": "24h",
                     "metadata": {
