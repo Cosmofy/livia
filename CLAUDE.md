@@ -107,6 +107,6 @@ Uses selective field fetching via `DataFetchingEnvironment.getSelectionSet()` - 
 - **Logging**: one-line Logstash JSON on stdout/journald with request/trace MDC correlation
 
 ### Deployment
-GitHub Actions validates the Java build and Federation composition, then deploys to the single Oracle Cloud London instance over Tailscale/SSH and restarts the `livia.service` systemd unit:
+GitHub Actions validates the Java build and Federation composition, then the successful build workflow deploys that exact commit to the single Oracle Cloud London instance over Tailscale/SSH and restarts the `livia.service` systemd unit:
 - `build.yml` - Java build plus Federation composition
 - `deploy-oracle.yml` - Oracle London deployment (`ubuntu@oracle`, `/home/ubuntu/livia-oracle`)
