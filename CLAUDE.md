@@ -46,18 +46,21 @@ Optional:
 - `ACCEPTED_PASSPHRASES` - For API key generation endpoint
 - `LITELLM_BASE_URL`, `LITELLM_MASTER_KEY` - For LiteLLM proxy
 - `APOD_SERVICE_BASE_URL`, `APOD_CONNECT_TIMEOUT`, `APOD_REQUEST_TIMEOUT`, `APOD_SEARCH_REQUEST_TIMEOUT`, `APOD_MAX_ATTEMPTS`, `APOD_RETRY_BACKOFF` - APOD REST client overrides
+- `NEWS_SERVICE_BASE_URL`, `NEWS_CONNECT_TIMEOUT`, `NEWS_REQUEST_TIMEOUT`, `NEWS_MAX_ATTEMPTS`, `NEWS_RETRY_BACKOFF` - News REST client overrides
 - `OTEL_SERVICE_NAME`, `OTEL_EXPORTER_OTLP_ENDPOINT`, `OTEL_EXPORTER_OTLP_PROTOCOL`, `OTEL_PROPAGATORS` - OpenTelemetry Java-agent configuration
 
 ## Architecture
 
 ### GraphQL Schema-First Design
 Schema files are in `src/main/resources/schema/`:
-- `schema.graphqls` - Main Federation 2 schema with Query root, APOD, Picture, Article, Event, Planet, and Aurora types
+- `schema.graphqls` - Main Federation 2 schema with Query root, APOD, News, Picture, Article, Event, Planet, and Aurora types
 - `universe.graphqls` - Hierarchical universe structure with enums and nested types
 
 Netflix DGS Codegen generates Java types into `build/generated/.../xyz.arryan.livia.codegen` package. Run `./gradlew generateJava` after schema changes.
 
 Livia is a Federation 2 subgraph, not a router. `Apod` is keyed by `date`; `_service` and `_entities` are supplied by DGS. `scripts/compose-supergraph.mjs` performs the local/CI single-subgraph composition check.
+
+`NewsArticle` is query-owned because the News REST contract has no exact-ID endpoint. Do not add an entity resolver that scans `/news`, a direct Spaceflight News fallback, Java-side News Redis access, or GraphQL-side News caching. `Query.news` is deliberately non-cacheable in Stellate.
 
 ### Data Fetchers (Resolvers)
 Located in `src/main/java/xyz/arryan/livia/datafetchers/`:
@@ -68,7 +71,8 @@ Located in `src/main/java/xyz/arryan/livia/datafetchers/`:
 | **DeprecatedPlanetsDataFetcher** | `planets.json` (legacy) | Static file |
 | **PictureDataFetcher** | NASA APOD API + OpenAI | MongoDB persistent |
 | **ApodDataFetcher** | Internal APOD microservice | Service-owned Redis/Turso cache |
-| **ArticlesDataFetcher** | `articles.json` | Static file |
+| **NewsDataFetcher** | Internal News microservice | Service-owned Redis cache; no Livia/Stellate cache |
+| **ArticlesDataFetcher** | MongoDB `articles` collection | Persistent |
 | **EventsDataFetcher** | NASA EONET API | In-memory |
 | **AuroraDataFetcher** | NOAA SWPC, WeatherKit, ML API | ConcurrentHashMap with TTLs |
 

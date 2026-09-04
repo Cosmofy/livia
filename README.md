@@ -3,6 +3,8 @@
 
 A scalable, AI-augmented GraphQL backend powering the **Cosmofy** astronomy platform across iOS/iPadOS, watchOS, tvOS, macOS, visionOS, and web.
 
+Production requests flow from clients through Stellate to this Livia subgraph on Oracle London. Livia then calls its internal REST microservices.
+
 **Production API Endpoints**
 
 * Public endpoint: `https://livia.arryan.xyz/graphql`
@@ -61,7 +63,8 @@ Backend is open-source under the [Cosmofy GitHub organization](https://github.co
 | `planets`  | JPL Horizons + manual      | Static (JSON)              |
 | `picture`  | NASA APOD + AI summaries   | Day-end invalidation (MongoDB) |
 | `events`   | NASA EONET + geo filtering | In-memory / edge cache     |
-| `articles` | Curated monthly content    | Static (JSON)              |
+| `articles` | Curated monthly content    | MongoDB `articles` collection |
+| `news`     | Cosmofy News microservice  | Redis/cache policy owned by News |
 
 
 
@@ -119,6 +122,31 @@ query SearchApods {
 Stellate caches `Query.apod` for at most five minutes with no stale-while-revalidate window, so a current APOD can remain stale for no more than five minutes after Mountain Time midnight. Search payloads and results are explicitly non-cacheable. The same conservative APOD TTL currently applies to historical dates.
 
 Distributed traces use the OpenTelemetry Java agent. The `livia.service` systemd unit must start Livia with `-javaagent:/path/to/opentelemetry-javaagent.jar`, send OTLP/HTTP to a verified colocated private collector at `http://127.0.0.1:4318`, and retain the W3C `tracecontext` propagator. Do not expose the collector publicly.
+
+### News microservice query
+
+Live news follows `client -> Stellate -> Livia -> News microservice`. Livia does not call Spaceflight News directly and does not connect to the News Redis instance. The existing legacy `articles` field is unchanged.
+
+```graphql
+query LatestNews($limit: Int!, $offset: Int!, $ordering: NewsOrdering!) {
+  news(limit: $limit, offset: $offset, ordering: $ordering) {
+    totalCount
+    articles {
+      id
+      title
+      summary
+      url
+      imageUrl
+      newsSite
+      publishedAt
+    }
+  }
+}
+```
+
+The News REST API currently exposes only the paginated collection endpoint, not an exact article-by-ID endpoint. `NewsArticle` is therefore query-owned and is not declared as a Federation entity; Livia does not scan the full feed to resolve references. `Query.news`, `NewsPage`, and `NewsArticle` are explicitly non-cacheable in Stellate for this integration, leaving freshness and Redis caching to the News service.
+
+`NEWS_SERVICE_BASE_URL` defaults to the deployed non-secret News endpoint. `NEWS_CONNECT_TIMEOUT`, `NEWS_REQUEST_TIMEOUT`, `NEWS_MAX_ATTEMPTS`, and `NEWS_RETRY_BACKOFF` control the validated HTTP policy documented in `.env.example`.
 
 CI combines the DGS schema files and composes them with the pinned Apollo Federation version. Run the same check locally with:
 

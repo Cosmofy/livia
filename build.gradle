@@ -61,7 +61,10 @@ dependencyManagement {
 generateJava {
     schemaPaths = ["${projectDir}/src/main/resources/schema"]
     packageName = 'xyz.arryan.livia.codegen'
-    typeMapping = ["Date": "java.time.LocalDate"]
+    typeMapping = [
+            "Date": "java.time.LocalDate",
+            "DateTime": "java.time.OffsetDateTime"
+    ]
 //    generateClient = true
 }
 

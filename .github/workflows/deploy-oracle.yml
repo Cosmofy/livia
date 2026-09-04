@@ -83,5 +83,16 @@ jobs:
               exit 1
             fi
             echo "${apod_response}" | grep -q '"date"'
+
+            news_response=$(curl --fail --silent --show-error --max-time 25 \
+              -H 'Content-Type: application/json' \
+              --data '{"query":"query LatestNews($limit:Int!,$offset:Int!,$ordering:NewsOrdering!){news(limit:$limit,offset:$offset,ordering:$ordering){totalCount articles{id title summary url imageUrl newsSite publishedAt}}}","variables":{"limit":24,"offset":0,"ordering":"PUBLISHED_AT_DESCENDING"}}' \
+              http://127.0.0.1:2259/graphql)
+            if echo "${news_response}" | grep -q '"errors"'; then
+              echo "Deploy failed: News acceptance query returned GraphQL errors"
+              journalctl -u livia.service -n 100 --no-pager
+              exit 1
+            fi
+            echo "${news_response}" | grep -q '"totalCount"'
             echo "Deploy successful"
           EOF

@@ -9,7 +9,9 @@ import graphql.schema.idl.RuntimeWiring;
 public class DateScalarConfig {
 
     @DgsRuntimeWiring
-    public RuntimeWiring.Builder registerDateScalar(RuntimeWiring.Builder builder) {
-        return builder.scalar(ExtendedScalars.Date);
+    public RuntimeWiring.Builder registerDateScalars(RuntimeWiring.Builder builder) {
+        return builder
+                .scalar(ExtendedScalars.Date)
+                .scalar(ExtendedScalars.DateTime);
     }
 }

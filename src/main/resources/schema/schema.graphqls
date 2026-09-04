@@ -2,6 +2,14 @@ extend schema
 @link(url: "https://specs.apollo.dev/federation/v2.3", import: ["@key"])
 
 scalar Date
+scalar DateTime
+
+enum NewsOrdering {
+    PUBLISHED_AT_ASCENDING
+    PUBLISHED_AT_DESCENDING
+    UPDATED_AT_ASCENDING
+    UPDATED_AT_DESCENDING
+}
 
 type Query {
     # New hierarchical structure
@@ -15,11 +23,43 @@ type Query {
     time: Float
     apod(date: Date): Apod!
     searchApods(query: String!, limit: Int = 10): ApodSearchPayload!
+    news(
+        limit: Int = 24
+        offset: Int = 0
+        search: String
+        ordering: NewsOrdering = PUBLISHED_AT_DESCENDING
+        newsSite: String
+    ): NewsPage!
     articles: [Article]
     picture(date: String): Picture
     events(daysInput: Int): [Event]
     apiKey(passphrase: String!): String
     aurora(lat: Float!, lon: Float!): Aurora
+}
+
+# Query-owned because the News REST API currently exposes no exact-ID lookup.
+type NewsArticle {
+    id: ID!
+    title: String!
+    summary: String!
+    url: String!
+    imageUrl: String!
+    newsSite: String!
+    authors: [String!]!
+    publishedAt: DateTime!
+    updatedAt: DateTime!
+    featured: Boolean!
+    launchIds: [ID!]!
+    eventIds: [ID!]!
+}
+
+type NewsPage {
+    totalCount: Int!
+    limit: Int!
+    offset: Int!
+    hasNextPage: Boolean!
+    hasPreviousPage: Boolean!
+    articles: [NewsArticle!]!
 }
 
 # APOD is a Federation 2 entity backed by the internal APOD REST service.
