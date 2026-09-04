@@ -59,7 +59,7 @@ jobs:
 
             existing_response=$(curl --fail --silent --show-error --max-time 30 \
               -H 'Content-Type: application/json' \
-              --data '{"query":"query ExistingApiSmoke { server time planets { name } articles { title } universe { name } }"}' \
+              --data '{"query":"query ExistingApiSmoke { server time planets { name } articles { id title } universe { name } }"}' \
               http://127.0.0.1:2259/graphql)
             if echo "${existing_response}" | grep -q '"errors"'; then
               echo "Deploy failed: an existing GraphQL operation regressed"
@@ -94,5 +94,28 @@ jobs:
               exit 1
             fi
             echo "${news_response}" | grep -q '"totalCount"'
+
+            articles_response=$(curl --fail --silent --show-error --max-time 25 \
+              -H 'Content-Type: application/json' \
+              --data '{"query":"query DeploymentArticles { articlesPage(limit: 1) { totalCount articles { id title } } }"}' \
+              http://127.0.0.1:2259/graphql)
+            if echo "${articles_response}" | grep -q '"errors"'; then
+              echo "Deploy failed: Articles acceptance query returned GraphQL errors"
+              journalctl -u livia.service -n 100 --no-pager
+              exit 1
+            fi
+            echo "${articles_response}" | grep -q '"totalCount"'
+            article_id=$(echo "${articles_response}" | python3 -c \
+              'import json,sys; print(json.load(sys.stdin)["data"]["articlesPage"]["articles"][0]["id"])')
+            exact_article_response=$(curl --fail --silent --show-error --max-time 25 \
+              -H 'Content-Type: application/json' \
+              --data "{\"query\":\"query DeploymentArticle { article(id: \\\"${article_id}\\\") { id title } }\"}" \
+              http://127.0.0.1:2259/graphql)
+            if echo "${exact_article_response}" | grep -q '"errors"'; then
+              echo "Deploy failed: exact Article acceptance query returned GraphQL errors"
+              journalctl -u livia.service -n 100 --no-pager
+              exit 1
+            fi
+            echo "${exact_article_response}" | grep -q "${article_id}"
             echo "Deploy successful"
           EOF

@@ -8,7 +8,11 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.reactive.function.client.WebClient;
 
 @Configuration
-@EnableConfigurationProperties({ApodClientProperties.class, NewsClientProperties.class})
+@EnableConfigurationProperties({
+        ApodClientProperties.class,
+        NewsClientProperties.class,
+        ArticlesClientProperties.class
+})
 public class WebClientConfig {
 
     @Bean

@@ -24,7 +24,8 @@ The backend integrates with:
 * **NASA EONET** (Earth Observatory Natural Event Tracker)
 * **NASA JPL Horizons** (Jet Propulsion Laboratory orbital/planetary data)
 * **OpenAI** (legacy `picture` content generation and summarization)
-* **MongoDB** (persistent storage)
+* **MongoDB** (legacy Universe and Picture persistence)
+* **Cosmofy internal microservices** (APOD, News, and Articles)
 * **AWS Route 53** (latency-based routing)
 
 
@@ -63,7 +64,7 @@ Backend is open-source under the [Cosmofy GitHub organization](https://github.co
 | `planets`  | JPL Horizons + manual      | Static (JSON)              |
 | `picture`  | NASA APOD + AI summaries   | Day-end invalidation (MongoDB) |
 | `events`   | NASA EONET + geo filtering | In-memory / edge cache     |
-| `articles` | Curated monthly content    | MongoDB `articles` collection |
+| `articles` | Cosmofy Articles microservice | Service-owned Redis + Stellate edge cache |
 | `news`     | Cosmofy News microservice  | Redis/cache policy owned by News |
 
 
@@ -125,7 +126,7 @@ Distributed traces use the OpenTelemetry Java agent. The `livia.service` systemd
 
 ### News microservice query
 
-Live news follows `client -> Stellate -> Livia -> News microservice`. Livia does not call Spaceflight News directly and does not connect to the News Redis instance. The existing legacy `articles` field is unchanged.
+Live news follows `client -> Stellate -> Livia -> News microservice`. Livia does not call Spaceflight News directly and does not connect to the News Redis instance.
 
 ```graphql
 query LatestNews($limit: Int!, $offset: Int!, $ordering: NewsOrdering!) {
@@ -147,6 +148,56 @@ query LatestNews($limit: Int!, $offset: Int!, $ordering: NewsOrdering!) {
 The News REST API currently exposes only the paginated collection endpoint, not an exact article-by-ID endpoint. `NewsArticle` is therefore query-owned and is not declared as a Federation entity; Livia does not scan the full feed to resolve references. `Query.news`, `NewsPage`, and `NewsArticle` are explicitly non-cacheable in Stellate for this integration, leaving freshness and Redis caching to the News service.
 
 `NEWS_SERVICE_BASE_URL` defaults to the deployed non-secret News endpoint. `NEWS_CONNECT_TIMEOUT`, `NEWS_REQUEST_TIMEOUT`, `NEWS_MAX_ATTEMPTS`, and `NEWS_RETRY_BACKOFF` control the validated HTTP policy documented in `.env.example`.
+
+### Articles microservice queries
+
+Curated articles follow `client -> Stellate -> Livia -> Articles microservice`. The original `articles: [Article]` query and all of its existing fields remain available to old app versions, but the data now comes from the Articles service instead of MongoDB. The service-provided UUID is exposed as `Article.id`, and `Article` is a Federation 2 entity keyed by that ID.
+
+```graphql
+query BrowseArticles {
+  articlesPage(
+    limit: 24
+    offset: 0
+    search: "dark matter"
+    year: 2026
+    month: 8
+    source: "Quanta Magazine"
+    ordering: DATE_DESCENDING
+  ) {
+    totalCount
+    hasNextPage
+    articles {
+      id
+      month
+      year
+      title
+      subtitle
+      url
+      source
+      banner { image designer }
+      authors { name title image }
+    }
+  }
+}
+
+query ExactArticle($id: ID!) {
+  article(id: $id) {
+    id
+    title
+    url
+  }
+}
+```
+
+Livia calls the exact REST route when resolving `article(id:)` or an `Article` representation through `_entities`; it never scans the collection. It does not read `articles.json`, connect to the Articles Redis instance, or duplicate the service's cache. W3C trace headers and the trusted request ID are forwarded, while cache and rate-limit response headers are recorded only as telemetry.
+
+`ARTICLES_SERVICE_URL` defaults to `https://articles.api.cosmofy.services.deployim.com`. Production should explicitly set the same value in `/home/ubuntu/livia-oracle/.env`:
+
+```dotenv
+ARTICLES_SERVICE_URL=https://articles.api.cosmofy.services.deployim.com
+```
+
+`ARTICLES_CONNECT_TIMEOUT`, `ARTICLES_REQUEST_TIMEOUT`, `ARTICLES_MAX_ATTEMPTS`, and `ARTICLES_RETRY_BACKOFF` configure the bounded HTTP policy documented in `.env.example`.
 
 CI combines the DGS schema files and composes them with the pinned Apollo Federation version. Run the same check locally with:
 
@@ -258,6 +309,7 @@ query FullSchema {
     title
   }
   articles {
+    id
     authors {
       image
       name

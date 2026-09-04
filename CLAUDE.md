@@ -47,6 +47,7 @@ Optional:
 - `LITELLM_BASE_URL`, `LITELLM_MASTER_KEY` - For LiteLLM proxy
 - `APOD_SERVICE_BASE_URL`, `APOD_CONNECT_TIMEOUT`, `APOD_REQUEST_TIMEOUT`, `APOD_SEARCH_REQUEST_TIMEOUT`, `APOD_MAX_ATTEMPTS`, `APOD_RETRY_BACKOFF` - APOD REST client overrides
 - `NEWS_SERVICE_BASE_URL`, `NEWS_CONNECT_TIMEOUT`, `NEWS_REQUEST_TIMEOUT`, `NEWS_MAX_ATTEMPTS`, `NEWS_RETRY_BACKOFF` - News REST client overrides
+- `ARTICLES_SERVICE_URL`, `ARTICLES_CONNECT_TIMEOUT`, `ARTICLES_REQUEST_TIMEOUT`, `ARTICLES_MAX_ATTEMPTS`, `ARTICLES_RETRY_BACKOFF` - Articles REST client overrides
 - `OTEL_SERVICE_NAME`, `OTEL_EXPORTER_OTLP_ENDPOINT`, `OTEL_EXPORTER_OTLP_PROTOCOL`, `OTEL_PROPAGATORS` - OpenTelemetry Java-agent configuration
 
 ## Architecture
@@ -58,9 +59,11 @@ Schema files are in `src/main/resources/schema/`:
 
 Netflix DGS Codegen generates Java types into `build/generated/.../xyz.arryan.livia.codegen` package. Run `./gradlew generateJava` after schema changes.
 
-Livia is a Federation 2 subgraph, not a router. `Apod` is keyed by `date`; `_service` and `_entities` are supplied by DGS. `scripts/compose-supergraph.mjs` performs the local/CI single-subgraph composition check.
+Livia is a Federation 2 subgraph, not a router. `Apod` is keyed by `date` and `Article` is keyed by its service UUID; `_service` and `_entities` are supplied by DGS. `scripts/compose-supergraph.mjs` performs the local/CI single-subgraph composition check.
 
 `NewsArticle` is query-owned because the News REST contract has no exact-ID endpoint. Do not add an entity resolver that scans `/news`, a direct Spaceflight News fallback, Java-side News Redis access, or GraphQL-side News caching. `Query.news` is deliberately non-cacheable in Stellate.
+
+The Articles microservice owns `articles.json`, deterministic IDs, validation, Redis page caching, and rate limiting. Livia preserves the original `articles` query, adds `articlesPage` and `article(id:)`, and resolves Article entities through the service's exact UUID route. Do not restore a Mongo/file fallback, scan a page to resolve an entity, or connect Livia to the Articles Redis instance.
 
 ### Data Fetchers (Resolvers)
 Located in `src/main/java/xyz/arryan/livia/datafetchers/`:
@@ -72,7 +75,7 @@ Located in `src/main/java/xyz/arryan/livia/datafetchers/`:
 | **PictureDataFetcher** | NASA APOD API + OpenAI | MongoDB persistent |
 | **ApodDataFetcher** | Internal APOD microservice | Service-owned Redis/Turso cache |
 | **NewsDataFetcher** | Internal News microservice | Service-owned Redis cache; no Livia/Stellate cache |
-| **ArticlesDataFetcher** | MongoDB `articles` collection | Persistent |
+| **ArticlesDataFetcher** | Internal Articles microservice | Service-owned Redis + Stellate edge cache |
 | **EventsDataFetcher** | NASA EONET API | In-memory |
 | **AuroraDataFetcher** | NOAA SWPC, WeatherKit, ML API | ConcurrentHashMap with TTLs |
 
@@ -107,7 +110,7 @@ Uses selective field fetching via `DataFetchingEnvironment.getSelectionSet()` - 
 ### Key Configuration
 - **Port**: 2259
 - **Virtual Threads**: Enabled (`dgs.graphql.virtualthreads.enabled=true`)
-- **Database**: MongoDB Atlas (`cosmofy` database, `universe` collection for hierarchy)
+- **Database**: MongoDB Atlas (`cosmofy` database; `universe` hierarchy and legacy `picture` persistence only)
 - **Logging**: one-line Logstash JSON on stdout/journald with request/trace MDC correlation
 
 ### Deployment

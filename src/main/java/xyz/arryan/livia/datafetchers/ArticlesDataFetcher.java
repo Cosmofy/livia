@@ -1,101 +1,137 @@
 package xyz.arryan.livia.datafetchers;
 
 import com.netflix.graphql.dgs.DgsComponent;
+import com.netflix.graphql.dgs.DgsDataFetchingEnvironment;
+import com.netflix.graphql.dgs.DgsEntityFetcher;
 import com.netflix.graphql.dgs.DgsQuery;
-import org.bson.Document;
+import com.netflix.graphql.dgs.InputArgument;
+import io.opentelemetry.api.GlobalOpenTelemetry;
+import io.opentelemetry.api.trace.Span;
+import io.opentelemetry.api.trace.StatusCode;
+import io.opentelemetry.api.trace.Tracer;
+import io.opentelemetry.context.Scope;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.mongodb.core.MongoTemplate;
 import xyz.arryan.livia.codegen.types.Article;
-import xyz.arryan.livia.codegen.types.Author;
-import xyz.arryan.livia.codegen.types.Banner;
+import xyz.arryan.livia.codegen.types.ArticleOrdering;
+import xyz.arryan.livia.codegen.types.ArticlePage;
+import xyz.arryan.livia.config.RequestIdFilter;
+import xyz.arryan.livia.errors.ArticlesException;
+import xyz.arryan.livia.observability.TraceLogContext;
+import xyz.arryan.livia.services.ArticlesService;
 
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Map;
+import java.util.function.Supplier;
+import java.util.function.ToLongFunction;
 
 @DgsComponent
 public class ArticlesDataFetcher {
+
     private static final Logger logger = LoggerFactory.getLogger(ArticlesDataFetcher.class);
-    private static final String LOG_PREFIX = "API 2: ARTICLES | ";
-    private static final String COLLECTION = "articles";
 
-    private static String lp(String msg) { return LOG_PREFIX + msg; }
+    private final ArticlesService service;
+    private final Tracer tracer;
 
-    private final MongoTemplate mongoTemplate;
-
-    @Autowired
-    public ArticlesDataFetcher(MongoTemplate mongoTemplate) {
-        this.mongoTemplate = mongoTemplate;
-        logger.info(lp("constructor: initialized with MongoDB backend"));
+    public ArticlesDataFetcher(ArticlesService service) {
+        this.service = service;
+        this.tracer = GlobalOpenTelemetry.getTracer("xyz.arryan.livia.graphql");
     }
 
-    @DgsQuery
-    public List<Article> articles() {
-        logger.info(lp("entry: fetching articles from MongoDB"));
+    @DgsQuery(field = "articles")
+    public List<Article> articles(DgsDataFetchingEnvironment environment) {
+        return traceResolver(
+                "articles",
+                "legacy_list",
+                graphQlOperationName(environment),
+                service::legacyArticles,
+                List::size);
+    }
 
-        try {
-            List<Document> docs = mongoTemplate.findAll(Document.class, COLLECTION);
+    @DgsQuery(field = "articlesPage")
+    public ArticlePage articlesPage(
+            @InputArgument Integer limit,
+            @InputArgument Integer offset,
+            @InputArgument String search,
+            @InputArgument Integer year,
+            @InputArgument Integer month,
+            @InputArgument String source,
+            @InputArgument ArticleOrdering ordering,
+            DgsDataFetchingEnvironment environment) {
+        return traceResolver(
+                "articlesPage",
+                "list",
+                graphQlOperationName(environment),
+                () -> service.getPage(limit, offset, search, year, month, source, ordering),
+                result -> result.getArticles().size());
+    }
 
-            if (docs.isEmpty()) {
-                logger.warn(lp("MongoDB collection '{}' is empty"), COLLECTION);
-                return List.of();
+    @DgsQuery(field = "article")
+    public Article article(
+            @InputArgument String id,
+            DgsDataFetchingEnvironment environment) {
+        return traceResolver(
+                "article",
+                "get_by_id",
+                graphQlOperationName(environment),
+                () -> service.getById(id),
+                _result -> 1L);
+    }
+
+    @DgsEntityFetcher(name = "Article")
+    public Article articleEntity(Map<String, Object> representation) {
+        Object id = representation.get("id");
+        return traceResolver(
+                "_entities",
+                "entity",
+                "federation_entity",
+                () -> service.getById(id == null ? null : String.valueOf(id)),
+                _result -> 1L);
+    }
+
+    private <T> T traceResolver(
+            String field,
+            String articlesOperation,
+            String graphQlOperation,
+            Supplier<T> resolver,
+            ToLongFunction<T> resultCount) {
+        Span span = tracer.spanBuilder("graphql.resolve." + field)
+                .setAttribute("graphql.operation.name", graphQlOperation)
+                .setAttribute("graphql.field.name", field)
+                .setAttribute("articles.operation", articlesOperation)
+                .startSpan();
+        String requestId = RequestIdFilter.currentRequestId();
+
+        try (Scope ignored = span.makeCurrent();
+             TraceLogContext ignoredLogContext = TraceLogContext.open(requestId)) {
+            try {
+                T result = resolver.get();
+                long count = resultCount.applyAsLong(result);
+                span.setAttribute("articles.result.count", count);
+                span.setStatus(StatusCode.OK);
+                logger.info("graphql Articles resolver completed operation={} field={} result_count={} status=OK",
+                        graphQlOperation, field, count);
+                return result;
+            } catch (ArticlesException exception) {
+                span.setAttribute("error.type", exception.code());
+                span.setStatus(StatusCode.ERROR, exception.code());
+                logger.warn("graphql Articles resolver failed operation={} field={} status=ERROR code={}",
+                        graphQlOperation, field, exception.code());
+                throw exception;
             }
-
-            List<Article> articles = docs.stream()
-                    .map(this::docToArticle)
-                    .collect(Collectors.toList());
-
-            logger.info(lp("fetch complete: loaded articles={} from MongoDB"), articles.size());
-            return articles;
-        } catch (Exception e) {
-            logger.error(lp("MongoDB fetch failed: {}"), e.getMessage(), e);
-            throw new RuntimeException("Failed to load articles data", e);
+        } finally {
+            span.end();
         }
     }
 
-    private Article docToArticle(Document doc) {
-        // Parse banner
-        Banner banner = null;
-        Document bannerDoc = doc.get("banner", Document.class);
-        if (bannerDoc != null) {
-            banner = Banner.newBuilder()
-                    .image(bannerDoc.getString("image"))
-                    .designer(bannerDoc.getString("designer"))
-                    .build();
+    private static String graphQlOperationName(DgsDataFetchingEnvironment environment) {
+        if (environment == null || environment.getOperationDefinition() == null) {
+            return "anonymous";
         }
-
-        // Parse authors
-        List<Author> authors = null;
-        List<Document> authorsDocs = doc.getList("authors", Document.class);
-        if (authorsDocs != null) {
-            authors = authorsDocs.stream()
-                    .map(a -> Author.newBuilder()
-                            .name(a.getString("name"))
-                            .title(a.getString("title"))
-                            .image(a.getString("image"))
-                            .build())
-                    .collect(Collectors.toList());
+        String operation = environment.getOperationDefinition().getName();
+        if (operation == null || operation.isBlank()) {
+            return "anonymous";
         }
-
-        return Article.newBuilder()
-                .month(getInt(doc, "month"))
-                .year(getInt(doc, "year"))
-                .title(doc.getString("title"))
-                .subtitle(doc.getString("subtitle"))
-                .url(doc.getString("url"))
-                .source(doc.getString("source"))
-                .authors(authors)
-                .banner(banner)
-                .build();
-    }
-
-    private Integer getInt(Document doc, String key) {
-        Object val = doc.get(key);
-        if (val == null) return null;
-        if (val instanceof Integer) return (Integer) val;
-        if (val instanceof Double) return ((Double) val).intValue();
-        if (val instanceof Long) return ((Long) val).intValue();
-        return null;
+        return operation.length() <= 128 ? operation : operation.substring(0, 128);
     }
 }

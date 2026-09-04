@@ -8,6 +8,7 @@ const config: Config = {
     keyFields: {
       types: {
         Apod: ['date'],
+        Article: ['id'],
       },
     },
     nonCacheable: [
@@ -82,6 +83,7 @@ const config: Config = {
       {
         types: [
           'Article',
+          'ArticlePage',
           'Author',
           'Banner',
           'Webcam',
