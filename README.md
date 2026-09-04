@@ -2,18 +2,19 @@
 
 Livia is Cosmofy's public GraphQL API for astronomy content and live space-weather data. It runs on Java 21 with Spring Boot and Netflix DGS.
 
-Livia exposes one ordinary GraphQL schema. The downstream APOD, News, and Articles applications are REST microservices, not GraphQL subgraphs. Stellate provides the public edge and caching layer; it does not make Livia a federated graph.
+Livia exposes one ordinary GraphQL schema. The downstream APOD, News, and Articles applications are REST microservices, not GraphQL subgraphs. A Stellate service provides an optional edge and caching layer; it does not make Livia a federated graph.
 
 ## Production
 
-- GraphQL: `https://livia.arryan.xyz/graphql`
+- Stellate edge GraphQL: `https://livia.stellate.sh`
+- Java origin GraphQL: `https://livia.arryan.xyz/graphql`
 - GraphiQL: [https://livia.arryan.xyz/graphiql](https://livia.arryan.xyz/graphiql)
 - Health: [https://livia.arryan.xyz/health](https://livia.arryan.xyz/health)
 - Status: [https://status.cosmofy.arryan.xyz](https://status.cosmofy.arryan.xyz)
 - Runtime: one Oracle Cloud instance in London, reached internally as the Tailscale host `oracle`
 - Process: `livia.service` under systemd
 
-The production request path is:
+The Stellate request path is:
 
 ```text
 Cosmofy clients
@@ -25,6 +26,8 @@ Cosmofy clients
 ```
 
 There is no Apollo Router, multi-subgraph composition step, `_service` field, or `_entities` field. DGS's Federation schema transformation is explicitly disabled.
+
+The Java origin remains directly reachable. Clients configured with `livia.arryan.xyz`, `prod3.livia.arryan.xyz`, or another origin hostname bypass Stellate. At the time of writing, the separate Cosmofy app repository still contains those direct endpoints, so do not assume all app traffic receives Stellate caching.
 
 ## API modules
 
@@ -41,7 +44,7 @@ There is no Apollo Router, multi-subgraph composition step, `_service` field, or
 | `apiKey` | LiteLLM key API | Never edge-cached |
 | `server`, `time` | Livia runtime | Never edge-cached |
 
-The authoritative edge policy is [stellate.ts](./stellate.ts).
+The authoritative edge policy is [stellate.ts](./stellate.ts). It targets the Stellate service named `livia` in the `cosmofy` organization.
 
 ## GraphQL examples
 
@@ -251,6 +254,13 @@ Production deploys are intentionally single-instance:
 4. It restarts `livia.service`, waits for `/health`, and runs acceptance queries for the existing API, APOD, News, paginated Articles, and exact Article lookup.
 
 Production configuration lives in `/home/ubuntu/livia-oracle/.env`, loaded by systemd. Deployment preserves that file and the host's untracked `gradle.properties`.
+
+The Java deployment workflow does not publish Stellate configuration. After reviewing a dry run, publish edge changes separately with an authenticated CLI session:
+
+```bash
+npx --yes stellate@3.2.28 push --org cosmofy --dry
+npx --yes stellate@3.2.28 push --org cosmofy
+```
 
 ## Repository layout
 

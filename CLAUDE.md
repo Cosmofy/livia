@@ -56,7 +56,7 @@ Schema files are in `src/main/resources/schema/`:
 
 Netflix DGS Codegen generates Java types into `build/generated/.../xyz.arryan.livia.codegen` package. Run `./gradlew generateJava` after schema changes.
 
-Livia exposes one ordinary GraphQL schema. It is not an Apollo subgraph and has no router or composition step. APOD, News, and Articles are REST data sources called by normal DGS resolvers. Stellate is the public edge/cache layer and does not require Federation.
+Livia exposes one ordinary GraphQL schema. It is not an Apollo subgraph and has no router or composition step. APOD, News, and Articles are REST data sources called by normal DGS resolvers. The `livia` Stellate service in the `cosmofy` organization is an optional edge/cache layer and does not require Federation. The Java origin is directly reachable, and existing app endpoints that use `livia.arryan.xyz` or `prod3.livia.arryan.xyz` bypass Stellate.
 
 The News REST contract has no exact-ID endpoint. Do not add a resolver that scans `/news`, a direct Spaceflight News fallback, Java-side News Redis access, or GraphQL-side News caching. `Query.news` is deliberately non-cacheable in Stellate.
 
