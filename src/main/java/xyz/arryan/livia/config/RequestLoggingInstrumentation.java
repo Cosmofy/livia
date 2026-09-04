@@ -5,12 +5,12 @@ import graphql.execution.instrumentation.InstrumentationContext;
 import graphql.execution.instrumentation.InstrumentationState;
 import graphql.execution.instrumentation.SimplePerformantInstrumentation;
 import graphql.execution.instrumentation.parameters.InstrumentationExecutionParameters;
+import io.opentelemetry.context.Context;
+import io.opentelemetry.context.Scope;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
-import jakarta.servlet.http.HttpServletRequest;
+import xyz.arryan.livia.observability.TraceLogContext;
 
 @Component
 public class RequestLoggingInstrumentation extends SimplePerformantInstrumentation {
@@ -22,37 +22,16 @@ public class RequestLoggingInstrumentation extends SimplePerformantInstrumentati
             InstrumentationExecutionParameters parameters,
             InstrumentationState state) {
 
-        long startTime = System.currentTimeMillis();
-        String query = parameters.getQuery()
-                .replaceAll("\"(?:\\\\.|[^\"\\\\])*\"", "\"[REDACTED]\"")
-                .replaceAll("\\s+", " ")
-                .trim();
-
-        String clientIp = "unknown";
+        long startTime = System.nanoTime();
+        String operation = parameters.getOperation();
+        if (operation == null || operation.isBlank()) operation = "anonymous";
+        if (operation.length() > 128) operation = operation.substring(0, 128);
         String region = System.getenv("LIVIA_REGION");
         if (region == null) region = "unknown";
-
-        try {
-            ServletRequestAttributes attrs = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
-            if (attrs != null) {
-                HttpServletRequest request = attrs.getRequest();
-                clientIp = request.getHeader("X-Forwarded-For");
-                if (clientIp == null || clientIp.isEmpty()) {
-                    clientIp = request.getHeader("X-Real-IP");
-                }
-                if (clientIp == null || clientIp.isEmpty()) {
-                    clientIp = request.getRemoteAddr();
-                }
-                if (clientIp != null && clientIp.contains(",")) {
-                    clientIp = clientIp.split(",")[0].trim();
-                }
-            }
-        } catch (Exception e) {
-            // ignore
-        }
-
-        final String ip = clientIp;
+        final String operationName = operation;
         final String server = region;
+        final String requestId = RequestIdFilter.currentRequestId();
+        final Context traceContext = Context.current();
 
         return new InstrumentationContext<>() {
             @Override
@@ -60,9 +39,14 @@ public class RequestLoggingInstrumentation extends SimplePerformantInstrumentati
 
             @Override
             public void onCompleted(ExecutionResult result, Throwable t) {
-                long duration = System.currentTimeMillis() - startTime;
-                String status = (t != null || result.getErrors().size() > 0) ? "ERROR" : "OK";
-                log.info("ip={} server={} duration={}ms status={} query={}", ip, server, duration, status, query);
+                long duration = (System.nanoTime() - startTime) / 1_000_000;
+                boolean hasErrors = result != null && !result.getErrors().isEmpty();
+                String status = (t != null || hasErrors) ? "ERROR" : "OK";
+                try (Scope ignoredScope = traceContext.makeCurrent();
+                     TraceLogContext ignored = TraceLogContext.open(requestId)) {
+                    log.info("graphql request completed operation={} server={} duration_ms={} status={}",
+                            operationName, server, duration, status);
+                }
             }
         };
     }

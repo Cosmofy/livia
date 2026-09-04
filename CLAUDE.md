@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Livia is a GraphQL backend powering the **Cosmofy** astronomy platform. It provides unified data access for planetary/universe information, astronomy pictures, natural events, aurora predictions, and curated articles across iOS/iPadOS, watchOS, tvOS, macOS, visionOS, and web platforms.
 
-**Tech Stack**: Java 21, Spring Boot 3.4, Netflix DGS (GraphQL), MongoDB Atlas, OpenAI, Docker
+**Tech Stack**: Java 21, Spring Boot 3.4, Netflix DGS (GraphQL/Federation), MongoDB Atlas, OpenAI, systemd
 
 **Production Endpoints**:
 - Global DNS: `https://livia.arryan.xyz/graphql`
@@ -30,26 +30,34 @@ Livia is a GraphQL backend powering the **Cosmofy** astronomy platform. It provi
 
 # Generate GraphQL types from schema
 ./gradlew generateJava
+
+# Compose the local Federation schema (run build first)
+APOLLO_ELV2_LICENSE=accept npx --yes @apollo/rover@0.41.0 supergraph compose \
+  --config supergraph.yaml --output build/federation/supergraph.graphql
 ```
 
 ### Environment Variables
 Required in `.env` or system environment:
 - `OPENAI_API_KEY` - For AI-generated content
-- `LIVIA_REGION` - Server region identifier (e.g., "dev", "prod1")
+- `LIVIA_REGION` - Server region identifier (for example, `dev` or `london`)
 - `WEATHERKIT_KEY_ID`, `WEATHERKIT_TEAM_ID`, `WEATHERKIT_SERVICE_ID`, `WEATHERKIT_PRIVATE_KEY` - For Aurora astronomy data via Apple WeatherKit
 
 Optional:
 - `ACCEPTED_PASSPHRASES` - For API key generation endpoint
 - `LITELLM_BASE_URL`, `LITELLM_MASTER_KEY` - For LiteLLM proxy
+- `APOD_SERVICE_BASE_URL`, `APOD_CONNECT_TIMEOUT`, `APOD_REQUEST_TIMEOUT`, `APOD_SEARCH_REQUEST_TIMEOUT`, `APOD_MAX_ATTEMPTS`, `APOD_RETRY_BACKOFF` - APOD REST client overrides
+- `OTEL_SERVICE_NAME`, `OTEL_EXPORTER_OTLP_ENDPOINT`, `OTEL_EXPORTER_OTLP_PROTOCOL`, `OTEL_PROPAGATORS` - OpenTelemetry Java-agent configuration
 
 ## Architecture
 
 ### GraphQL Schema-First Design
 Schema files are in `src/main/resources/schema/`:
-- `schema.graphqls` - Main schema with Query root, Picture, Article, Event, Planet, Aurora types
+- `schema.graphqls` - Main Federation 2 schema with Query root, APOD, Picture, Article, Event, Planet, and Aurora types
 - `universe.graphqls` - Hierarchical universe structure with enums and nested types
 
 Netflix DGS Codegen generates Java types into `build/generated/.../xyz.arryan.livia.codegen` package. Run `./gradlew generateJava` after schema changes.
+
+Livia is a Federation 2 subgraph, not a router. `Apod` is keyed by `date`; `_service` and `_entities` are supplied by DGS. `supergraph.yaml` is the local/CI single-subgraph composition input.
 
 ### Data Fetchers (Resolvers)
 Located in `src/main/java/xyz/arryan/livia/datafetchers/`:
@@ -59,6 +67,7 @@ Located in `src/main/java/xyz/arryan/livia/datafetchers/`:
 | **UniverseDataFetcher** | MongoDB `universe` collection | Instance-level cache |
 | **DeprecatedPlanetsDataFetcher** | `planets.json` (legacy) | Static file |
 | **PictureDataFetcher** | NASA APOD API + OpenAI | MongoDB persistent |
+| **ApodDataFetcher** | Internal APOD microservice | Service-owned Redis/Turso cache |
 | **ArticlesDataFetcher** | `articles.json` | Static file |
 | **EventsDataFetcher** | NASA EONET API | In-memory |
 | **AuroraDataFetcher** | NOAA SWPC, WeatherKit, ML API | ConcurrentHashMap with TTLs |
@@ -95,9 +104,9 @@ Uses selective field fetching via `DataFetchingEnvironment.getSelectionSet()` - 
 - **Port**: 2259
 - **Virtual Threads**: Enabled (`dgs.graphql.virtualthreads.enabled=true`)
 - **Database**: MongoDB Atlas (`cosmofy` database, `universe` collection for hierarchy)
-- **Logging**: DEBUG level for `xyz.arryan.livia` with colorized console output
+- **Logging**: one-line Logstash JSON on stdout/journald with request/trace MDC correlation
 
 ### Deployment
-Multi-region via GitHub Actions to GHCR (`ghcr.io/cosmofy/livia`):
-- `build.yml` - Multi-arch Docker images (amd64/arm64)
-- Region workflows: `deploy-livia-prod-1-raptor.yml` (US), `deploy-livia-prod-2-uksouth.yml` (UK/Oracle), `deploy-livia-prod-3-singapore.yml` (GCP)
+GitHub Actions validates the Java build and Federation composition, then deploys to the single Oracle Cloud London instance over Tailscale/SSH and restarts the `livia.service` systemd unit:
+- `build.yml` - Java build plus Federation composition
+- `deploy-oracle.yml` - Oracle London deployment (`ubuntu@oracle`, `/home/ubuntu/livia-oracle`)

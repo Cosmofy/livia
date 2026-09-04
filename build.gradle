@@ -31,6 +31,9 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'com.netflix.graphql.dgs:graphql-dgs-spring-graphql-starter'
     implementation 'org.springframework.boot:spring-boot-starter-webflux'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+    implementation 'io.opentelemetry:opentelemetry-api:1.49.0'
+    implementation 'com.graphql-java:graphql-java-extended-scalars'
     implementation 'com.google.code.gson:gson:2.13.1'
     // MongoDB
     implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
@@ -40,8 +43,11 @@ dependencies {
     implementation 'io.jsonwebtoken:jjwt-api:0.12.6'
     runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.6'
     runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.6'
+    annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'com.netflix.graphql.dgs:graphql-dgs-spring-graphql-starter-test'
+    testImplementation 'com.squareup.okhttp3:mockwebserver:4.12.0'
+    testImplementation 'io.opentelemetry:opentelemetry-sdk:1.49.0'
     testImplementation 'io.projectreactor:reactor-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
@@ -55,11 +61,38 @@ dependencyManagement {
 generateJava {
     schemaPaths = ["${projectDir}/src/main/resources/schema"]
     packageName = 'xyz.arryan.livia.codegen'
+    typeMapping = ["Date": "java.time.LocalDate"]
 //    generateClient = true
 }
 
 tasks.named('test') {
     useJUnitPlatform()
+}
+
+def federationSchemaFile = layout.buildDirectory.file('federation/livia.graphql')
+
+tasks.register('assembleFederationSchema') {
+    group = 'verification'
+    description = 'Combines the schema-first DGS SDL files for Apollo Federation composition.'
+    def schemaFiles = fileTree('src/main/resources/schema') {
+        include '**/*.graphqls'
+    }
+    inputs.files(schemaFiles)
+    outputs.file(federationSchemaFile)
+
+    doLast {
+        def output = federationSchemaFile.get().asFile
+        output.parentFile.mkdirs()
+        output.setText(
+                schemaFiles.files.sort { first, second -> first.path <=> second.path }
+                        .collect { it.getText('UTF-8') }
+                        .join(System.lineSeparator() + System.lineSeparator()),
+                'UTF-8')
+    }
+}
+
+tasks.named('check') {
+    dependsOn tasks.named('assembleFederationSchema')
 }
 
 bootRun {

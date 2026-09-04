@@ -1,3 +1,8 @@
+extend schema
+@link(url: "https://specs.apollo.dev/federation/v2.3", import: ["@key"])
+
+scalar Date
+
 type Query {
     # New hierarchical structure
     universe: Universe!
@@ -8,11 +13,48 @@ type Query {
     # Other APIs
     server: String
     time: Float
+    apod(date: Date): Apod!
+    searchApods(query: String!, limit: Int = 10): ApodSearchPayload!
     articles: [Article]
     picture(date: String): Picture
     events(daysInput: Int): [Event]
     apiKey(passphrase: String!): String
     aurora(lat: Float!, lon: Float!): Aurora
+}
+
+# APOD is a Federation 2 entity backed by the internal APOD REST service.
+type Apod @key(fields: "date") {
+    date: Date!
+    title: String!
+    explanation: String!
+    mediaType: String!
+    url: String!
+    hdUrl: String
+    credit: String
+    copyright: String
+}
+
+enum ApodSearchMode {
+    HYBRID
+    LEXICAL
+    SEMANTIC
+}
+
+enum ApodMatchType {
+    LEXICAL
+    SEMANTIC
+}
+
+type ApodSearchResult {
+    apod: Apod!
+    relevanceScore: Float!
+    matchTypes: [ApodMatchType!]!
+}
+
+type ApodSearchPayload {
+    query: String!
+    searchMode: ApodSearchMode!
+    results: [ApodSearchResult!]!
 }
 
 # API 1: Picture of the Day

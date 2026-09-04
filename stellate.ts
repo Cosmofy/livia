@@ -5,10 +5,18 @@ const config: Config = {
     name: 'cosmofy',
     originUrl: 'https://livia.arryan.xyz/graphql',
     partialQueryCaching: { enabled: true },
+    keyFields: {
+      types: {
+        Apod: ['date'],
+      },
+    },
     nonCacheable: [
       'Query.apiKey',
       'Query.server',
       'Query.time',
+      'Query.searchApods',
+      'ApodSearchPayload',
+      'ApodSearchResult',
       'AuroraMeta',
       'AuroraLocation',
     ],
@@ -48,7 +56,7 @@ const config: Config = {
         description: 'Natural disaster events - purged every 4 hours',
       },
 
-      // ============== PICTURE OF THE DAY (48 hours, purged daily at 2am MT) ==============
+      // ============== LEGACY PICTURE OF THE DAY (48 hours, purged daily at 2am MT) ==============
       {
         types: [
           'Picture',
@@ -57,6 +65,14 @@ const config: Config = {
         maxAge: 172800,
         swr: 172800,
         description: 'Picture of the day - purged daily at 2am MT',
+      },
+
+      // ============== FEDERATED APOD (5 minutes; safe across Mountain Time midnight) ==============
+      {
+        types: ['Query.apod'],
+        maxAge: 300,
+        swr: 0,
+        description: 'APOD REST facade - conservative TTL for the no-date current APOD query',
       },
 
       // ============== STATIC CONTENT (6 hours) ==============

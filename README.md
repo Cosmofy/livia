@@ -5,12 +5,8 @@ A scalable, AI-augmented GraphQL backend powering the **Cosmofy** astronomy plat
 
 **Production API Endpoints**
 
-* Global DNS Routing: `https://livia.arryan.xyz/graphql`
-* Direct Servers:
-
-    * 🇺🇸 Raptor (Self-hosted x86): `https://prod1.livia.arryan.xyz/graphql`
-    * 🇬🇧 UK South (Oracle ARM): `https://prod2.livia.arryan.xyz/graphql`
-    * 🇸🇬 Singapore (Google Cloud x86): `https://prod3.livia.arryan.xyz/graphql`
+* Public endpoint: `https://livia.arryan.xyz/graphql`
+* Runtime: one Oracle Cloud instance in London (internal Tailscale host `oracle`)
 
 GraphiQL Playground: [https://livia.arryan.xyz/graphiql](https://livia.arryan.xyz/graphiql)
 
@@ -25,9 +21,8 @@ The backend integrates with:
 * **NASA APOD** (Astronomy Picture of the Day)
 * **NASA EONET** (Earth Observatory Natural Event Tracker)
 * **NASA JPL Horizons** (Jet Propulsion Laboratory orbital/planetary data)
-* **OpenAI GPT-5** (content generation, summarization)
+* **OpenAI** (legacy `picture` content generation and summarization)
 * **MongoDB** (persistent storage)
-* **Redis** (multi-region caching)
 * **AWS Route 53** (latency-based routing)
 
 
@@ -40,25 +35,23 @@ Backend is open-source under the [Cosmofy GitHub organization](https://github.co
 
 | Component            | Tech/Tool                                       |
 |----------------------|-------------------------------------------------|
-| **Language**         | Java 24                                         |
-| **Framework**        | Spring Boot + Netflix DGS (GraphQL)             |
-| **Containerization** | Docker                                          |
-| **CI/CD**            | GitHub Actions                                  |
-| **Caching**          | Redis                                           |
-| **DB**               | MongoDB                                         |
-| **AI Models**        | OpenAI GPT-5 for content generation & summaries |
-| **Hosting**          | Multi-cloud (Self-hosted, Oracle, GCP)          |
-| **Routing**          | AWS Route 53                                    |
+| **Language**         | Java 21                                        |
+| **Framework**        | Spring Boot + Netflix DGS (GraphQL/Federation) |
+| **Runtime**          | systemd                                        |
+| **CI/CD**            | GitHub Actions                                 |
+| **Edge cache**       | Stellate                                       |
+| **DB**               | MongoDB                                        |
+| **Hosting**          | Oracle Cloud, London                           |
+| **Routing**          | Public DNS to the single production instance  |
 
 
 ## Features
 
 - Schema-first GraphQL API (`.graphqls`)
+- Apollo Federation 2 subgraph support
 - Dynamic per-device data filtering
-- Redis/Valkey TTL-based caching
 - GPT-powered content generation and summarization
-- Cron jobs for APOD preloading
-- Open-source, modular, and containerized
+- Open-source, modular service deployment
 
 
 
@@ -67,7 +60,7 @@ Backend is open-source under the [Cosmofy GitHub organization](https://github.co
 | ---------- | -------------------------- | -------------------------- |
 | `planets`  | JPL Horizons + manual      | Static (JSON)              |
 | `picture`  | NASA APOD + AI summaries   | Day-end invalidation (MongoDB) |
-| `events`   | NASA EONET + geo filtering | 1 hour (Redis)             |
+| `events`   | NASA EONET + geo filtering | In-memory / edge cache     |
 | `articles` | Curated monthly content    | Static (JSON)              |
 
 
@@ -76,6 +69,64 @@ Backend is open-source under the [Cosmofy GitHub organization](https://github.co
 
 👉 Try it with the hosted GraphiQL:
 [https://livia.arryan.xyz/graphiql](https://livia.arryan.xyz/graphiql)
+
+### APOD microservice queries
+
+Livia exposes the internal APOD REST service through typed GraphQL operations. Clients should only call Livia. This repository is a Federation 2 subgraph, not an Apollo Router; `Apod` is an entity keyed by `date`.
+
+```graphql
+query TodaysApod {
+  apod {
+    date
+    title
+    explanation
+    mediaType
+    url
+    hdUrl
+    credit
+    copyright
+  }
+}
+
+query HistoricalApod {
+  apod(date: "2024-02-29") {
+    date
+    title
+    url
+  }
+}
+
+query SearchApods {
+  searchApods(query: "spiral galaxy", limit: 5) {
+    query
+    searchMode
+    results {
+      apod {
+        date
+        title
+        mediaType
+        url
+      }
+      relevanceScore
+      matchTypes
+    }
+  }
+}
+```
+
+`APOD_SERVICE_BASE_URL` defaults to the deployed non-secret APOD endpoint and can be overridden per environment. The service currently has no authentication, so Livia sends no authorization header. Connect timeout, the 35-second APOD request budget, the 15-second search budget, and retry bounds are controlled by the `APOD_*` values documented in `.env.example`.
+
+Stellate caches `Query.apod` for at most five minutes with no stale-while-revalidate window, so a current APOD can remain stale for no more than five minutes after Mountain Time midnight. Search payloads and results are explicitly non-cacheable. The same conservative APOD TTL currently applies to historical dates.
+
+Distributed traces use the OpenTelemetry Java agent. The `livia.service` systemd unit must start Livia with `-javaagent:/path/to/opentelemetry-javaagent.jar`, send OTLP/HTTP to a verified colocated private collector at `http://127.0.0.1:4318`, and retain the W3C `tracecontext` propagator. Do not expose the collector publicly.
+
+CI combines the DGS schema files and composes them with the pinned Apollo Federation version. Run the same check locally with:
+
+```bash
+./gradlew build --no-daemon
+APOLLO_ELV2_LICENSE=accept npx --yes @apollo/rover@0.41.0 supergraph compose \
+  --config supergraph.yaml --output build/federation/supergraph.graphql
+```
 
 Full Schema Example Query:
 ```
@@ -196,3 +247,4 @@ query FullSchema {
     year
   }
 }
+```

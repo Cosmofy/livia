@@ -1,0 +1,103 @@
+name: deploy-oracle-london
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+concurrency:
+  group: livia-production-oracle-london
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Verify complete build
+        run: ./gradlew build --no-daemon
+
+      - name: Compose Federation supergraph
+        env:
+          APOLLO_ELV2_LICENSE: accept
+        run: npx --yes @apollo/rover@0.41.0 supergraph compose --config supergraph.yaml --output build/federation/supergraph.graphql
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Connect to Tailscale
+        uses: tailscale/github-action@v4
+        with:
+          oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
+          oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
+          tags: tag:ci
+
+      - name: Deploy to Oracle London
+        env:
+          SSH_KEY: ${{ secrets.ORACLE_SSH_KEY }}
+        run: |
+          mkdir -p ~/.ssh
+          echo "${SSH_KEY}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/deploy_key ubuntu@oracle << 'EOF'
+            set -eu
+            cd /home/ubuntu/livia-oracle
+            git pull --ff-only origin main
+            sudo systemctl restart livia.service
+
+            healthy=false
+            for attempt in $(seq 1 60); do
+              if curl --fail --silent --max-time 5 http://127.0.0.1:2259/health > /dev/null; then
+                healthy=true
+                break
+              fi
+              sleep 1
+            done
+
+            if [ "${healthy}" != true ]; then
+              echo "Deploy failed: Livia health check did not recover"
+              journalctl -u livia.service -n 100 --no-pager
+              exit 1
+            fi
+
+            existing_response=$(curl --fail --silent --show-error --max-time 30 \
+              -H 'Content-Type: application/json' \
+              --data '{"query":"query ExistingApiSmoke { server time planets { name } articles { title } universe { name } }"}' \
+              http://127.0.0.1:2259/graphql)
+            if echo "${existing_response}" | grep -q '"errors"'; then
+              echo "Deploy failed: an existing GraphQL operation regressed"
+              journalctl -u livia.service -n 100 --no-pager
+              exit 1
+            fi
+
+            federation_response=$(curl --fail --silent --show-error --max-time 15 \
+              -H 'Content-Type: application/json' \
+              --data '{"query":"{ _service { sdl } }"}' \
+              http://127.0.0.1:2259/graphql)
+            echo "${federation_response}" | grep -q 'https://specs.apollo.dev/federation/v2.3'
+
+            apod_response=$(curl --fail --silent --show-error --max-time 45 \
+              -H 'Content-Type: application/json' \
+              --data '{"query":"query DeploymentApod { apod { date title mediaType url hdUrl } }"}' \
+              http://127.0.0.1:2259/graphql)
+            if echo "${apod_response}" | grep -q '"errors"'; then
+              echo "Deploy failed: APOD acceptance query returned GraphQL errors"
+              journalctl -u livia.service -n 100 --no-pager
+              exit 1
+            fi
+            echo "${apod_response}" | grep -q '"date"'
+            echo "Deploy successful"
+          EOF

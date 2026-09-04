@@ -15,5 +15,14 @@ jobs:
           distribution: temurin
           java-version: 21
 
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
       - name: Build
-        run: ./gradlew build
+        run: ./gradlew build --no-daemon
+
+      - name: Compose Federation supergraph
+        env:
+          APOLLO_ELV2_LICENSE: accept
+        run: npx --yes @apollo/rover@0.41.0 supergraph compose --config supergraph.yaml --output build/federation/supergraph.graphql
