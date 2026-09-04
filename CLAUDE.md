@@ -32,8 +32,8 @@ Livia is a GraphQL backend powering the **Cosmofy** astronomy platform. It provi
 ./gradlew generateJava
 
 # Compose the local Federation schema (run build first)
-APOLLO_ELV2_LICENSE=accept npx --yes @apollo/rover@0.41.0 supergraph compose \
-  --config supergraph.yaml --output build/federation/supergraph.graphql
+npm ci --ignore-scripts --no-audit --no-fund
+npm run compose
 ```
 
 ### Environment Variables
@@ -57,7 +57,7 @@ Schema files are in `src/main/resources/schema/`:
 
 Netflix DGS Codegen generates Java types into `build/generated/.../xyz.arryan.livia.codegen` package. Run `./gradlew generateJava` after schema changes.
 
-Livia is a Federation 2 subgraph, not a router. `Apod` is keyed by `date`; `_service` and `_entities` are supplied by DGS. `supergraph.yaml` is the local/CI single-subgraph composition input.
+Livia is a Federation 2 subgraph, not a router. `Apod` is keyed by `date`; `_service` and `_entities` are supplied by DGS. `scripts/compose-supergraph.mjs` performs the local/CI single-subgraph composition check.
 
 ### Data Fetchers (Resolvers)
 Located in `src/main/java/xyz/arryan/livia/datafetchers/`:

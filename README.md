@@ -124,8 +124,8 @@ CI combines the DGS schema files and composes them with the pinned Apollo Federa
 
 ```bash
 ./gradlew build --no-daemon
-APOLLO_ELV2_LICENSE=accept npx --yes @apollo/rover@0.41.0 supergraph compose \
-  --config supergraph.yaml --output build/federation/supergraph.graphql
+npm ci --ignore-scripts --no-audit --no-fund
+npm run compose
 ```
 
 Full Schema Example Query:

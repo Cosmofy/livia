@@ -1,7 +1,0 @@
-# Local/CI composition input. Production routing stays external to this subgraph repository.
-federation_version: =2.3.2
-subgraphs:
-  livia:
-    routing_url: http://127.0.0.1:2259/graphql
-    schema:
-      file: ./build/federation/livia.graphql

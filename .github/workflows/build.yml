@@ -18,11 +18,12 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 24
+          cache: npm
 
       - name: Build
         run: ./gradlew build --no-daemon
 
       - name: Compose Federation supergraph
-        env:
-          APOLLO_ELV2_LICENSE: accept
-        run: npx --yes @apollo/rover@0.41.0 supergraph compose --config supergraph.yaml --output build/federation/supergraph.graphql
+        run: |
+          npm ci --ignore-scripts --no-audit --no-fund
+          npm run compose
