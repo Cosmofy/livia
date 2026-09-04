@@ -72,32 +72,6 @@ tasks.named('test') {
     useJUnitPlatform()
 }
 
-def federationSchemaFile = layout.buildDirectory.file('federation/livia.graphql')
-
-tasks.register('assembleFederationSchema') {
-    group = 'verification'
-    description = 'Combines the schema-first DGS SDL files for Apollo Federation composition.'
-    def schemaFiles = fileTree('src/main/resources/schema') {
-        include '**/*.graphqls'
-    }
-    inputs.files(schemaFiles)
-    outputs.file(federationSchemaFile)
-
-    doLast {
-        def output = federationSchemaFile.get().asFile
-        output.parentFile.mkdirs()
-        output.setText(
-                schemaFiles.files.sort { first, second -> first.path <=> second.path }
-                        .collect { it.getText('UTF-8') }
-                        .join(System.lineSeparator() + System.lineSeparator()),
-                'UTF-8')
-    }
-}
-
-tasks.named('check') {
-    dependsOn tasks.named('assembleFederationSchema')
-}
-
 bootRun {
     jvmArgs '--enable-native-access=ALL-UNNAMED'
     // Pass environment variables from shell to the JVM process

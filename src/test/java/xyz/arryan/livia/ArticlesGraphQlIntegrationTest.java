@@ -140,36 +140,17 @@ class ArticlesGraphQlIntegrationTest {
     }
 
     @Test
-    void federationSdlDeclaresTheArticleEntityAndBackwardCompatibleFields() {
-        String sdl = queryExecutor.executeAndExtractJsonPath(
-                "{ _service { sdl } }", "data._service.sdl");
+    void exposesArticleAsAnOrdinaryGraphQlTypeWithoutEntityFederationTypes() {
+        @SuppressWarnings("unchecked")
+        List<Map<String, Object>> types = queryExecutor.executeAndExtractJsonPath(
+                "{ __schema { types { name } } }", "data.__schema.types");
+        List<String> typeNames = types.stream()
+                .map(type -> String.valueOf(type.get("name")))
+                .toList();
 
-        assertThat(sdl)
-                .contains("https://specs.apollo.dev/federation/v2.3")
-                .contains("articles: [Article]")
-                .contains("articlesPage(")
-                .contains("article(id: ID!): Article!")
-                .contains("type Article @key")
-                .contains("fields : \"id\"")
-                .contains("union _Entity = Apod | Article");
-    }
-
-    @Test
-    void resolvesTheArticleFederationEntityById() {
-        when(service.getById(ARTICLE_ID)).thenReturn(article());
-        Map<String, Object> variables = Map.of(
-                "representations",
-                List.of(Map.of("__typename", "Article", "id", ARTICLE_ID)));
-
-        String title = queryExecutor.executeAndExtractJsonPath(
-                "query ResolveArticle($representations: [_Any!]!) {"
-                        + " _entities(representations: $representations) {"
-                        + " ... on Article { id title } } }",
-                "data._entities[0].title",
-                variables);
-
-        assertThat(title).isEqualTo("Example title");
-        verify(service).getById(ARTICLE_ID);
+        assertThat(typeNames)
+                .contains("Article", "ArticlePage", "Apod", "NewsArticle")
+                .doesNotContain("_Any", "_Entity", "link__Import");
     }
 
     private static ArticlePage page() {

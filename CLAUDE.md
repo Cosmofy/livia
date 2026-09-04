@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Livia is a GraphQL backend powering the **Cosmofy** astronomy platform. It provides unified data access for planetary/universe information, astronomy pictures, natural events, aurora predictions, and curated articles across iOS/iPadOS, watchOS, tvOS, macOS, visionOS, and web platforms.
 
-**Tech Stack**: Java 21, Spring Boot 3.4, Netflix DGS (GraphQL/Federation), MongoDB Atlas, OpenAI, systemd
+**Tech Stack**: Java 21, Spring Boot 3.4, Netflix DGS GraphQL, MongoDB Atlas, OpenAI, systemd
 
 **Production Endpoints**:
 - Global DNS: `https://livia.arryan.xyz/graphql`
@@ -31,9 +31,6 @@ Livia is a GraphQL backend powering the **Cosmofy** astronomy platform. It provi
 # Generate GraphQL types from schema
 ./gradlew generateJava
 
-# Compose the local Federation schema (run build first)
-npm ci --ignore-scripts --no-audit --no-fund
-npm run compose
 ```
 
 ### Environment Variables
@@ -54,16 +51,16 @@ Optional:
 
 ### GraphQL Schema-First Design
 Schema files are in `src/main/resources/schema/`:
-- `schema.graphqls` - Main Federation 2 schema with Query root, APOD, News, Picture, Article, Event, Planet, and Aurora types
+- `schema.graphqls` - Main schema with Query root, APOD, News, Picture, Article, Event, Planet, and Aurora types
 - `universe.graphqls` - Hierarchical universe structure with enums and nested types
 
 Netflix DGS Codegen generates Java types into `build/generated/.../xyz.arryan.livia.codegen` package. Run `./gradlew generateJava` after schema changes.
 
-Livia is a Federation 2 subgraph, not a router. `Apod` is keyed by `date` and `Article` is keyed by its service UUID; `_service` and `_entities` are supplied by DGS. `scripts/compose-supergraph.mjs` performs the local/CI single-subgraph composition check.
+Livia exposes one ordinary GraphQL schema. It is not an Apollo subgraph and has no router or composition step. APOD, News, and Articles are REST data sources called by normal DGS resolvers. Stellate is the public edge/cache layer and does not require Federation.
 
-`NewsArticle` is query-owned because the News REST contract has no exact-ID endpoint. Do not add an entity resolver that scans `/news`, a direct Spaceflight News fallback, Java-side News Redis access, or GraphQL-side News caching. `Query.news` is deliberately non-cacheable in Stellate.
+The News REST contract has no exact-ID endpoint. Do not add a resolver that scans `/news`, a direct Spaceflight News fallback, Java-side News Redis access, or GraphQL-side News caching. `Query.news` is deliberately non-cacheable in Stellate.
 
-The Articles microservice owns `articles.json`, deterministic IDs, validation, Redis page caching, and rate limiting. Livia preserves the original `articles` query, adds `articlesPage` and `article(id:)`, and resolves Article entities through the service's exact UUID route. Do not restore a Mongo/file fallback, scan a page to resolve an entity, or connect Livia to the Articles Redis instance.
+The Articles microservice owns `articles.json`, deterministic IDs, validation, Redis page caching, and rate limiting. Livia preserves the original `articles` query and exposes `articlesPage` plus `article(id:)`; exact lookups use the service's UUID route. Do not restore a Mongo/file fallback, scan a page to resolve an ID, or connect Livia to the Articles Redis instance.
 
 ### Data Fetchers (Resolvers)
 Located in `src/main/java/xyz/arryan/livia/datafetchers/`:
@@ -114,6 +111,6 @@ Uses selective field fetching via `DataFetchingEnvironment.getSelectionSet()` - 
 - **Logging**: one-line Logstash JSON on stdout/journald with request/trace MDC correlation
 
 ### Deployment
-GitHub Actions validates the Java build and Federation composition, then the successful build workflow deploys that exact commit to the single Oracle Cloud London instance over Tailscale/SSH and restarts the `livia.service` systemd unit:
-- `build.yml` - Java build plus Federation composition
+GitHub Actions validates the Java build, then the successful build workflow deploys that exact commit to the single Oracle Cloud London instance over Tailscale/SSH and restarts the `livia.service` systemd unit:
+- `build.yml` - Java build and test suite
 - `deploy-oracle.yml` - Oracle London deployment (`ubuntu@oracle`, `/home/ubuntu/livia-oracle`)

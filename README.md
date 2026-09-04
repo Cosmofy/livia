@@ -1,82 +1,51 @@
 # Livia
 
+Livia is Cosmofy's public GraphQL API for astronomy content and live space-weather data. It runs on Java 21 with Spring Boot and Netflix DGS.
 
-A scalable, AI-augmented GraphQL backend powering the **Cosmofy** astronomy platform across iOS/iPadOS, watchOS, tvOS, macOS, visionOS, and web.
+Livia exposes one ordinary GraphQL schema. The downstream APOD, News, and Articles applications are REST microservices, not GraphQL subgraphs. Stellate provides the public edge and caching layer; it does not make Livia a federated graph.
 
-Production requests flow from clients through Stellate to this Livia subgraph on Oracle London. Livia then calls its internal REST microservices.
+## Production
 
-**Production API Endpoints**
+- GraphQL: `https://livia.arryan.xyz/graphql`
+- GraphiQL: [https://livia.arryan.xyz/graphiql](https://livia.arryan.xyz/graphiql)
+- Health: [https://livia.arryan.xyz/health](https://livia.arryan.xyz/health)
+- Status: [https://status.cosmofy.arryan.xyz](https://status.cosmofy.arryan.xyz)
+- Runtime: one Oracle Cloud instance in London, reached internally as the Tailscale host `oracle`
+- Process: `livia.service` under systemd
 
-* Public endpoint: `https://livia.arryan.xyz/graphql`
-* Runtime: one Oracle Cloud instance in London (internal Tailscale host `oracle`)
+The production request path is:
 
-GraphiQL Playground: [https://livia.arryan.xyz/graphiql](https://livia.arryan.xyz/graphiql)
+```text
+Cosmofy clients
+  -> Stellate
+    -> Livia GraphQL on Oracle London
+      -> APOD, News, and Articles REST services
+      -> MongoDB for Universe and legacy Picture data
+      -> NASA, NOAA, WeatherKit, and the Aurora prediction API
+```
 
-Status Page: [https://status.cosmofy.arryan.xyz](https://status.cosmofy.arryan.xyz)
+There is no Apollo Router and no multi-subgraph composition step. Netflix DGS may still expose its built-in read-only `_service` SDL helper, but Livia declares no entity keys, exposes no `_entities` field, and does not compose a supergraph.
 
+## API modules
 
-## Overview
+| GraphQL fields | Source | Cache/storage ownership |
+| --- | --- | --- |
+| `apod`, `searchApods` | Cosmofy APOD REST service | APOD service owns Redis/Turso; Stellate caches `apod` for 5 minutes and does not cache search |
+| `news` | Cosmofy News REST service | News service owns Redis; News is non-cacheable in Stellate |
+| `articles`, `articlesPage`, `article` | Cosmofy Articles REST service | Articles service owns its JSON catalog, deterministic UUIDs, Redis page cache, and rate limiting; Stellate caches article data for 6 hours |
+| `universe` and nested hierarchy | MongoDB `universe`, document `_id=observable-universe` | Loaded into the Livia instance cache; Stellate caches hierarchy data for 1 day |
+| `planets` | Bundled `planets.json` compatibility dataset | Static process data; Stellate caches planetary data for 1 day |
+| `picture` | NASA APOD plus OpenAI summaries | Legacy MongoDB `pictures` persistence; Stellate caches for 48 hours |
+| `events` | NASA EONET | Stellate caches event data for 4 hours |
+| `aurora` | NOAA SWPC, WeatherKit, Aurora prediction API, bundled webcams | Short in-process caches plus a 5-minute Stellate edge policy |
+| `apiKey` | LiteLLM key API | Never edge-cached |
+| `server`, `time` | Livia runtime | Never edge-cached |
 
-Cosmofy began as a static mobile astronomy app, but rapidly outgrew its architecture. This project ("Livia") introduces a centralized, cache-aware, schema-first GraphQL backend to unify data access, minimize API overfetching, and scale across device platforms.
+The authoritative edge policy is [stellate.ts](./stellate.ts).
 
-The backend integrates with:
-* **NASA APOD** (Astronomy Picture of the Day)
-* **NASA EONET** (Earth Observatory Natural Event Tracker)
-* **NASA JPL Horizons** (Jet Propulsion Laboratory orbital/planetary data)
-* **OpenAI** (legacy `picture` content generation and summarization)
-* **MongoDB** (legacy Universe and Picture persistence)
-* **Cosmofy internal microservices** (APOD, News, and Articles)
-* **AWS Route 53** (latency-based routing)
+## GraphQL examples
 
-
-
-Backend is open-source under the [Cosmofy GitHub organization](https://github.com/Cosmofy).
-
-
-
-## Tech Stack
-
-| Component            | Tech/Tool                                       |
-|----------------------|-------------------------------------------------|
-| **Language**         | Java 21                                        |
-| **Framework**        | Spring Boot + Netflix DGS (GraphQL/Federation) |
-| **Runtime**          | systemd                                        |
-| **CI/CD**            | GitHub Actions                                 |
-| **Edge cache**       | Stellate                                       |
-| **DB**               | MongoDB                                        |
-| **Hosting**          | Oracle Cloud, London                           |
-| **Routing**          | Public DNS to the single production instance  |
-
-
-## Features
-
-- Schema-first GraphQL API (`.graphqls`)
-- Apollo Federation 2 subgraph support
-- Dynamic per-device data filtering
-- GPT-powered content generation and summarization
-- Open-source, modular service deployment
-
-
-
-## Modules & TTLs
-| Module     | Source(s) + Processing     | TTL / Storage              |
-| ---------- | -------------------------- | -------------------------- |
-| `planets`  | JPL Horizons + manual      | Static (JSON)              |
-| `picture`  | NASA APOD + AI summaries   | Day-end invalidation (MongoDB) |
-| `events`   | NASA EONET + geo filtering | In-memory / edge cache     |
-| `articles` | Cosmofy Articles microservice | Service-owned Redis + Stellate edge cache |
-| `news`     | Cosmofy News microservice  | Redis/cache policy owned by News |
-
-
-
-## Testing the API
-
-👉 Try it with the hosted GraphiQL:
-[https://livia.arryan.xyz/graphiql](https://livia.arryan.xyz/graphiql)
-
-### APOD microservice queries
-
-Livia exposes the internal APOD REST service through typed GraphQL operations. Clients should only call Livia. This repository is a Federation 2 subgraph, not an Apollo Router; `Apod` is an entity keyed by `date`.
+### APOD
 
 ```graphql
 query TodaysApod {
@@ -105,12 +74,7 @@ query SearchApods {
     query
     searchMode
     results {
-      apod {
-        date
-        title
-        mediaType
-        url
-      }
+      apod { date title mediaType url }
       relevanceScore
       matchTypes
     }
@@ -118,20 +82,15 @@ query SearchApods {
 }
 ```
 
-`APOD_SERVICE_BASE_URL` defaults to the deployed non-secret APOD endpoint and can be overridden per environment. The service currently has no authentication, so Livia sends no authorization header. Connect timeout, the 35-second APOD request budget, the 15-second search budget, and retry bounds are controlled by the `APOD_*` values documented in `.env.example`.
-
-Stellate caches `Query.apod` for at most five minutes with no stale-while-revalidate window, so a current APOD can remain stale for no more than five minutes after Mountain Time midnight. Search payloads and results are explicitly non-cacheable. The same conservative APOD TTL currently applies to historical dates.
-
-Distributed traces use the OpenTelemetry Java agent. The `livia.service` systemd unit must start Livia with `-javaagent:/path/to/opentelemetry-javaagent.jar`, send OTLP/HTTP to a verified colocated private collector at `http://127.0.0.1:4318`, and retain the W3C `tracecontext` propagator. Do not expose the collector publicly.
-
-### News microservice query
-
-Live news follows `client -> Stellate -> Livia -> News microservice`. Livia does not call Spaceflight News directly and does not connect to the News Redis instance.
+### News
 
 ```graphql
 query LatestNews($limit: Int!, $offset: Int!, $ordering: NewsOrdering!) {
   news(limit: $limit, offset: $offset, ordering: $ordering) {
     totalCount
+    limit
+    offset
+    hasNextPage
     articles {
       id
       title
@@ -139,19 +98,19 @@ query LatestNews($limit: Int!, $offset: Int!, $ordering: NewsOrdering!) {
       url
       imageUrl
       newsSite
+      authors
       publishedAt
+      updatedAt
     }
   }
 }
 ```
 
-The News REST API currently exposes only the paginated collection endpoint, not an exact article-by-ID endpoint. `NewsArticle` is therefore query-owned and is not declared as a Federation entity; Livia does not scan the full feed to resolve references. `Query.news`, `NewsPage`, and `NewsArticle` are explicitly non-cacheable in Stellate for this integration, leaving freshness and Redis caching to the News service.
+News exact-ID lookup is intentionally absent because its REST service currently exposes only the collection endpoint. Livia does not scan the complete feed to emulate one.
 
-`NEWS_SERVICE_BASE_URL` defaults to the deployed non-secret News endpoint. `NEWS_CONNECT_TIMEOUT`, `NEWS_REQUEST_TIMEOUT`, `NEWS_MAX_ATTEMPTS`, and `NEWS_RETRY_BACKOFF` control the validated HTTP policy documented in `.env.example`.
+### Articles
 
-### Articles microservice queries
-
-Curated articles follow `client -> Stellate -> Livia -> Articles microservice`. The original `articles: [Article]` query and all of its existing fields remain available to old app versions, but the data now comes from the Articles service instead of MongoDB. The service-provided UUID is exposed as `Article.id`, and `Article` is a Federation 2 entity keyed by that ID.
+The original `articles: [Article]` field remains available for existing app versions and returns the complete catalog. New clients can paginate and filter:
 
 ```graphql
 query BrowseArticles {
@@ -165,7 +124,10 @@ query BrowseArticles {
     ordering: DATE_DESCENDING
   ) {
     totalCount
+    limit
+    offset
     hasNextPage
+    hasPreviousPage
     articles {
       id
       month
@@ -189,142 +151,120 @@ query ExactArticle($id: ID!) {
 }
 ```
 
-Livia calls the exact REST route when resolving `article(id:)` or an `Article` representation through `_entities`; it never scans the collection. It does not read `articles.json`, connect to the Articles Redis instance, or duplicate the service's cache. W3C trace headers and the trusted request ID are forwarded, while cache and rate-limit response headers are recorded only as telemetry.
+Livia resolves `article(id:)` with the Articles service's exact UUID route. It does not read `articles.json`, access the service's Redis instance, or keep a second Java-side article cache.
 
-`ARTICLES_SERVICE_URL` defaults to `https://articles.api.cosmofy.services.deployim.com`. Production should explicitly set the same value in `/home/ubuntu/livia-oracle/.env`:
+### Universe and live data
 
-```dotenv
-ARTICLES_SERVICE_URL=https://articles.api.cosmofy.services.deployim.com
-```
-
-`ARTICLES_CONNECT_TIMEOUT`, `ARTICLES_REQUEST_TIMEOUT`, `ARTICLES_MAX_ATTEMPTS`, and `ARTICLES_RETRY_BACKOFF` configure the bounded HTTP policy documented in `.env.example`.
-
-CI combines the DGS schema files and composes them with the pinned Apollo Federation version. Run the same check locally with:
-
-```bash
-./gradlew build --no-daemon
-npm ci --ignore-scripts --no-audit --no-fund
-npm run compose
-```
-
-Full Schema Example Query:
-```
-query FullSchema {
-  server
-  time
-  planets {
-    moons
+```graphql
+query AstronomyOverview($lat: Float!, $lon: Float!) {
+  planets { name moons rings }
+  universe {
     name
-    obliquityToOrbit
-    orbitalInclination
-    orbitalVelocity
-    albedo
-    angularDiameter
-    atmosphere {
-      formula
-      molar
+    superclusters {
       name
-      percentage
+      galaxyClusters {
+        name
+        galaxies { name type }
+      }
     }
-    density
-    description
-    escapeVelocity
-    expandedDescription
-    facts
-    flattening
-    gravitationalParameter
-    gravitationalParameterUncertainty
-    gravityEquatorial
-    gravityPolar
-    id
-    lastUpdated
-    mass
-    maxIR {
-      aphelion
-      mean
-      perihelion
-    }
-    minIR {
-      aphelion
-      mean
-      perihelion
-    }
-    pressure
-    radiusEquatorial
-    momentOfInertia
-    radiusCore
-    radiusHillsSphere
-    radiusPolar
-    rocheLimit
-    rings
-    siderealOrbitPeriodD
-    rockyCoreMass
-    siderealOrbitPeriodY
-    siderealRotationRate
-    siderealRotationPeriod
-    solarConstant {
-      perihelion
-      mean
-      aphelion
-    }
-    solarDayLength
-    temperature
-    visual
-    visualMagnitude
-    visualMagnitudeOpposition
-    volume
-    volumetricMeanRadius
   }
-  picture {
-    copyright
-    credit
-    date
-    explanation {
-      kids
-      original
-      summarized
-    }
-    media
-    media_type
-    title
-  }
-  events {
-    categories {
-      id
-      title
-    }
-    geometry {
-      coordinates
-      date
-      id
-      magnitudeUnit
-      magnitudeValue
-      type
-    }
-    id
-    sources {
-      id
-      url
-    }
-    title
-  }
-  articles {
-    id
-    authors {
-      image
-      name
-      title
-    }
-    banner {
-      designer
-      image
-    }
-    month
-    source
-    subtitle
-    title
-    url
-    year
+  events(daysInput: 14) { id title categories { id title } }
+  aurora(lat: $lat, lon: $lon) {
+    prediction { probability }
+    spaceWeather { current { kp } }
+    astronomy { moon { phase } }
   }
 }
 ```
+
+Use GraphiQL or schema introspection for the complete nested Universe and Aurora types.
+
+## Development
+
+Requirements:
+
+- JDK 21
+- Network access to the configured REST services and MongoDB when exercising their fields
+- Optional credentials for legacy Picture, WeatherKit astronomy, and LiteLLM features
+
+Load the example environment and start Livia:
+
+```bash
+cp .env.example .env
+set -a
+. ./.env
+set +a
+./gradlew bootRun
+```
+
+The local server listens on port `2259`:
+
+```bash
+curl http://127.0.0.1:2259/health
+```
+
+Build and test:
+
+```bash
+./gradlew build --no-daemon
+./gradlew test --no-daemon
+```
+
+DGS generates Java schema types under `build/generated/` from:
+
+- `src/main/resources/schema/schema.graphqls`
+- `src/main/resources/schema/universe.graphqls`
+
+## Configuration
+
+Copy `.env.example` for the complete documented defaults. The main groups are:
+
+| Variables | Purpose |
+| --- | --- |
+| `APOD_SERVICE_BASE_URL`, `APOD_*TIMEOUT`, `APOD_MAX_ATTEMPTS`, `APOD_RETRY_BACKOFF` | APOD REST client endpoint and bounded resilience policy |
+| `NEWS_SERVICE_BASE_URL`, `NEWS_*TIMEOUT`, `NEWS_MAX_ATTEMPTS`, `NEWS_RETRY_BACKOFF` | News REST client endpoint and bounded resilience policy |
+| `ARTICLES_SERVICE_URL`, `ARTICLES_*TIMEOUT`, `ARTICLES_MAX_ATTEMPTS`, `ARTICLES_RETRY_BACKOFF` | Articles REST client endpoint and bounded resilience policy |
+| `NASA_API_KEY`, `OPENAI_API_KEY` | Legacy `picture` generation on a cache miss |
+| `WEATHERKIT_KEY_ID`, `WEATHERKIT_TEAM_ID`, `WEATHERKIT_SERVICE_ID`, `WEATHERKIT_PRIVATE_KEY` | Optional WeatherKit astronomy fields |
+| `AURORA_ML_API_URL` | Optional override for the Aurora prediction service |
+| `LITELLM_BASE_URL`, `LITELLM_MASTER_KEY`, `ACCEPTED_PASSPHRASES` | Virtual API-key generation |
+| `LIVIA_REGION` | Value returned by `server` and included in request logs |
+| `OTEL_*` | OpenTelemetry Java-agent export and propagation settings |
+
+The three internal REST services currently require no authorization header. Their production URLs are non-secret defaults in `application.properties` and `.env.example`.
+
+## Resilience and observability
+
+The APOD, News, and Articles clients use validated base URLs, bounded connect/request timeouts, and at most one retry by default. Validation failures and rate limits are not blindly retried. Structured upstream failures become safe GraphQL errors without exposing Java stack traces or internal service messages.
+
+Livia validates or creates `x-request-id`, emits structured request/resolver logs, and forwards `x-request-id`, `traceparent`, and `tracestate` to its REST services. Cache and rate-limit response headers are recorded as telemetry rather than GraphQL business fields.
+
+Trace export requires the OpenTelemetry Java agent and a private collector. The recommended collector endpoint is `http://127.0.0.1:4318` using OTLP/HTTP. The CI/CD workflow does not install that infrastructure, so verify the agent and collector independently on production.
+
+## Deployment
+
+Production deploys are intentionally single-instance:
+
+1. A push to `main` runs the Java build and test suite in `.github/workflows/build.yml`.
+2. Only a successful build triggers `.github/workflows/deploy-oracle.yml`.
+3. The deploy job connects to the Tailscale host `oracle`, verifies the exact build SHA, and fast-forwards `/home/ubuntu/livia-oracle`.
+4. It restarts `livia.service`, waits for `/health`, and runs acceptance queries for the existing API, APOD, News, paginated Articles, and exact Article lookup.
+
+Production configuration lives in `/home/ubuntu/livia-oracle/.env`, loaded by systemd. Deployment preserves that file and the host's untracked `gradle.properties`.
+
+## Repository layout
+
+```text
+src/main/resources/schema/       GraphQL schema
+src/main/java/.../datafetchers/  DGS query and field resolvers
+src/main/java/.../clients/       Typed REST clients
+src/main/java/.../services/      Validation and orchestration
+src/main/java/.../mappers/       REST-to-GraphQL mapping
+src/test/                        Unit and HTTP/GraphQL integration tests
+.github/workflows/               Build and Oracle deployment
+stellate.ts                      Edge cache policy
+```
+
+## License
+
+[Apache License 2.0](./LICENSE)

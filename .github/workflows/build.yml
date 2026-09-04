@@ -15,15 +15,5 @@ jobs:
           distribution: temurin
           java-version: 21
 
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 24
-          cache: npm
-
       - name: Build
         run: ./gradlew build --no-daemon
-
-      - name: Compose Federation supergraph
-        run: |
-          npm ci --ignore-scripts --no-audit --no-fund
-          npm run compose

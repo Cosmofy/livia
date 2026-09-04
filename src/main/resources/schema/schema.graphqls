@@ -1,6 +1,3 @@
-extend schema
-@link(url: "https://specs.apollo.dev/federation/v2.3", import: ["@key"])
-
 scalar Date
 scalar DateTime
 
@@ -79,8 +76,8 @@ type NewsPage {
     articles: [NewsArticle!]!
 }
 
-# APOD is a Federation 2 entity backed by the internal APOD REST service.
-type Apod @key(fields: "date") {
+# APOD is backed by the internal APOD REST service.
+type Apod {
     date: Date!
     title: String!
     explanation: String!
@@ -132,8 +129,8 @@ type Explanation {
 
 
 
-# API 2: Article of the Month. The stable service ID makes this a Federation entity.
-type Article @key(fields: "id") {
+# API 2: Article of the Month. The stable ID comes from the Articles service.
+type Article {
     id: ID!
     month: Int # month of article (1-12)
     year: Int # year of article (2024-)

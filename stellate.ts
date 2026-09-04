@@ -5,12 +5,6 @@ const config: Config = {
     name: 'cosmofy',
     originUrl: 'https://livia.arryan.xyz/graphql',
     partialQueryCaching: { enabled: true },
-    keyFields: {
-      types: {
-        Apod: ['date'],
-        Article: ['id'],
-      },
-    },
     nonCacheable: [
       'Query.apiKey',
       'Query.server',
@@ -71,7 +65,7 @@ const config: Config = {
         description: 'Picture of the day - purged daily at 2am MT',
       },
 
-      // ============== FEDERATED APOD (5 minutes; safe across Mountain Time midnight) ==============
+      // ============== APOD (5 minutes; safe across Mountain Time midnight) ==============
       {
         types: ['Query.apod'],
         maxAge: 300,

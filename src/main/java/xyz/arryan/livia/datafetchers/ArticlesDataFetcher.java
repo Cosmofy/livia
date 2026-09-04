@@ -2,7 +2,6 @@ package xyz.arryan.livia.datafetchers;
 
 import com.netflix.graphql.dgs.DgsComponent;
 import com.netflix.graphql.dgs.DgsDataFetchingEnvironment;
-import com.netflix.graphql.dgs.DgsEntityFetcher;
 import com.netflix.graphql.dgs.DgsQuery;
 import com.netflix.graphql.dgs.InputArgument;
 import io.opentelemetry.api.GlobalOpenTelemetry;
@@ -21,7 +20,6 @@ import xyz.arryan.livia.observability.TraceLogContext;
 import xyz.arryan.livia.services.ArticlesService;
 
 import java.util.List;
-import java.util.Map;
 import java.util.function.Supplier;
 import java.util.function.ToLongFunction;
 
@@ -75,17 +73,6 @@ public class ArticlesDataFetcher {
                 "get_by_id",
                 graphQlOperationName(environment),
                 () -> service.getById(id),
-                _result -> 1L);
-    }
-
-    @DgsEntityFetcher(name = "Article")
-    public Article articleEntity(Map<String, Object> representation) {
-        Object id = representation.get("id");
-        return traceResolver(
-                "_entities",
-                "entity",
-                "federation_entity",
-                () -> service.getById(id == null ? null : String.valueOf(id)),
                 _result -> 1L);
     }
 

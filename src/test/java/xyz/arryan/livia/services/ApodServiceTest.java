@@ -57,7 +57,7 @@ class ApodServiceTest {
     }
 
     @Test
-    void rejectsAnUpstreamRecordWithTheWrongFederationEntityKey() {
+    void rejectsAnUpstreamRecordWithTheWrongRequestedDate() {
         LocalDate requested = LocalDate.of(2024, 2, 29);
         when(client.get(requested)).thenReturn(response(LocalDate.of(2024, 3, 1)));
 

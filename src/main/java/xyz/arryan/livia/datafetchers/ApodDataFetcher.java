@@ -2,7 +2,6 @@ package xyz.arryan.livia.datafetchers;
 
 import com.netflix.graphql.dgs.DgsComponent;
 import com.netflix.graphql.dgs.DgsDataFetchingEnvironment;
-import com.netflix.graphql.dgs.DgsEntityFetcher;
 import com.netflix.graphql.dgs.DgsQuery;
 import com.netflix.graphql.dgs.InputArgument;
 import io.opentelemetry.api.GlobalOpenTelemetry;
@@ -20,8 +19,6 @@ import xyz.arryan.livia.observability.TraceLogContext;
 import xyz.arryan.livia.services.ApodService;
 
 import java.time.LocalDate;
-import java.time.format.DateTimeParseException;
-import java.util.Map;
 import java.util.function.Supplier;
 import java.util.function.ToLongFunction;
 
@@ -61,25 +58,6 @@ public class ApodDataFetcher {
                 null,
                 () -> service.search(query, limit),
                 result -> result.getResults().size());
-    }
-
-    @DgsEntityFetcher(name = "Apod")
-    public Apod apodEntity(Map<String, Object> representation) {
-        Object value = representation.get("date");
-        final LocalDate date;
-        try {
-            date = value instanceof LocalDate localDate ? localDate : LocalDate.parse(String.valueOf(value));
-        } catch (DateTimeParseException | NullPointerException exception) {
-            throw ApodException.validation("INVALID_DATE_FORMAT");
-        }
-
-        return traceResolver(
-                "_entities",
-                "entity",
-                "federation_entity",
-                true,
-                () -> service.get(date),
-                _result -> 1L);
     }
 
     private <T> T traceResolver(

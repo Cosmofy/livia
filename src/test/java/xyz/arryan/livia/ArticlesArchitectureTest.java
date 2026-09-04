@@ -29,5 +29,7 @@ class ArticlesArchitectureTest {
                 .doesNotContain("spring-boot-starter-data-redis");
         assertThat(Files.readString(Path.of("src/main/resources/application.properties")))
                 .doesNotContain("articles.redis");
+        assertThat(Files.readString(Path.of("src/main/resources/schema/schema.graphqls")))
+                .doesNotContain("@key", "@link", "_entities");
     }
 }

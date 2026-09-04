@@ -67,12 +67,6 @@ jobs:
               exit 1
             fi
 
-            federation_response=$(curl --fail --silent --show-error --max-time 15 \
-              -H 'Content-Type: application/json' \
-              --data '{"query":"{ _service { sdl } }"}' \
-              http://127.0.0.1:2259/graphql)
-            echo "${federation_response}" | grep -q 'https://specs.apollo.dev/federation/v2.3'
-
             apod_response=$(curl --fail --silent --show-error --max-time 45 \
               -H 'Content-Type: application/json' \
               --data '{"query":"query DeploymentApod { apod { date title mediaType url hdUrl } }"}' \

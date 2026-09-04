@@ -99,21 +99,6 @@ class NewsGraphQlIntegrationTest {
                 .isEqualTo("Too many news requests were made. Please try again shortly.");
     }
 
-    @Test
-    void federationSdlContainsNewsAndPreservesLegacyArticlesWithoutInventingANewsEntity() {
-        String sdl = queryExecutor.executeAndExtractJsonPath(
-                "{ _service { sdl } }", "data._service.sdl");
-
-        assertThat(sdl)
-                .contains("https://specs.apollo.dev/federation/v2.3")
-                .contains("news(")
-                .contains("type NewsArticle")
-                .contains("type NewsPage")
-                .contains("articles: [Article]")
-                .contains("union _Entity = Apod")
-                .doesNotContain("NewsArticle @key");
-    }
-
     private static NewsPage page() {
         NewsArticle article = NewsArticle.newBuilder()
                 .id("39822")

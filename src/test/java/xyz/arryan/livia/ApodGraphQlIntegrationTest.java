@@ -15,7 +15,6 @@ import xyz.arryan.livia.services.ApodService;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
@@ -87,38 +86,6 @@ class ApodGraphQlIntegrationTest {
                 .containsKey("requestId");
         assertThat(result.getErrors().getFirst().getMessage())
                 .isEqualTo("NASA's Astronomy Picture of the Day archive begins on June 16, 1995.");
-    }
-
-    @Test
-    void federationServiceSdlDeclaresVersionTwoAndTheApodKey() {
-        String sdl = queryExecutor.executeAndExtractJsonPath(
-                "{ _service { sdl } }",
-                "data._service.sdl");
-
-        assertThat(sdl)
-                .contains("https://specs.apollo.dev/federation/v2.3")
-                .contains("union _Entity = Apod")
-                .contains("type Apod @key")
-                .contains("fields : \"date\"");
-    }
-
-    @Test
-    void resolvesTheApodFederationEntityByDate() {
-        LocalDate date = LocalDate.of(2024, 1, 1);
-        when(service.get(date)).thenReturn(apod(date));
-        Map<String, Object> variables = Map.of(
-                "representations",
-                List.of(Map.of("__typename", "Apod", "date", "2024-01-01")));
-
-        String title = queryExecutor.executeAndExtractJsonPath(
-                "query ResolveApod($representations: [_Any!]!) {"
-                        + " _entities(representations: $representations) {"
-                        + " ... on Apod { date title } } }",
-                "data._entities[0].title",
-                variables);
-
-        assertThat(title).isEqualTo("A title");
-        verify(service).get(date);
     }
 
     private static Apod apod(LocalDate date) {
