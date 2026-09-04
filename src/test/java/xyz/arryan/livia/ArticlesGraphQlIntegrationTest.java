@@ -140,7 +140,7 @@ class ArticlesGraphQlIntegrationTest {
     }
 
     @Test
-    void exposesArticleAsAnOrdinaryGraphQlTypeWithoutEntityFederationTypes() {
+    void exposesOrdinaryGraphQlTypesWithoutFederationSchemaArtifacts() {
         @SuppressWarnings("unchecked")
         List<Map<String, Object>> types = queryExecutor.executeAndExtractJsonPath(
                 "{ __schema { types { name } } }", "data.__schema.types");
@@ -150,7 +150,14 @@ class ArticlesGraphQlIntegrationTest {
 
         assertThat(typeNames)
                 .contains("Article", "ArticlePage", "Apod", "NewsArticle")
-                .doesNotContain("_Any", "_Entity", "link__Import");
+                .doesNotContain("_Any", "_Entity", "_Service", "_FieldSet", "link__Import");
+
+        @SuppressWarnings("unchecked")
+        List<Map<String, Object>> queryFields = queryExecutor.executeAndExtractJsonPath(
+                "{ __type(name: \"Query\") { fields { name } } }", "data.__type.fields");
+        assertThat(queryFields)
+                .extracting(field -> String.valueOf(field.get("name")))
+                .doesNotContain("_service", "_entities");
     }
 
     private static ArticlePage page() {

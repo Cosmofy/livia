@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Livia is a GraphQL backend powering the **Cosmofy** astronomy platform. It provides unified data access for planetary/universe information, astronomy pictures, natural events, aurora predictions, and curated articles across iOS/iPadOS, watchOS, tvOS, macOS, visionOS, and web platforms.
 
-**Tech Stack**: Java 21, Spring Boot 3.4, Netflix DGS GraphQL, MongoDB Atlas, OpenAI, systemd
+**Tech Stack**: Java 21, Spring Boot 3.5, Netflix DGS GraphQL, MongoDB Atlas, OpenAI, systemd
 
 **Production Endpoints**:
 - Global DNS: `https://livia.arryan.xyz/graphql`

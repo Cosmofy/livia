@@ -24,7 +24,7 @@ Cosmofy clients
       -> NASA, NOAA, WeatherKit, and the Aurora prediction API
 ```
 
-There is no Apollo Router and no multi-subgraph composition step. Netflix DGS may still expose its built-in read-only `_service` SDL helper, but Livia declares no entity keys, exposes no `_entities` field, and does not compose a supergraph.
+There is no Apollo Router, multi-subgraph composition step, `_service` field, or `_entities` field. DGS's Federation schema transformation is explicitly disabled.
 
 ## API modules
 

@@ -28,6 +28,7 @@ class ArticlesArchitectureTest {
         assertThat(Files.readString(Path.of("build.gradle")))
                 .doesNotContain("spring-boot-starter-data-redis");
         assertThat(Files.readString(Path.of("src/main/resources/application.properties")))
+                .contains("dgs.graphql.federation.enabled=false")
                 .doesNotContain("articles.redis");
         assertThat(Files.readString(Path.of("src/main/resources/schema/schema.graphqls")))
                 .doesNotContain("@key", "@link", "_entities");
