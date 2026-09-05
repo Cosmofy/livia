@@ -85,7 +85,6 @@ const config: Config = {
           'Webcam',
           'Article',
           'DarkZone',
-          'ArticlePage',
           'LightPollution',
         ],
         maxAge: 21600,

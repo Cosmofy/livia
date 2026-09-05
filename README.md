@@ -35,7 +35,7 @@ The Java origin remains directly reachable. Clients configured with `livia.arrya
 | --- | --- | --- |
 | `apod`, `searchApods` | Cosmofy APOD REST service | APOD service owns Redis/Turso; Stellate caches `apod` for 5 minutes and does not cache search |
 | `news` | Cosmofy News REST service | News service owns Redis; News is non-cacheable in Stellate |
-| `articles`, `articlesPage`, `article` | Cosmofy Articles REST service | Articles service owns its JSON catalog, deterministic UUIDs, Redis page cache, and rate limiting; Stellate caches article data for 6 hours |
+| `articles` | Cosmofy Articles REST service | Articles service owns its JSON catalog, deterministic UUIDs, Redis page cache, and rate limiting; Stellate caches article data for 6 hours |
 | `universe` and nested hierarchy | MongoDB `universe`, document `_id=observable-universe` | Loaded into the Livia instance cache; Stellate caches hierarchy data for 1 day |
 | `planets` | Bundled `planets.json` compatibility dataset | Static process data; Stellate caches planetary data for 1 day |
 | `picture` | NASA APOD plus OpenAI summaries | Legacy MongoDB `pictures` persistence; Stellate caches for 48 hours |
@@ -113,48 +113,23 @@ News exact-ID lookup is intentionally absent because its REST service currently 
 
 ### Articles
 
-The original `articles: [Article]` field remains available for existing app versions and returns the complete catalog. New clients can paginate and filter:
+The `articles: [Article]` field returns the complete catalog expected by the app. Livia reads every page from the Articles REST service in batches of 100 and combines them into one GraphQL list; it does not read articles from MongoDB or keep a second Java-side article cache.
 
 ```graphql
-query BrowseArticles {
-  articlesPage(
-    limit: 24
-    offset: 0
-    search: "dark matter"
-    year: 2026
-    month: 8
-    source: "Quanta Magazine"
-    ordering: DATE_DESCENDING
-  ) {
-    totalCount
-    limit
-    offset
-    hasNextPage
-    hasPreviousPage
-    articles {
-      id
-      month
-      year
-      title
-      subtitle
-      url
-      source
-      banner { image designer }
-      authors { name title image }
-    }
-  }
-}
-
-query ExactArticle($id: ID!) {
-  article(id: $id) {
+query Articles {
+  articles {
     id
+    month
+    year
     title
+    subtitle
     url
+    source
+    banner { image designer }
+    authors { name title image }
   }
 }
 ```
-
-Livia resolves `article(id:)` with the Articles service's exact UUID route. It does not read `articles.json`, access the service's Redis instance, or keep a second Java-side article cache.
 
 ### Universe and live data
 

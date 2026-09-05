@@ -6,7 +6,6 @@ import xyz.arryan.livia.clients.dto.ArticleBannerResponse;
 import xyz.arryan.livia.clients.dto.ArticlePageResponse;
 import xyz.arryan.livia.clients.dto.ArticleResponse;
 import xyz.arryan.livia.codegen.types.Article;
-import xyz.arryan.livia.codegen.types.ArticlePage;
 import xyz.arryan.livia.errors.ArticlesException;
 
 import java.util.List;
@@ -21,16 +20,11 @@ class ArticlesMapperTest {
     private final ArticlesMapper mapper = new ArticlesMapper();
 
     @Test
-    void mapsEveryArticleAndPaginationField() {
-        ArticlePage page = mapper.toGraphQl(new ArticlePageResponse(
+    void validatesThePageAndMapsEveryArticle() {
+        List<Article> articles = mapper.toGraphQlArticles(new ArticlePageResponse(
                 27, 24, 0, true, false, List.of(article())));
 
-        assertThat(page.getTotalCount()).isEqualTo(27);
-        assertThat(page.getLimit()).isEqualTo(24);
-        assertThat(page.getOffset()).isZero();
-        assertThat(page.getHasNextPage()).isTrue();
-        assertThat(page.getHasPreviousPage()).isFalse();
-        Article result = page.getArticles().getFirst();
+        Article result = articles.getFirst();
         assertThat(result.getId()).isEqualTo(ARTICLE_ID.toString());
         assertThat(result.getMonth()).isEqualTo(8);
         assertThat(result.getYear()).isEqualTo(2026);
@@ -59,7 +53,7 @@ class ArticlesMapperTest {
                 ARTICLE_ID, 8, 2026, "Title", "Subtitle", "https://example.com", "Source",
                 new ArticleBannerResponse("https://example.com/banner.jpg", "Designer"), List.of());
         assertInvalid(() -> mapper.toGraphQl(missingAuthors));
-        assertInvalid(() -> mapper.toGraphQl(new ArticlePageResponse(
+        assertInvalid(() -> mapper.toGraphQlArticles(new ArticlePageResponse(
                 -1, 0, -1, null, false, null)));
     }
 

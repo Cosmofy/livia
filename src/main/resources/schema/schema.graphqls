@@ -8,13 +8,6 @@ enum NewsOrdering {
     UPDATED_AT_DESCENDING
 }
 
-enum ArticleOrdering {
-    DATE_ASCENDING
-    DATE_DESCENDING
-    TITLE_ASCENDING
-    TITLE_DESCENDING
-}
-
 type Query {
     # New hierarchical structure
     universe: Universe!
@@ -35,16 +28,6 @@ type Query {
         newsSite: String
     ): NewsPage!
     articles: [Article]
-    articlesPage(
-        limit: Int = 24
-        offset: Int = 0
-        search: String
-        year: Int
-        month: Int
-        source: String
-        ordering: ArticleOrdering = DATE_DESCENDING
-    ): ArticlePage!
-    article(id: ID!): Article!
     picture(date: String): Picture
     events(daysInput: Int): [Event]
     apiKey(passphrase: String!): String
@@ -129,7 +112,7 @@ type Explanation {
 
 
 
-# API 2: Article of the Month. The stable ID comes from the Articles service.
+# API 2: Articles. The stable ID comes from the Articles service.
 type Article {
     id: ID!
     month: Int # month of article (1-12)
@@ -140,14 +123,6 @@ type Article {
     authors: [Author] # authors who wrote the article
     source: String # company/magazine/internet source of article
     banner: Banner # title image of the article
-}
-type ArticlePage {
-    totalCount: Int!
-    limit: Int!
-    offset: Int!
-    hasNextPage: Boolean!
-    hasPreviousPage: Boolean!
-    articles: [Article!]!
 }
 type Banner {
     image: String # link of image

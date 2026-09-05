@@ -60,7 +60,7 @@ Livia exposes one ordinary GraphQL schema. It is not an Apollo subgraph and has 
 
 The News REST contract has no exact-ID endpoint. Do not add a resolver that scans `/news`, a direct Spaceflight News fallback, Java-side News Redis access, or GraphQL-side News caching. `Query.news` is deliberately non-cacheable in Stellate.
 
-The Articles microservice owns `articles.json`, deterministic IDs, validation, Redis page caching, and rate limiting. Livia preserves the original `articles` query and exposes `articlesPage` plus `article(id:)`; exact lookups use the service's UUID route. Do not restore a Mongo/file fallback, scan a page to resolve an ID, or connect Livia to the Articles Redis instance.
+The Articles microservice owns `articles.json`, deterministic IDs, validation, Redis page caching, and rate limiting. Livia exposes only the original `articles` query and reads every microservice page to return the complete catalog expected by the app. Do not restore a Mongo/file fallback or connect Livia to the Articles Redis instance.
 
 ### Data Fetchers (Resolvers)
 Located in `src/main/java/xyz/arryan/livia/datafetchers/`:

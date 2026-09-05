@@ -6,7 +6,6 @@ import xyz.arryan.livia.clients.dto.ArticleBannerResponse;
 import xyz.arryan.livia.clients.dto.ArticlePageResponse;
 import xyz.arryan.livia.clients.dto.ArticleResponse;
 import xyz.arryan.livia.codegen.types.Article;
-import xyz.arryan.livia.codegen.types.ArticlePage;
 import xyz.arryan.livia.codegen.types.Author;
 import xyz.arryan.livia.codegen.types.Banner;
 import xyz.arryan.livia.errors.ArticlesException;
@@ -16,7 +15,7 @@ import java.util.List;
 @Component
 public class ArticlesMapper {
 
-    public ArticlePage toGraphQl(ArticlePageResponse response) {
+    public List<Article> toGraphQlArticles(ArticlePageResponse response) {
         if (response == null
                 || response.totalCount() == null || response.totalCount() < 0
                 || response.limit() == null || response.limit() < 1 || response.limit() > 100
@@ -27,17 +26,9 @@ public class ArticlesMapper {
             throw ArticlesException.invalidResponse(null);
         }
 
-        List<Article> articles = response.articles().stream()
+        return response.articles().stream()
                 .map(this::toGraphQl)
                 .toList();
-        return ArticlePage.newBuilder()
-                .totalCount(response.totalCount())
-                .limit(response.limit())
-                .offset(response.offset())
-                .hasNextPage(response.hasNextPage())
-                .hasPreviousPage(response.hasPreviousPage())
-                .articles(articles)
-                .build();
     }
 
     public Article toGraphQl(ArticleResponse response) {
