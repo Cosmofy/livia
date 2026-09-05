@@ -5,6 +5,8 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.MDC;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
@@ -14,12 +16,15 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import xyz.arryan.livia.observability.TraceLogContext;
 
 import java.io.IOException;
+import java.time.Duration;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
 @Component
 @Order(Ordered.HIGHEST_PRECEDENCE)
 public class RequestIdFilter extends OncePerRequestFilter {
+
+    private static final Logger log = LoggerFactory.getLogger("http.request");
 
     public static final String HEADER_NAME = "x-request-id";
     public static final String REQUEST_ATTRIBUTE = RequestIdFilter.class.getName() + ".requestId";
@@ -32,12 +37,24 @@ public class RequestIdFilter extends OncePerRequestFilter {
             HttpServletResponse response,
             FilterChain filterChain) throws ServletException, IOException {
 
+        long startedAt = System.nanoTime();
         String requestId = validOrNew(request.getHeader(HEADER_NAME));
         request.setAttribute(REQUEST_ATTRIBUTE, requestId);
         response.setHeader(HEADER_NAME, requestId);
 
         try (TraceLogContext ignored = TraceLogContext.open(requestId)) {
-            filterChain.doFilter(request, response);
+            try {
+                filterChain.doFilter(request, response);
+            } finally {
+                log.atInfo()
+                        .addKeyValue("event", "http.request.completed")
+                        .addKeyValue("service", "livia")
+                        .addKeyValue("http_method", request.getMethod())
+                        .addKeyValue("http_path", request.getRequestURI())
+                        .addKeyValue("http_status_code", response.getStatus())
+                        .addKeyValue("duration_ms", elapsedMillis(startedAt))
+                        .log("http request completed");
+            }
         }
     }
 
@@ -59,6 +76,10 @@ public class RequestIdFilter extends OncePerRequestFilter {
         return candidate != null && VALID_REQUEST_ID.matcher(candidate).matches()
                 ? candidate
                 : UUID.randomUUID().toString();
+    }
+
+    private static double elapsedMillis(long startedAt) {
+        return Duration.ofNanos(System.nanoTime() - startedAt).toNanos() / 1_000_000.0;
     }
 
 }

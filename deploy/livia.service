@@ -1,0 +1,37 @@
+[Unit]
+Description=Livia GraphQL API
+After=network-online.target cosmofy-livia-otel.service
+Wants=network-online.target cosmofy-livia-otel.service
+
+[Service]
+Type=simple
+User=ubuntu
+Group=ubuntu
+WorkingDirectory=/opt/cosmofy/livia/current
+EnvironmentFile=/home/ubuntu/livia-oracle/.env
+Environment=JAVA_HOME=/usr/lib/jvm/temurin-21-jdk-arm64
+Environment=OTEL_SERVICE_NAME=livia
+Environment=OTEL_EXPORTER_OTLP_ENDPOINT=http://127.0.0.1:34318
+Environment=OTEL_EXPORTER_OTLP_PROTOCOL=http/protobuf
+Environment=OTEL_TRACES_EXPORTER=otlp
+Environment=OTEL_METRICS_EXPORTER=none
+Environment=OTEL_LOGS_EXPORTER=none
+Environment=OTEL_PROPAGATORS=tracecontext,baggage
+Environment=OTEL_TRACES_SAMPLER=parentbased_always_on
+Environment=OTEL_RESOURCE_ATTRIBUTES=service.namespace=cosmofy,service.instance.id=livia-london,host.name=livia-london,deployment.environment.name=production,deployment.platform=oracle-cloud
+Environment=OTEL_JAVAAGENT_LOGGING=simple
+ExecStart=/usr/lib/jvm/temurin-21-jdk-arm64/bin/java -Xms128m -Xmx640m -XX:+ExitOnOutOfMemoryError -javaagent:/opt/cosmofy/livia/current/opentelemetry-javaagent.jar -jar /opt/cosmofy/livia/current/livia.jar
+Restart=always
+RestartSec=10
+SuccessExitStatus=143
+TimeoutStopSec=30
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=read-only
+ReadWritePaths=/tmp
+MemoryMax=896M
+TasksMax=256
+
+[Install]
+WantedBy=multi-user.target

@@ -9,6 +9,10 @@ concurrency:
   group: livia-production-oracle-london
   cancel-in-progress: false
 
+permissions:
+  actions: read
+  contents: read
+
 jobs:
   deploy:
     if: >-
@@ -17,6 +21,14 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Download tested release
+        uses: actions/download-artifact@v4
+        with:
+          name: livia-${{ github.event.workflow_run.head_sha }}
+          path: release
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          run-id: ${{ github.event.workflow_run.id }}
+
       - name: Connect to Tailscale
         uses: tailscale/github-action@v4
         with:
@@ -29,17 +41,119 @@ jobs:
           SSH_KEY: ${{ secrets.ORACLE_SSH_KEY }}
           DEPLOY_SHA: ${{ github.event.workflow_run.head_sha }}
         run: |
+          set -euo pipefail
           mkdir -p ~/.ssh
           echo "${SSH_KEY}" > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
 
+          test -s release/build/libs/livia-0.0.1-SNAPSHOT.jar
+          test -s release/build/otel/opentelemetry-javaagent.jar
+          test -s release/deploy/otel-collector.yaml
+          test -s release/deploy/cosmofy-livia-otel.service
+          test -s release/deploy/livia.service
+
+          remote_release="/tmp/livia-release-${DEPLOY_SHA}"
           ssh -o StrictHostKeyChecking=no -i ~/.ssh/deploy_key ubuntu@oracle \
-            "DEPLOY_SHA=${DEPLOY_SHA} bash -s" << 'EOF'
-            set -eu
+            "install -d -m 0700 '${remote_release}'"
+          scp -o StrictHostKeyChecking=no -i ~/.ssh/deploy_key \
+            release/build/libs/livia-0.0.1-SNAPSHOT.jar \
+            ubuntu@oracle:"${remote_release}/livia.jar"
+          scp -o StrictHostKeyChecking=no -i ~/.ssh/deploy_key \
+            release/build/otel/opentelemetry-javaagent.jar \
+            ubuntu@oracle:"${remote_release}/opentelemetry-javaagent.jar"
+          scp -o StrictHostKeyChecking=no -i ~/.ssh/deploy_key \
+            release/deploy/otel-collector.yaml \
+            release/deploy/cosmofy-livia-otel.service \
+            release/deploy/livia.service \
+            ubuntu@oracle:"${remote_release}/"
+
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/deploy_key ubuntu@oracle \
+            "DEPLOY_SHA=${DEPLOY_SHA} REMOTE_RELEASE=${remote_release} bash -s" << 'EOF'
+            set -euo pipefail
+            collector_version=0.160.0
+            collector_sha256=cbede80242043eda399006cbfde314ae0e78e949362127ce9d573769b2792fe0
+            collector_url="https://github.com/open-telemetry/opentelemetry-collector-releases/releases/download/v${collector_version}/otelcol-contrib_${collector_version}_linux_arm64.deb"
+
+            if ! command -v otelcol-contrib >/dev/null 2>&1 || \
+               ! otelcol-contrib --version 2>&1 | grep -q "version ${collector_version}"; then
+              collector_deb=$(mktemp --suffix=.deb)
+              curl --fail --silent --show-error --location "$collector_url" --output "$collector_deb"
+              echo "${collector_sha256}  ${collector_deb}" | sha256sum --check --status
+              sudo dpkg --install "$collector_deb"
+              rm -f "$collector_deb"
+              sudo systemctl disable --now otelcol-contrib.service 2>/dev/null || true
+            fi
+
             cd /home/ubuntu/livia-oracle
             git fetch origin main
             test "$(git rev-parse origin/main)" = "${DEPLOY_SHA}"
             git merge --ff-only "${DEPLOY_SHA}"
+
+            sudo install -d -o root -g root -m 0755 /opt/cosmofy/livia/releases
+            sudo install -d -o root -g root -m 0755 "/opt/cosmofy/livia/releases/${DEPLOY_SHA}"
+            sudo install -o root -g root -m 0644 "${REMOTE_RELEASE}/livia.jar" \
+              "/opt/cosmofy/livia/releases/${DEPLOY_SHA}/livia.jar"
+            sudo install -o root -g root -m 0644 "${REMOTE_RELEASE}/opentelemetry-javaagent.jar" \
+              "/opt/cosmofy/livia/releases/${DEPLOY_SHA}/opentelemetry-javaagent.jar"
+
+            sudo install -d -o otelcol-contrib -g otelcol-contrib -m 0750 \
+              /var/lib/otelcol-contrib/livia
+            sudo install -d -o root -g root -m 0755 /etc/cosmofy /etc/otelcol-contrib
+            awk -F= '/^(AWS_ACCESS_KEY_ID|AWS_SECRET_ACCESS_KEY)=/ { print }' \
+              /home/ubuntu/services/grafana/.env > "${REMOTE_RELEASE}/livia-otel.env"
+            test "$(wc -l < "${REMOTE_RELEASE}/livia-otel.env")" -eq 2
+            sudo install -o root -g otelcol-contrib -m 0640 \
+              "${REMOTE_RELEASE}/livia-otel.env" /etc/cosmofy/livia-otel.env
+            sudo install -o root -g otelcol-contrib -m 0640 \
+              "${REMOTE_RELEASE}/otel-collector.yaml" /etc/otelcol-contrib/livia.yaml
+
+            previous_release=$(readlink -f /opt/cosmofy/livia/current 2>/dev/null || true)
+            had_previous_unit=false
+            if sudo test -f /etc/systemd/system/livia.service; then
+              sudo cp /etc/systemd/system/livia.service "${REMOTE_RELEASE}/livia.service.previous"
+              had_previous_unit=true
+            fi
+            deployment_succeeded=false
+            rollback() {
+              if [ "${deployment_succeeded}" != true ]; then
+                echo "Deployment did not complete; restoring the previous Livia runtime"
+                if [ -n "${previous_release}" ] && [ -d "${previous_release}" ]; then
+                  sudo ln -sfn "${previous_release}" /opt/cosmofy/livia/current
+                else
+                  sudo rm -f /opt/cosmofy/livia/current
+                fi
+                if [ "${had_previous_unit}" = true ]; then
+                  sudo install -o root -g root -m 0644 \
+                    "${REMOTE_RELEASE}/livia.service.previous" \
+                    /etc/systemd/system/livia.service
+                fi
+                sudo systemctl daemon-reload
+                sudo systemctl restart livia.service || true
+              fi
+              sudo rm -rf "${REMOTE_RELEASE}"
+            }
+            trap rollback EXIT
+
+            sudo install -o root -g root -m 0644 \
+              "${REMOTE_RELEASE}/cosmofy-livia-otel.service" \
+              /etc/systemd/system/cosmofy-livia-otel.service
+            sudo install -o root -g root -m 0644 \
+              "${REMOTE_RELEASE}/livia.service" /etc/systemd/system/livia.service
+
+            sudo -u otelcol-contrib bash -c \
+              'set -a; . /etc/cosmofy/livia-otel.env; set +a; exec /usr/bin/otelcol-contrib validate --config=/etc/otelcol-contrib/livia.yaml'
+
+            sudo ln -sfn "/opt/cosmofy/livia/releases/${DEPLOY_SHA}" /opt/cosmofy/livia/current
+            sudo systemctl daemon-reload
+            sudo systemctl enable cosmofy-livia-otel.service
+            sudo systemctl restart cosmofy-livia-otel.service
+            for attempt in $(seq 1 30); do
+              if curl --fail --silent --max-time 5 http://127.0.0.1:13136/ >/dev/null; then
+                break
+              fi
+              sleep 1
+            done
+            curl --fail --silent --max-time 5 http://127.0.0.1:13136/ >/dev/null
             sudo systemctl restart livia.service
 
             healthy=false
@@ -112,4 +226,7 @@ jobs:
             echo "${article_schema_response}" | python3 -c \
               'import json,sys; fields={field["name"] for field in json.load(sys.stdin)["data"]["__type"]["fields"]}; assert "articles" in fields and "article" not in fields and "articlesPage" not in fields'
             echo "Deploy successful"
+            deployment_succeeded=true
+            trap - EXIT
+            sudo rm -rf "${REMOTE_RELEASE}"
           EOF

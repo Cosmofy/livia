@@ -217,7 +217,19 @@ The APOD, News, and Articles clients use validated base URLs, bounded connect/re
 
 Livia validates or creates `x-request-id`, emits structured request/resolver logs, and forwards `x-request-id`, `traceparent`, and `tracestate` to its REST services. Cache and rate-limit response headers are recorded as telemetry rather than GraphQL business fields.
 
-Trace export requires the OpenTelemetry Java agent and a private collector. The recommended collector endpoint is `http://127.0.0.1:4318` using OTLP/HTTP. The CI/CD workflow does not install that infrastructure, so verify the agent and collector independently on production.
+Production runs the OpenTelemetry Java agent with Livia and a dedicated collector on the London host. The agent sends traces over loopback-only OTLP/HTTP; the collector exports them to AWS X-Ray. The collector also reads `livia.service` from journald and sends the same structured logs to CloudWatch Logs and Loki. The internal APOD, News, and Articles services continue the W3C trace context, so one request can be followed from the GraphQL operation into its downstream REST call.
+
+The operational dashboard is [https://grafana.arryan.xyz/d/cosmofy-machines/cosmofy](https://grafana.arryan.xyz/d/cosmofy-machines/cosmofy). It uses:
+
+- a state timeline for machine reachability;
+- bounded bar gauges for current CPU, memory, and root-disk utilization;
+- a capacity table with both used and total memory/disk values;
+- Loki logs for request-level investigation; and
+- X-Ray traces and a service map for dependency and latency investigation.
+
+Grafana is reachable only through the private network. The dashboard's `origin` value currently identifies the immediate transport peer; it is not treated as a verified end-user or edge identity.
+
+The production collector and systemd definitions live in [`deploy/`](./deploy/). Export queues for CloudWatch Logs and Loki use persistent file storage so a temporary destination failure does not immediately discard buffered logs.
 
 ## Deployment
 
@@ -225,8 +237,11 @@ Production deploys are intentionally single-instance:
 
 1. A push to `main` runs the Java build and test suite in `.github/workflows/build.yml`.
 2. Only a successful build triggers `.github/workflows/deploy-oracle.yml`.
-3. The deploy job connects to the Tailscale host `oracle`, verifies the exact build SHA, and fast-forwards `/home/ubuntu/livia-oracle`.
-4. It restarts `livia.service`, waits for `/health`, and runs acceptance queries for the existing API, APOD, News, paginated Articles, and exact Article lookup.
+3. The build publishes the tested boot JAR, pinned OpenTelemetry Java agent, collector configuration, and systemd units as one workflow artifact.
+4. The deploy job connects to the Tailscale host `oracle`, verifies the exact build SHA, and fast-forwards `/home/ubuntu/livia-oracle`.
+5. It installs the release under `/opt/cosmofy/livia/releases/<git-sha>` and atomically points `/opt/cosmofy/livia/current` at it. Production runs the boot JAR directly rather than keeping Gradle alive.
+6. It validates and restarts the dedicated collector, restarts `livia.service`, waits for `/health`, and runs acceptance queries for the existing API, APOD, News, and Articles.
+7. If Livia does not recover, the workflow restores the previous release symlink and restarts it.
 
 Production configuration lives in `/home/ubuntu/livia-oracle/.env`, loaded by systemd. Deployment preserves that file and the host's untracked `gradle.properties`.
 
@@ -247,6 +262,7 @@ src/main/java/.../services/      Validation and orchestration
 src/main/java/.../mappers/       REST-to-GraphQL mapping
 src/test/                        Unit and HTTP/GraphQL integration tests
 .github/workflows/               Build and Oracle deployment
+deploy/                          Production collector and systemd definitions
 stellate.ts                      Edge cache policy
 ```
 

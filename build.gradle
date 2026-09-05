@@ -20,6 +20,11 @@ repositories {
 
 ext {
     set('netflixDgsVersion', "10.6.0")
+    set('openTelemetryJavaAgentVersion', "2.28.1")
+}
+
+configurations {
+    openTelemetryJavaAgent
 }
 
 dependencies {
@@ -50,6 +55,7 @@ dependencies {
     testImplementation 'io.opentelemetry:opentelemetry-sdk:1.49.0'
     testImplementation 'io.projectreactor:reactor-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    openTelemetryJavaAgent "io.opentelemetry.javaagent:opentelemetry-javaagent:${openTelemetryJavaAgentVersion}"
 }
 
 dependencyManagement {
@@ -70,6 +76,16 @@ generateJava {
 
 tasks.named('test') {
     useJUnitPlatform()
+}
+
+tasks.register('copyOpenTelemetryJavaAgent', Copy) {
+    from configurations.openTelemetryJavaAgent
+    into layout.buildDirectory.dir('otel')
+    rename 'opentelemetry-javaagent-.*\\.jar', 'opentelemetry-javaagent.jar'
+}
+
+tasks.named('assemble') {
+    dependsOn tasks.named('copyOpenTelemetryJavaAgent')
 }
 
 bootRun {

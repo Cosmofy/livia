@@ -1,0 +1,24 @@
+[Unit]
+Description=OpenTelemetry Collector for Cosmofy Livia
+After=network-online.target tailscaled.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=otelcol-contrib
+Group=otelcol-contrib
+EnvironmentFile=/etc/cosmofy/livia-otel.env
+ExecStart=/usr/bin/otelcol-contrib --config=/etc/otelcol-contrib/livia.yaml
+Restart=on-failure
+RestartSec=5
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+SupplementaryGroups=systemd-journal
+ReadWritePaths=/var/lib/otelcol-contrib/livia
+MemoryMax=256M
+TasksMax=128
+
+[Install]
+WantedBy=multi-user.target

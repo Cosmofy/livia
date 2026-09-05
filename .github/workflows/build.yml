@@ -4,6 +4,9 @@ on:
     branches: [main]
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -17,3 +20,16 @@ jobs:
 
       - name: Build
         run: ./gradlew build --no-daemon
+
+      - name: Upload production artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: livia-${{ github.sha }}
+          if-no-files-found: error
+          retention-days: 7
+          path: |
+            build/libs/livia-0.0.1-SNAPSHOT.jar
+            build/otel/opentelemetry-javaagent.jar
+            deploy/cosmofy-livia-otel.service
+            deploy/livia.service
+            deploy/otel-collector.yaml

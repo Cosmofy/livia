@@ -1,0 +1,127 @@
+extensions:
+  health_check:
+    endpoint: 127.0.0.1:13136
+  file_storage:
+    directory: /var/lib/otelcol-contrib/livia
+
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 127.0.0.1:34317
+      http:
+        endpoint: 127.0.0.1:34318
+  journald/livia:
+    start_at: end
+    units:
+      - livia.service
+    priority: info
+    storage: file_storage
+    retry_on_failure:
+      enabled: true
+
+processors:
+  memory_limiter:
+    check_interval: 1s
+    limit_mib: 128
+    spike_limit_mib: 32
+  transform/livia_logs:
+    error_mode: ignore
+    log_statements:
+      - context: log
+        statements:
+          - set(log.body, log.body["MESSAGE"]) where IsMap(log.body) and log.body["MESSAGE"] != nil
+  resource/livia:
+    attributes:
+      - key: service.name
+        value: livia
+        action: upsert
+      - key: service.namespace
+        value: cosmofy
+        action: upsert
+      - key: service.instance.id
+        value: livia-london
+        action: upsert
+      - key: host.name
+        value: livia-london
+        action: upsert
+      - key: deployment.environment.name
+        value: production
+        action: upsert
+      - key: deployment.platform
+        value: oracle-cloud
+        action: upsert
+  batch:
+    send_batch_size: 512
+    timeout: 5s
+
+exporters:
+  awsxray:
+    region: eu-west-2
+    local_mode: true
+    max_retries: 3
+    request_timeout_seconds: 10
+    aws_log_groups:
+      - /cosmofy/livia/production
+    indexed_attributes:
+      - http.route
+      - http.response.status_code
+      - graphql.operation.name
+      - graphql.operation.type
+      - server.address
+  awscloudwatchlogs:
+    region: eu-west-2
+    log_group_name: /cosmofy/livia/production
+    log_stream_name: livia-london
+    raw_log: true
+    sending_queue:
+      enabled: true
+      storage: file_storage
+      num_consumers: 2
+      queue_size: 1000
+    retry_on_failure:
+      enabled: true
+      max_elapsed_time: 300s
+  otlphttp/loki:
+    endpoint: http://100.104.171.25:3100/otlp
+    sending_queue:
+      enabled: true
+      storage: file_storage
+      num_consumers: 1
+      queue_size: 256
+    retry_on_failure:
+      enabled: true
+      max_elapsed_time: 300s
+
+service:
+  telemetry:
+    metrics:
+      level: none
+  extensions:
+    - health_check
+    - file_storage
+  pipelines:
+    traces:
+      receivers:
+        - otlp
+      processors:
+        - memory_limiter
+        - resource/livia
+        - batch
+      exporters:
+        - awsxray
+    logs:
+      receivers: &livia_log_receivers
+        - journald/livia
+      processors: &livia_log_processors
+        - memory_limiter
+        - transform/livia_logs
+        - resource/livia
+        - batch
+      exporters:
+        - awscloudwatchlogs
+    logs/loki:
+      receivers: *livia_log_receivers
+      processors: *livia_log_processors
+      exporters:
+        - otlphttp/loki
