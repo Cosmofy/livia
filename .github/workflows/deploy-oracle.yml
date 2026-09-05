@@ -91,25 +91,25 @@ jobs:
 
             articles_response=$(curl --fail --silent --show-error --max-time 25 \
               -H 'Content-Type: application/json' \
-              --data '{"query":"query DeploymentArticles { articlesPage(limit: 1) { totalCount articles { id title } } }"}' \
+              --data '{"query":"query DeploymentArticles { articles { id title } }"}' \
               http://127.0.0.1:2259/graphql)
             if echo "${articles_response}" | grep -q '"errors"'; then
               echo "Deploy failed: Articles acceptance query returned GraphQL errors"
               journalctl -u livia.service -n 100 --no-pager
               exit 1
             fi
-            echo "${articles_response}" | grep -q '"totalCount"'
-            article_id=$(echo "${articles_response}" | python3 -c \
-              'import json,sys; print(json.load(sys.stdin)["data"]["articlesPage"]["articles"][0]["id"])')
-            exact_article_response=$(curl --fail --silent --show-error --max-time 25 \
-              -H 'Content-Type: application/json' \
-              --data "{\"query\":\"query DeploymentArticle { article(id: \\\"${article_id}\\\") { id title } }\"}" \
-              http://127.0.0.1:2259/graphql)
-            if echo "${exact_article_response}" | grep -q '"errors"'; then
-              echo "Deploy failed: exact Article acceptance query returned GraphQL errors"
-              journalctl -u livia.service -n 100 --no-pager
+            article_count=$(echo "${articles_response}" | python3 -c \
+              'import json,sys; print(len(json.load(sys.stdin)["data"]["articles"]))')
+            if [ "${article_count}" -lt 1 ]; then
+              echo "Deploy failed: Articles acceptance query returned an empty catalog"
               exit 1
             fi
-            echo "${exact_article_response}" | grep -q "${article_id}"
+
+            article_schema_response=$(curl --fail --silent --show-error --max-time 25 \
+              -H 'Content-Type: application/json' \
+              --data '{"query":"query ArticleSchema { __type(name: \"Query\") { fields { name } } }"}' \
+              http://127.0.0.1:2259/graphql)
+            echo "${article_schema_response}" | python3 -c \
+              'import json,sys; fields={field["name"] for field in json.load(sys.stdin)["data"]["__type"]["fields"]}; assert "articles" in fields and "article" not in fields and "articlesPage" not in fields'
             echo "Deploy successful"
           EOF
