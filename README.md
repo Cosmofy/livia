@@ -229,7 +229,7 @@ The operational dashboard is [https://grafana.arryan.xyz/d/cosmofy-machines/cosm
 
 Grafana is reachable only through the private network. The dashboard's `origin` value currently identifies the immediate transport peer; it is not treated as a verified end-user or edge identity.
 
-The production collector and systemd definitions live in [`deploy/`](./deploy/). Export queues for CloudWatch Logs and Loki use persistent file storage so a temporary destination failure does not immediately discard buffered logs.
+The production collector and systemd definitions live in [`deploy/`](./deploy/). Export queues for CloudWatch Logs and Loki use persistent file storage so a temporary destination failure does not immediately discard buffered logs. The collector's write-only AWS credential is provisioned separately in `/etc/cosmofy/livia-otel.env`; deployment validates and preserves it. Grafana's read-only AWS credential is intentionally not reused for telemetry export.
 
 ## Deployment
 

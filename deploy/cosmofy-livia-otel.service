@@ -17,7 +17,8 @@ ProtectSystem=strict
 ProtectHome=true
 SupplementaryGroups=systemd-journal
 ReadWritePaths=/var/lib/otelcol-contrib/livia
-MemoryMax=256M
+MemoryHigh=384M
+MemoryMax=512M
 TasksMax=128
 
 [Install]

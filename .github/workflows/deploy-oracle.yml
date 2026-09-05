@@ -22,7 +22,7 @@ jobs:
 
     steps:
       - name: Download tested release
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: livia-${{ github.event.workflow_run.head_sha }}
           path: release
@@ -99,11 +99,13 @@ jobs:
             sudo install -d -o otelcol-contrib -g otelcol-contrib -m 0750 \
               /var/lib/otelcol-contrib/livia
             sudo install -d -o root -g root -m 0755 /etc/cosmofy /etc/otelcol-contrib
-            awk -F= '/^(AWS_ACCESS_KEY_ID|AWS_SECRET_ACCESS_KEY)=/ { print }' \
-              /home/ubuntu/services/grafana/.env > "${REMOTE_RELEASE}/livia-otel.env"
-            test "$(wc -l < "${REMOTE_RELEASE}/livia-otel.env")" -eq 2
-            sudo install -o root -g otelcol-contrib -m 0640 \
-              "${REMOTE_RELEASE}/livia-otel.env" /etc/cosmofy/livia-otel.env
+            sudo test -s /etc/cosmofy/livia-otel.env
+            credential_count=$(sudo awk -F= \
+              '/^(AWS_ACCESS_KEY_ID|AWS_SECRET_ACCESS_KEY)=/ { count++ } END { print count+0 }' \
+              /etc/cosmofy/livia-otel.env)
+            test "${credential_count}" -eq 2
+            sudo chown root:otelcol-contrib /etc/cosmofy/livia-otel.env
+            sudo chmod 0640 /etc/cosmofy/livia-otel.env
             sudo install -o root -g otelcol-contrib -m 0640 \
               "${REMOTE_RELEASE}/otel-collector.yaml" /etc/otelcol-contrib/livia.yaml
 
