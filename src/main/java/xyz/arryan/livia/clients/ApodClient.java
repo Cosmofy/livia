@@ -23,6 +23,7 @@ import reactor.util.retry.Retry;
 import xyz.arryan.livia.clients.dto.ApodErrorResponse;
 import xyz.arryan.livia.clients.dto.ApodResponse;
 import xyz.arryan.livia.clients.dto.ApodSearchResponse;
+import xyz.arryan.livia.clients.dto.ApodSimilarityResponse;
 import xyz.arryan.livia.config.ApodClientProperties;
 import xyz.arryan.livia.config.RequestIdFilter;
 import xyz.arryan.livia.errors.ApodException;
@@ -95,6 +96,15 @@ public class ApodClient {
                         .queryParam("limit", limit)
                         .build(),
                 ApodSearchResponse.class);
+    }
+
+    public ApodSimilarityResponse similar(LocalDate date, int limit) {
+        return execute("similar", true, properties.searchRequestTimeout(),
+                uriBuilder -> uriBuilder.path("/vector/similar")
+                        .queryParam("date", date)
+                        .queryParam("limit", limit)
+                        .build(),
+                ApodSimilarityResponse.class);
     }
 
     private <T> T execute(
@@ -238,8 +248,11 @@ public class ApodClient {
 
     private static String fallbackCode(String operation, int status) {
         if (status == 422) {
+            if ("similar".equals(operation)) return "INVALID_SIMILARITY_REQUEST";
             return "search".equals(operation) ? "INVALID_SEARCH_QUERY" : "INVALID_DATE_FORMAT";
         }
+        // An undeployed route returns an unstructured 404, not a missing APOD.
+        if (status == 404 && "similar".equals(operation)) return "SIMILARITY_UNAVAILABLE";
         return switch (status) {
             case 404 -> "NOT_FOUND";
             case 500 -> "INTERNAL_ERROR";

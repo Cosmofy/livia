@@ -1,6 +1,7 @@
 package xyz.arryan.livia.datafetchers;
 
 import com.netflix.graphql.dgs.DgsComponent;
+import com.netflix.graphql.dgs.DgsData;
 import com.netflix.graphql.dgs.DgsDataFetchingEnvironment;
 import com.netflix.graphql.dgs.DgsQuery;
 import com.netflix.graphql.dgs.InputArgument;
@@ -12,13 +13,16 @@ import io.opentelemetry.context.Scope;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import xyz.arryan.livia.codegen.types.Apod;
+import xyz.arryan.livia.codegen.types.ApodPicture;
 import xyz.arryan.livia.codegen.types.ApodSearchPayload;
+import xyz.arryan.livia.codegen.types.ApodSimilarityPayload;
 import xyz.arryan.livia.config.RequestIdFilter;
 import xyz.arryan.livia.errors.ApodException;
 import xyz.arryan.livia.observability.TraceLogContext;
 import xyz.arryan.livia.services.ApodService;
 
 import java.time.LocalDate;
+import java.util.Set;
 import java.util.function.Supplier;
 import java.util.function.ToLongFunction;
 
@@ -26,6 +30,8 @@ import java.util.function.ToLongFunction;
 public class ApodDataFetcher {
 
     private static final Logger logger = LoggerFactory.getLogger(ApodDataFetcher.class);
+    private static final Set<String> LEGACY_FIELDS = Set.of(
+            "date", "title", "explanation", "mediaType", "url", "hdUrl", "credit", "copyright");
 
     private final ApodService service;
     private final Tracer tracer;
@@ -37,6 +43,13 @@ public class ApodDataFetcher {
 
     @DgsQuery(field = "apod")
     public Apod apod(@InputArgument LocalDate date, DgsDataFetchingEnvironment environment) {
+        // The selection set includes aliases/fragments and respects skip/include directives.
+        // Namespace-only requests must not retrieve an unrelated picture first.
+        boolean needsLegacyPicture = environment.getSelectionSet().getImmediateFields().stream()
+                .anyMatch(field -> LEGACY_FIELDS.contains(field.getName()));
+        if (!needsLegacyPicture) {
+            return Apod.newBuilder().build();
+        }
         return traceResolver(
                 "apod",
                 "get",
@@ -46,18 +59,42 @@ public class ApodDataFetcher {
                 _result -> 1L);
     }
 
-    @DgsQuery(field = "searchApods")
-    public ApodSearchPayload searchApods(
+    @DgsData(parentType = "Apod", field = "today")
+    public ApodPicture today(DgsDataFetchingEnvironment environment) {
+        return picture(null, "today", environment);
+    }
+
+    @DgsData(parentType = "Apod", field = "byDate")
+    public ApodPicture byDate(@InputArgument LocalDate date, DgsDataFetchingEnvironment environment) {
+        return picture(date, "byDate", environment);
+    }
+
+    private ApodPicture picture(LocalDate date, String field, DgsDataFetchingEnvironment environment) {
+        return traceResolver(field, "get", graphQlOperationName(environment), date != null,
+                () -> service.getPicture(date), _result -> 1L);
+    }
+
+    @DgsData(parentType = "Apod", field = "search")
+    public ApodSearchPayload search(
             @InputArgument String query,
             @InputArgument Integer limit,
             DgsDataFetchingEnvironment environment) {
         return traceResolver(
-                "searchApods",
+                "search",
                 "search",
                 graphQlOperationName(environment),
                 null,
                 () -> service.search(query, limit),
                 result -> result.getResults().size());
+    }
+
+    @DgsData(parentType = "Apod", field = "similar")
+    public ApodSimilarityPayload similar(
+            @InputArgument LocalDate date,
+            @InputArgument Integer limit,
+            DgsDataFetchingEnvironment environment) {
+        return traceResolver("similar", "similar", graphQlOperationName(environment), true,
+                () -> service.similar(date, limit), result -> result.getResults().size());
     }
 
     private <T> T traceResolver(

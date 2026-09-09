@@ -4,7 +4,11 @@ import org.springframework.stereotype.Component;
 import xyz.arryan.livia.clients.dto.ApodResponse;
 import xyz.arryan.livia.clients.dto.ApodSearchResponse;
 import xyz.arryan.livia.clients.dto.ApodSearchResultResponse;
+import xyz.arryan.livia.clients.dto.ApodSimilarityResponse;
+import xyz.arryan.livia.codegen.types.ApodSimilarityPayload;
+import xyz.arryan.livia.codegen.types.ApodSimilarityResult;
 import xyz.arryan.livia.codegen.types.Apod;
+import xyz.arryan.livia.codegen.types.ApodPicture;
 import xyz.arryan.livia.codegen.types.ApodMatchType;
 import xyz.arryan.livia.codegen.types.ApodSearchMode;
 import xyz.arryan.livia.codegen.types.ApodSearchPayload;
@@ -13,6 +17,9 @@ import xyz.arryan.livia.errors.ApodException;
 
 import java.util.List;
 import java.util.Locale;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.time.LocalDate;
 
 @Component
 public class ApodMapper {
@@ -35,6 +42,19 @@ public class ApodMapper {
                 .hdUrl(response.hdurl())
                 .credit(response.credit())
                 .copyright(response.copyright())
+                .build();
+    }
+
+    public ApodPicture toPicture(Apod apod) {
+        return ApodPicture.newBuilder()
+                .date(apod.getDate())
+                .title(apod.getTitle())
+                .explanation(apod.getExplanation())
+                .mediaType(apod.getMediaType())
+                .url(apod.getUrl())
+                .hdUrl(apod.getHdUrl())
+                .credit(apod.getCredit())
+                .copyright(apod.getCopyright())
                 .build();
     }
 
@@ -93,10 +113,44 @@ public class ApodMapper {
                 response.credit(),
                 response.copyright()));
         return ApodSearchResult.newBuilder()
-                .apod(apod)
+                .date(apod.getDate())
+                .title(apod.getTitle())
+                .explanation(apod.getExplanation())
+                .mediaType(apod.getMediaType())
+                .url(apod.getUrl())
+                .hdUrl(apod.getHdUrl())
+                .credit(apod.getCredit())
+                .copyright(apod.getCopyright())
                 .relevanceScore(response.relevanceScore())
                 .matchTypes(matchTypes)
                 .build();
+    }
+
+    public ApodSimilarityPayload toGraphQl(ApodSimilarityResponse response) {
+        if (response == null || response.date() == null || response.results() == null) {
+            throw ApodException.invalidResponse(null);
+        }
+        var dates = new HashSet<LocalDate>();
+        dates.add(response.date());
+        List<ApodSimilarityResult> results = new ArrayList<>();
+        double previousScore = 1.0;
+        for (var result : response.results()) {
+            if (result == null || result.relevanceScore() == null
+                    || !Double.isFinite(result.relevanceScore())
+                    || result.relevanceScore() < 0.0 || result.relevanceScore() > previousScore
+                    || !dates.add(result.date())) {
+                throw ApodException.invalidResponse(null);
+            }
+            Apod picture = toGraphQl(new ApodResponse(result.date(), result.title(), result.explanation(),
+                    result.mediaType(), result.url(), result.hdurl(), result.credit(), result.copyright()));
+            results.add(ApodSimilarityResult.newBuilder()
+                    .date(picture.getDate()).title(picture.getTitle()).explanation(picture.getExplanation())
+                    .mediaType(picture.getMediaType()).url(picture.getUrl()).hdUrl(picture.getHdUrl())
+                    .credit(picture.getCredit()).copyright(picture.getCopyright())
+                    .relevanceScore(result.relevanceScore()).build());
+            previousScore = result.relevanceScore();
+        }
+        return ApodSimilarityPayload.newBuilder().date(response.date()).results(List.copyOf(results)).build();
     }
 
     private static boolean isBlank(String value) {

@@ -4,6 +4,8 @@ import org.junit.jupiter.api.Test;
 import xyz.arryan.livia.clients.dto.ApodResponse;
 import xyz.arryan.livia.clients.dto.ApodSearchResponse;
 import xyz.arryan.livia.clients.dto.ApodSearchResultResponse;
+import xyz.arryan.livia.clients.dto.ApodSimilarityResponse;
+import xyz.arryan.livia.clients.dto.ApodSimilarityResultResponse;
 import xyz.arryan.livia.codegen.types.Apod;
 import xyz.arryan.livia.codegen.types.ApodMatchType;
 import xyz.arryan.livia.codegen.types.ApodSearchMode;
@@ -50,7 +52,7 @@ class ApodMapperTest {
     }
 
     @Test
-    void mapsRankModeEnumsAndCanonicalEntityWrappers() {
+    void mapsRankModeEnumsAndFlatPictureFields() {
         ApodSearchResultResponse searchResult = new ApodSearchResultResponse(
                 LocalDate.of(1997, 4, 19),
                 "Spiral Galaxy M83",
@@ -70,8 +72,15 @@ class ApodMapperTest {
         assertThat(result.getQuery()).isEqualTo("spiral galaxy");
         assertThat(result.getSearchMode()).isEqualTo(ApodSearchMode.HYBRID);
         assertThat(result.getResults()).hasSize(1);
-        assertThat(result.getResults().getFirst().getApod().getDate())
+        assertThat(result.getResults().getFirst().getDate())
                 .isEqualTo(LocalDate.of(1997, 4, 19));
+        assertThat(result.getResults().getFirst().getTitle()).isEqualTo("Spiral Galaxy M83");
+        assertThat(result.getResults().getFirst().getExplanation()).isEqualTo("Explanation");
+        assertThat(result.getResults().getFirst().getMediaType()).isEqualTo("image");
+        assertThat(result.getResults().getFirst().getUrl()).isEqualTo("https://example.com/m83.jpg");
+        assertThat(result.getResults().getFirst().getHdUrl()).isNull();
+        assertThat(result.getResults().getFirst().getCredit()).isNull();
+        assertThat(result.getResults().getFirst().getCopyright()).isNull();
         assertThat(result.getResults().getFirst().getRelevanceScore()).isEqualTo(1.0);
         assertThat(result.getResults().getFirst().getMatchTypes())
                 .containsExactly(ApodMatchType.LEXICAL, ApodMatchType.SEMANTIC);
@@ -106,6 +115,31 @@ class ApodMapperTest {
         assertThatThrownBy(invocation::run)
                 .isInstanceOfSatisfying(ApodException.class,
                         exception -> assertThat(exception.code()).isEqualTo("APOD_INVALID_RESPONSE"));
+    }
+
+    @Test
+    void mapsSimilarityAndRejectsInvalidRankingsAndSourceInclusion() {
+        LocalDate source = LocalDate.of(2024, 2, 29);
+        var first = similarityResult(LocalDate.of(2024, 1, 1), 0.9);
+        var second = similarityResult(LocalDate.of(2024, 1, 2), 0.7);
+        var mapped = mapper.toGraphQl(new ApodSimilarityResponse(source, List.of(first, second)));
+        assertThat(mapped.getDate()).isEqualTo(source);
+        assertThat(mapped.getResults()).hasSize(2);
+        assertThat(mapped.getResults().getFirst().getCredit()).isEqualTo("Author");
+        assertThat(mapped.getResults().getFirst().getUrl()).isEmpty();
+        assertThat(mapped.getResults().getFirst().getRelevanceScore()).isEqualTo(0.9);
+        assertCode(() -> mapper.toGraphQl(new ApodSimilarityResponse(source, List.of(second, first))));
+        assertCode(() -> mapper.toGraphQl(new ApodSimilarityResponse(source, List.of(first, first))));
+        assertCode(() -> mapper.toGraphQl(new ApodSimilarityResponse(source, List.of(similarityResult(source, 1.0)))));
+        for (double score : new double[]{Double.NaN, Double.POSITIVE_INFINITY, -0.1, 1.1}) {
+            assertCode(() -> mapper.toGraphQl(new ApodSimilarityResponse(source,
+                    List.of(similarityResult(first.date(), score)))));
+        }
+    }
+
+    private static ApodSimilarityResultResponse similarityResult(LocalDate date, double score) {
+        return new ApodSimilarityResultResponse(date, "Title", "Explanation", "image", null, null,
+                "Author", null, score);
     }
 
     private static ApodResponse response(String mediaType, String url) {

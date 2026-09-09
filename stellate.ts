@@ -13,7 +13,10 @@ const config: Config = {
       'Query.apiKey',
       'Query.server',
       'Query.time',
-      'Query.searchApods',
+      'Apod.search',
+      'Apod.similar',
+      'ApodSimilarityPayload',
+      'ApodSimilarityResult',
       'Query.news',
       'ApodSearchPayload',
       'ApodSearchResult',
@@ -71,7 +74,7 @@ const config: Config = {
 
       // ============== APOD (5 minutes; safe across Mountain Time midnight) ==============
       {
-        types: ['Apod'],
+        types: ['Apod', 'ApodPicture'],
         maxAge: 300,
         swr: 0,
         description: 'APOD REST facade - conservative TTL for the no-date current APOD query',

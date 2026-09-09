@@ -19,7 +19,6 @@ type Query {
     server: String
     time: Float
     apod(date: Date): Apod!
-    searchApods(query: String!, limit: Int = 10): ApodSearchPayload!
     news(
         limit: Int = 24
         offset: Int = 0
@@ -59,8 +58,26 @@ type NewsPage {
     articles: [NewsArticle!]!
 }
 
-# APOD is backed by the internal APOD REST service.
+# APOD entry point. The original fields and date argument remain compatible.
 type Apod {
+    date: Date! @deprecated(reason: "Use today or byDate.")
+    title: String! @deprecated(reason: "Use today or byDate.")
+    explanation: String! @deprecated(reason: "Use today or byDate.")
+    mediaType: String! @deprecated(reason: "Use today or byDate.")
+    url: String! @deprecated(reason: "Use today or byDate.")
+    hdUrl: String @deprecated(reason: "Use today or byDate.")
+    credit: String @deprecated(reason: "Use today or byDate.")
+    copyright: String @deprecated(reason: "Use today or byDate.")
+
+    # Today's date is determined by the APOD service in America/Denver.
+    today: ApodPicture!
+    byDate(date: Date!): ApodPicture!
+    search(query: String!, limit: Int = 10): ApodSearchPayload!
+    # Nullable so similarity outages do not discard other requested APOD data.
+    similar(date: Date!, limit: Int = 10): ApodSimilarityPayload
+}
+
+type ApodPicture {
     date: Date!
     title: String!
     explanation: String!
@@ -83,7 +100,14 @@ enum ApodMatchType {
 }
 
 type ApodSearchResult {
-    apod: Apod!
+    date: Date!
+    title: String!
+    explanation: String!
+    mediaType: String!
+    url: String!
+    hdUrl: String
+    credit: String
+    copyright: String
     relevanceScore: Float!
     matchTypes: [ApodMatchType!]!
 }
@@ -92,6 +116,23 @@ type ApodSearchPayload {
     query: String!
     searchMode: ApodSearchMode!
     results: [ApodSearchResult!]!
+}
+
+type ApodSimilarityPayload {
+    date: Date!
+    results: [ApodSimilarityResult!]!
+}
+
+type ApodSimilarityResult {
+    date: Date!
+    title: String!
+    explanation: String!
+    mediaType: String!
+    url: String!
+    hdUrl: String
+    credit: String
+    copyright: String
+    relevanceScore: Float!
 }
 
 # API 1: Picture of the Day

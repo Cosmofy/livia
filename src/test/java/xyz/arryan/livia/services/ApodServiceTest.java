@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import xyz.arryan.livia.clients.ApodClient;
 import xyz.arryan.livia.clients.dto.ApodResponse;
 import xyz.arryan.livia.clients.dto.ApodSearchResponse;
+import xyz.arryan.livia.clients.dto.ApodSimilarityResponse;
 import xyz.arryan.livia.codegen.types.Apod;
 import xyz.arryan.livia.codegen.types.ApodSearchPayload;
 import xyz.arryan.livia.errors.ApodException;
@@ -91,6 +92,27 @@ class ApodServiceTest {
         assertCode(() -> service.search("galaxy", 0), "INVALID_SEARCH_QUERY");
         assertCode(() -> service.search("galaxy", 51), "INVALID_SEARCH_QUERY");
         verifyNoInteractions(client);
+    }
+
+    @Test
+    void similarityDefaultsLimitAndValidatesBeforeCallingTheService() {
+        LocalDate date = LocalDate.of(2024, 2, 29);
+        assertCode(() -> service.similar(null, 10), "INVALID_SIMILARITY_REQUEST");
+        assertCode(() -> service.similar(date, 0), "INVALID_SIMILARITY_REQUEST");
+        assertCode(() -> service.similar(date, 51), "INVALID_SIMILARITY_REQUEST");
+        assertCode(() -> service.similar(LocalDate.of(1995, 6, 15), 10), "DATE_TOO_EARLY");
+        assertCode(() -> service.similar(LocalDate.of(2026, 9, 5), 10), "DATE_IN_FUTURE");
+        verifyNoInteractions(client);
+        when(client.similar(date, 10)).thenReturn(new ApodSimilarityResponse(date, List.of()));
+        assertThat(service.similar(date, null).getResults()).isEmpty();
+        verify(client).similar(date, 10);
+    }
+
+    @Test
+    void rejectsSimilarityForTheWrongSourceDate() {
+        LocalDate date = LocalDate.of(2024, 2, 29);
+        when(client.similar(date, 5)).thenReturn(new ApodSimilarityResponse(date.plusDays(1), List.of()));
+        assertCode(() -> service.similar(date, 5), "APOD_INVALID_RESPONSE");
     }
 
     private static void assertCode(Runnable invocation, String code) {

@@ -250,6 +250,39 @@ class ApodClientIntegrationTest {
         return new ApodClient(WebClient.builder().build(), properties, telemetry);
     }
 
+    @Test
+    void similarityUsesTheAgreedRouteAndDecodesFlatResults() throws Exception {
+        server.enqueue(json(200, """
+                {"date":"2024-02-29","results":[{
+                  "date":"2024-01-01","title":"Related","explanation":"Explanation",
+                  "media_type":"image","url":"","hdurl":null,"credit":null,"copyright":null,
+                  "relevance_score":0.8
+                }]}
+                """));
+        var result = client(Duration.ofSeconds(2), Duration.ofSeconds(2), 1, OpenTelemetry.noop())
+                .similar(LocalDate.of(2024, 2, 29), 5);
+        assertThat(result.date()).isEqualTo(LocalDate.of(2024, 2, 29));
+        assertThat(result.results().getFirst().relevanceScore()).isEqualTo(0.8);
+        RecordedRequest request = takeRequest();
+        assertThat(request.getPath()).isEqualTo("/vector/similar?date=2024-02-29&limit=5");
+        assertThat(request.getHeader("x-request-id")).isNotBlank();
+        assertThat(request.getHeader("Authorization")).isNull();
+    }
+
+    @Test
+    void distinguishesAnUndeployedSimilarityRouteFromAMissingPicture() {
+        server.enqueue(json(404, "{\"detail\":\"Not Found\"}"));
+        var client = client(Duration.ofSeconds(2), Duration.ofSeconds(2), 2, OpenTelemetry.noop());
+        assertThatThrownBy(() -> client.similar(LocalDate.of(2024, 2, 29), 5))
+                .isInstanceOfSatisfying(ApodException.class,
+                        error -> assertThat(error.code()).isEqualTo("SIMILARITY_UNAVAILABLE"));
+        server.enqueue(json(404, "{\"error\":{\"code\":\"NOT_FOUND\",\"message\":\"internal\"}}"));
+        assertThatThrownBy(() -> client.similar(LocalDate.of(2024, 2, 29), 5))
+                .isInstanceOfSatisfying(ApodException.class,
+                        error -> assertThat(error.code()).isEqualTo("NOT_FOUND"));
+        assertThat(server.getRequestCount()).isEqualTo(2);
+    }
+
     private RecordedRequest takeRequest() throws InterruptedException {
         RecordedRequest request = server.takeRequest(1, TimeUnit.SECONDS);
         assertThat(request).isNotNull();

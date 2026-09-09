@@ -4,7 +4,9 @@ import org.springframework.stereotype.Service;
 import xyz.arryan.livia.clients.ApodClient;
 import xyz.arryan.livia.clients.dto.ApodResponse;
 import xyz.arryan.livia.codegen.types.Apod;
+import xyz.arryan.livia.codegen.types.ApodPicture;
 import xyz.arryan.livia.codegen.types.ApodSearchPayload;
+import xyz.arryan.livia.codegen.types.ApodSimilarityPayload;
 import xyz.arryan.livia.errors.ApodException;
 import xyz.arryan.livia.mappers.ApodMapper;
 
@@ -50,6 +52,24 @@ public class ApodService {
             throw ApodException.validation("INVALID_SEARCH_QUERY");
         }
         return mapper.toGraphQl(client.search(normalizedQuery, resolvedLimit));
+    }
+
+    public ApodPicture getPicture(LocalDate date) {
+        return mapper.toPicture(get(date));
+    }
+
+    public ApodSimilarityPayload similar(LocalDate date, Integer limit) {
+        int resolvedLimit = limit == null ? DEFAULT_SEARCH_LIMIT : limit;
+        if (date == null || resolvedLimit < 1 || resolvedLimit > 50) {
+            throw ApodException.validation("INVALID_SIMILARITY_REQUEST");
+        }
+        validateDate(date);
+        var response = client.similar(date, resolvedLimit);
+        if (response == null || !date.equals(response.date())
+                || response.results() == null || response.results().size() > resolvedLimit) {
+            throw ApodException.invalidResponse(null);
+        }
+        return mapper.toGraphQl(response);
     }
 
     private void validateDate(LocalDate date) {

@@ -33,7 +33,7 @@ The Java origin remains directly reachable. Clients configured with `livia.arrya
 
 | GraphQL fields | Source | Cache/storage ownership |
 | --- | --- | --- |
-| `apod`, `searchApods` | Cosmofy APOD REST service | APOD service owns Redis/Turso; Stellate caches `apod` for 5 minutes and does not cache search |
+| `apod` (today, date lookup, search, similarity, and legacy picture fields) | Cosmofy APOD REST service | APOD service owns Redis/Turso; Stellate caches picture data for 5 minutes and does not cache search or similarity |
 | `news` | Cosmofy News REST service | News service owns Redis; News is non-cacheable in Stellate |
 | `articles` | Cosmofy Articles REST service | Articles service owns its JSON catalog, deterministic UUIDs, Redis page cache, and rate limiting; Stellate caches article data for 6 hours |
 | `universe` and nested hierarchy | MongoDB `universe`, document `_id=observable-universe` | Loaded into the Livia instance cache; Stellate caches hierarchy data for 1 day |
@@ -53,37 +53,72 @@ The authoritative edge policy is [stellate.ts](./stellate.ts). It targets the St
 ```graphql
 query TodaysApod {
   apod {
-    date
-    title
-    explanation
-    mediaType
-    url
-    hdUrl
-    credit
-    copyright
+    today {
+      date
+      title
+      explanation
+      mediaType
+      url
+      hdUrl
+      credit
+      copyright
+    }
   }
 }
 
 query HistoricalApod {
-  apod(date: "2024-02-29") {
-    date
-    title
-    url
+  apod {
+    byDate(date: "2024-02-29") {
+      date
+      title
+      url
+    }
   }
 }
 
 query SearchApods {
-  searchApods(query: "spiral galaxy", limit: 5) {
-    query
-    searchMode
-    results {
-      apod { date title mediaType url }
-      relevanceScore
-      matchTypes
+  apod {
+    search(query: "spiral galaxy", limit: 5) {
+      query
+      searchMode
+      results {
+        date
+        title
+        explanation
+        mediaType
+        url
+        hdUrl
+        credit
+        copyright
+        relevanceScore
+        matchTypes
+      }
     }
   }
 }
 ```
+
+`apod(date: ...) { date title url }` remains supported, including fragments on
+`Apod`. Its original picture fields are deprecated in favor of `today` and
+`byDate`; deprecation does not disable them. The outer `date` argument applies
+only to those legacy fields. Each new operation uses its own arguments, and a
+search-only request does not fetch today's picture. The unused root
+`searchApods` field has been removed.
+
+Search results expose all picture fields directly alongside relevance metadata;
+there is no `apod` or `picture` child object. Scores express relative search
+relevance, not probabilities. The complete test queries are in
+[`examples/apod.graphql`](./examples/apod.graphql).
+
+`apod.similar(date: ..., limit: 10)` calls the APOD service's
+`GET /vector/similar?date=YYYY-MM-DD&limit=10`. It returns the source `date` and
+flat `results` containing all picture fields plus `relevanceScore`, excluding
+the source picture. Limits are 1–50. Scores are clamped cosine similarity
+(`max(0, min(1, 1 - cosine_distance))`), not search rank-fusion scores.
+This requires the matching endpoint to be deployed in the APOD service.
+Similarity is nullable: an unavailable endpoint produces a safe GraphQL error
+at `apod.similar` while preserving other requested data. Livia keeps neither
+vectors nor a discovery cache. See the [service contract](./docs/apod-similarity-contract.md).
 
 ### News
 

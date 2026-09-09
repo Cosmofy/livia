@@ -1,0 +1,82 @@
+# Open http://localhost:2259/graphiql and select one operation to run.
+# Every picture field is available on today, byDate, and search results.
+
+query Today {
+  apod {
+    today { ...PictureFields }
+  }
+}
+
+query ByDate {
+  apod {
+    byDate(date: "2024-02-29") { ...PictureFields }
+  }
+}
+
+query Search {
+  apod {
+    search(query: "spiral galaxy", limit: 5) {
+      query
+      searchMode
+      results {
+        date
+        title
+        explanation
+        mediaType
+        url
+        hdUrl
+        credit
+        copyright
+        relevanceScore
+        matchTypes
+      }
+    }
+  }
+}
+
+query LegacyCompatibility {
+  apod(date: "2024-02-29") {
+    ...LegacyPictureFields
+  }
+}
+
+query Similar {
+  apod {
+    similar(date: "2024-02-29", limit: 5) {
+      date
+      results {
+        date
+        title
+        explanation
+        mediaType
+        url
+        hdUrl
+        credit
+        copyright
+        relevanceScore
+      }
+    }
+  }
+}
+
+fragment PictureFields on ApodPicture {
+  date
+  title
+  explanation
+  mediaType
+  url
+  hdUrl
+  credit
+  copyright
+}
+
+fragment LegacyPictureFields on Apod {
+  date
+  title
+  explanation
+  mediaType
+  url
+  hdUrl
+  credit
+  copyright
+}
