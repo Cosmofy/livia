@@ -63,7 +63,7 @@ class ApodMapperTest {
                 null,
                 null,
                 1.0,
-                List.of("lexical", "semantic"));
+                List.of("lexical", "semantic"), null);
         ApodSearchResponse response = new ApodSearchResponse(
                 "spiral galaxy", "hybrid", List.of(searchResult));
 
@@ -97,17 +97,17 @@ class ApodMapperTest {
     @Test
     void rejectsMalformedApodAndOutOfRangeSearchScores() {
         ApodResponse malformed = new ApodResponse(
-                LocalDate.of(2026, 9, 4), "A title", null, "image", "", null, null, null);
+                LocalDate.of(2026, 9, 4), "A title", null, "image", "", null, null, null, null);
         assertCode(() -> mapper.toGraphQl(malformed));
 
         ApodSearchResultResponse invalidScore = new ApodSearchResultResponse(
                 LocalDate.of(2026, 9, 4), "Title", "Explanation", "image", "", null, null, null,
-                1.1, List.of("lexical"));
+                1.1, List.of("lexical"), null);
         assertCode(() -> mapper.toGraphQl(new ApodSearchResponse("query", "hybrid", List.of(invalidScore))));
 
         ApodSearchResultResponse nonFiniteScore = new ApodSearchResultResponse(
                 LocalDate.of(2026, 9, 4), "Title", "Explanation", "image", "", null, null, null,
-                Double.NaN, List.of("semantic"));
+                Double.NaN, List.of("semantic"), null);
         assertCode(() -> mapper.toGraphQl(new ApodSearchResponse("query", "semantic", List.of(nonFiniteScore))));
     }
 
@@ -139,7 +139,7 @@ class ApodMapperTest {
 
     private static ApodSimilarityResultResponse similarityResult(LocalDate date, double score) {
         return new ApodSimilarityResultResponse(date, "Title", "Explanation", "image", null, null,
-                "Author", null, score);
+                "Author", null, score, null);
     }
 
     private static ApodResponse response(String mediaType, String url) {
@@ -150,6 +150,7 @@ class ApodMapperTest {
                 mediaType,
                 url,
                 "https://example.com/apod-hd.jpg",
+                null,
                 null,
                 null);
     }

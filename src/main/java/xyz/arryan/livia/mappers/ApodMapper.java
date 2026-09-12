@@ -40,6 +40,7 @@ public class ApodMapper {
                 .mediaType(response.mediaType())
                 .url(response.url() == null ? "" : response.url())
                 .hdUrl(response.hdurl())
+                .fallbackUrl(response.fallbackUrl())
                 .credit(response.credit())
                 .copyright(response.copyright())
                 .build();
@@ -53,6 +54,7 @@ public class ApodMapper {
                 .mediaType(apod.getMediaType())
                 .url(apod.getUrl())
                 .hdUrl(apod.getHdUrl())
+                .fallbackUrl(apod.getFallbackUrl())
                 .credit(apod.getCredit())
                 .copyright(apod.getCopyright())
                 .build();
@@ -111,7 +113,8 @@ public class ApodMapper {
                 response.url(),
                 response.hdurl(),
                 response.credit(),
-                response.copyright()));
+                response.copyright(),
+                response.fallbackUrl()));
         return ApodSearchResult.newBuilder()
                 .date(apod.getDate())
                 .title(apod.getTitle())
@@ -122,6 +125,7 @@ public class ApodMapper {
                 .credit(apod.getCredit())
                 .copyright(apod.getCopyright())
                 .relevanceScore(response.relevanceScore())
+                .fallbackUrl(apod.getFallbackUrl())
                 .matchTypes(matchTypes)
                 .build();
     }
@@ -142,11 +146,12 @@ public class ApodMapper {
                 throw ApodException.invalidResponse(null);
             }
             Apod picture = toGraphQl(new ApodResponse(result.date(), result.title(), result.explanation(),
-                    result.mediaType(), result.url(), result.hdurl(), result.credit(), result.copyright()));
+                    result.mediaType(), result.url(), result.hdurl(), result.credit(), result.copyright(), result.fallbackUrl()));
             results.add(ApodSimilarityResult.newBuilder()
                     .date(picture.getDate()).title(picture.getTitle()).explanation(picture.getExplanation())
                     .mediaType(picture.getMediaType()).url(picture.getUrl()).hdUrl(picture.getHdUrl())
                     .credit(picture.getCredit()).copyright(picture.getCopyright())
+                    .fallbackUrl(picture.getFallbackUrl())
                     .relevanceScore(result.relevanceScore()).build());
             previousScore = result.relevanceScore();
         }

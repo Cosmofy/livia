@@ -14,5 +14,6 @@ public record ApodSimilarityResultResponse(
         String hdurl,
         String credit,
         String copyright,
-        @JsonProperty("relevance_score") Double relevanceScore) {
+        @JsonProperty("relevance_score") Double relevanceScore,
+        @JsonProperty("fallback_url") String fallbackUrl) {
 }

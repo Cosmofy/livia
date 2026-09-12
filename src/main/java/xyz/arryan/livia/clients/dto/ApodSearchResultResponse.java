@@ -17,5 +17,6 @@ public record ApodSearchResultResponse(
         String credit,
         String copyright,
         @JsonProperty("relevance_score") Double relevanceScore,
-        @JsonProperty("match_types") List<String> matchTypes) {
+        @JsonProperty("match_types") List<String> matchTypes,
+        @JsonProperty("fallback_url") String fallbackUrl) {
 }

@@ -31,7 +31,7 @@ public class ApodDataFetcher {
 
     private static final Logger logger = LoggerFactory.getLogger(ApodDataFetcher.class);
     private static final Set<String> LEGACY_FIELDS = Set.of(
-            "date", "title", "explanation", "mediaType", "url", "hdUrl", "credit", "copyright");
+            "date", "title", "explanation", "mediaType", "url", "hdUrl", "fallbackUrl", "credit", "copyright");
 
     private final ApodService service;
     private final Tracer tracer;

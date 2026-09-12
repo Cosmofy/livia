@@ -24,6 +24,7 @@ Successful response (an empty `results` list is valid):
       "media_type": "image",
       "url": "https://example.com/picture.jpg",
       "hdurl": null,
+      "fallback_url": null,
       "credit": null,
       "copyright": null,
       "relevance_score": 0.8
@@ -33,6 +34,9 @@ Successful response (an empty `results` list is valid):
 ```
 
 All result fields follow `SourceApod`, with the additional required score.
+Nullable `fallback_url` maps to GraphQL `fallbackUrl`. Preserve the service-owned
+media URLs, including S3 URLs for verified archived assets and the original
+source fallback. Omitted fallback values from older service responses map to null.
 There is no nested picture object and no required `match_types` field.
 
 Errors use the existing `{"error":{"code":"...","message":"..."}}` envelope:

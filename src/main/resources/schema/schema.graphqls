@@ -66,6 +66,7 @@ type Apod {
     mediaType: String! @deprecated(reason: "Use today or byDate.")
     url: String! @deprecated(reason: "Use today or byDate.")
     hdUrl: String @deprecated(reason: "Use today or byDate.")
+    fallbackUrl: String @deprecated(reason: "Use today or byDate.")
     credit: String @deprecated(reason: "Use today or byDate.")
     copyright: String @deprecated(reason: "Use today or byDate.")
 
@@ -84,6 +85,8 @@ type ApodPicture {
     mediaType: String!
     url: String!
     hdUrl: String
+    # Original source URL supplied by APOD; clients may try it after a media load failure.
+    fallbackUrl: String
     credit: String
     copyright: String
 }
@@ -106,6 +109,7 @@ type ApodSearchResult {
     mediaType: String!
     url: String!
     hdUrl: String
+    fallbackUrl: String
     credit: String
     copyright: String
     relevanceScore: Float!
@@ -130,6 +134,7 @@ type ApodSimilarityResult {
     mediaType: String!
     url: String!
     hdUrl: String
+    fallbackUrl: String
     credit: String
     copyright: String
     relevanceScore: Float!

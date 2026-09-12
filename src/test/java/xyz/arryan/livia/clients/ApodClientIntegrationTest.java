@@ -16,6 +16,9 @@ import okhttp3.mockwebserver.SocketPolicy;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.NullSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
@@ -25,6 +28,7 @@ import xyz.arryan.livia.clients.dto.ApodSearchResponse;
 import xyz.arryan.livia.config.ApodClientProperties;
 import xyz.arryan.livia.config.RequestIdFilter;
 import xyz.arryan.livia.errors.ApodException;
+import xyz.arryan.livia.mappers.ApodMapper;
 
 import java.io.IOException;
 import java.net.URI;
@@ -281,6 +285,54 @@ class ApodClientIntegrationTest {
                 .isInstanceOfSatisfying(ApodException.class,
                         error -> assertThat(error.code()).isEqualTo("NOT_FOUND"));
         assertThat(server.getRequestCount()).isEqualTo(2);
+    }
+
+    @ParameterizedTest
+    @NullSource
+    @ValueSource(strings = {"null", "\"https://apod.nasa.gov/apod/image/source.jpg\""})
+    void mapsFallbackAcrossEveryEndpointIncludingNullAndOlderResponses(String fallbackJson) {
+        String body = SUCCESS_BODY.replace("\"copyright\": \"A copyright\"",
+                "\"copyright\": \"A copyright\", \"s3_object_key\": \"internal-only\""
+                        + (fallbackJson == null ? "" : ", \"fallback_url\": " + fallbackJson));
+        String expectedFallback = fallbackJson == null || "null".equals(fallbackJson)
+                ? null : "https://apod.nasa.gov/apod/image/source.jpg";
+        String expectedUrl = "https://example.com/apod-video";
+        if (expectedFallback != null) {
+            expectedUrl = "https://media.example/hd/verified.jpg";
+            body = body.replace("https://example.com/apod-video", expectedUrl)
+                    .replace("\"hdurl\": null", "\"hdurl\": \"" + expectedUrl + "\"")
+                    .replace("\"media_type\": \"video\"", "\"media_type\": \"image\"");
+        }
+        String rankedBody = body.substring(0, body.lastIndexOf('}'))
+                + ", \"relevance_score\": 0.8, \"match_types\": [\"semantic\"] }";
+        server.enqueue(json(200, body));
+        server.enqueue(json(200, "{\"query\":\"galaxy\",\"search_mode\":\"semantic\",\"results\":[" + rankedBody + "]}"));
+        server.enqueue(json(200, "{\"date\":\"2024-02-29\",\"results\":[" + rankedBody + "]}"));
+
+        var client = client(Duration.ofSeconds(2), Duration.ofSeconds(2), 1, OpenTelemetry.noop());
+        var mapper = new ApodMapper();
+        var legacy = mapper.toGraphQl(client.get(null));
+        var picture = mapper.toPicture(legacy);
+        var search = mapper.toGraphQl(client.search("galaxy", 1)).getResults().getFirst();
+        var similar = mapper.toGraphQl(client.similar(LocalDate.of(2024, 2, 29), 1)).getResults().getFirst();
+
+        assertThat(legacy.getFallbackUrl()).isEqualTo(expectedFallback);
+        assertThat(picture.getFallbackUrl()).isEqualTo(expectedFallback);
+        assertThat(search.getFallbackUrl()).isEqualTo(expectedFallback);
+        assertThat(similar.getFallbackUrl()).isEqualTo(expectedFallback);
+        assertThat(legacy.getUrl()).isEqualTo(expectedUrl);
+        assertThat(picture.getUrl()).isEqualTo(expectedUrl);
+        assertThat(search.getUrl()).isEqualTo(expectedUrl);
+        assertThat(similar.getUrl()).isEqualTo(expectedUrl);
+        String expectedHdUrl = expectedFallback == null ? null : expectedUrl;
+        assertThat(picture.getHdUrl()).isEqualTo(expectedHdUrl);
+        assertThat(search.getHdUrl()).isEqualTo(expectedHdUrl);
+        assertThat(similar.getHdUrl()).isEqualTo(expectedHdUrl);
+        assertThat(similar.getMediaType()).isEqualTo(expectedFallback == null ? "video" : "image");
+        assertThat(similar.getCopyright()).isEqualTo("A copyright");
+        assertThat(search.getRelevanceScore()).isEqualTo(0.8);
+        assertThat(similar.getRelevanceScore()).isEqualTo(0.8);
+        assertThat(server.getRequestCount()).isEqualTo(3);
     }
 
     private RecordedRequest takeRequest() throws InterruptedException {

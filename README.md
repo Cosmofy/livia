@@ -60,6 +60,7 @@ query TodaysApod {
       mediaType
       url
       hdUrl
+      fallbackUrl
       credit
       copyright
     }
@@ -88,6 +89,7 @@ query SearchApods {
         mediaType
         url
         hdUrl
+        fallbackUrl
         credit
         copyright
         relevanceScore
@@ -109,6 +111,19 @@ Search results expose all picture fields directly alongside relevance metadata;
 there is no `apod` or `picture` child object. Scores express relative search
 relevance, not probabilities. The complete test queries are in
 [`examples/apod.graphql`](./examples/apod.graphql).
+
+The APOD microservice owns media URL selection. Livia passes through `url`,
+`hdUrl`, and nullable `fallbackUrl` (REST `fallback_url`) on all APOD picture and
+result types, including the deprecated legacy shape. Verified archived media
+uses the service's S3 URL; `fallbackUrl` points to the original source. Unarchived
+or incompatible media retains its original URLs and has no fallback. Attribution
+and media types are preserved. No extra media lookup is performed by Livia.
+
+Clients should try `url` first and try a distinct non-null `fallbackUrl` once
+only after a load failure. Video links may need an embedded/external player.
+This repository does not implement the app's image loading or agent artifact
+contract. APOD picture responses have a five-minute edge TTL; search and
+similarity remain uncached.
 
 `apod.similar(date: ..., limit: 10)` calls the APOD service's
 `GET /vector/similar?date=YYYY-MM-DD&limit=10`. It returns the source `date` and

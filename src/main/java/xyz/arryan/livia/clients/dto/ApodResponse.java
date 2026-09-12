@@ -14,5 +14,6 @@ public record ApodResponse(
         String url,
         String hdurl,
         String credit,
-        String copyright) {
+        String copyright,
+        @JsonProperty("fallback_url") String fallbackUrl) {
 }

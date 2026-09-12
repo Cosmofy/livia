@@ -70,6 +70,7 @@ class ApodGraphQlIntegrationTest {
                         .title("A title").explanation("An explanation")
                         .mediaType("image").url("https://example.com/apod.jpg")
                         .hdUrl(null).credit("An author").copyright(null)
+                        .fallbackUrl("https://apod.nasa.gov/search-fallback.jpg")
                         .relevanceScore(1.0).matchTypes(List.of(ApodMatchType.SEMANTIC))
                         .build()))
                 .build();
@@ -80,7 +81,7 @@ class ApodGraphQlIntegrationTest {
                   apod {
                     search(query: "spiral galaxy") {
                       query searchMode
-                      results { date title explanation mediaType url hdUrl credit copyright relevanceScore matchTypes }
+                      results { date title explanation mediaType url hdUrl fallbackUrl credit copyright relevanceScore matchTypes }
                     }
                   }
                 }
@@ -88,7 +89,8 @@ class ApodGraphQlIntegrationTest {
 
         assertThat(result.getErrors()).isEmpty();
         assertThat(result.toSpecification().toString())
-                .contains("searchMode=HYBRID", "date=2024-01-01", "credit=An author", "relevanceScore=1.0");
+                .contains("searchMode=HYBRID", "date=2024-01-01", "credit=An author", "relevanceScore=1.0",
+                        "fallbackUrl=https://apod.nasa.gov/search-fallback.jpg");
         verify(service).search("spiral galaxy", 10);
         verifyNoMoreInteractions(service);
     }
@@ -111,13 +113,14 @@ class ApodGraphQlIntegrationTest {
                   }
                 }
                 fragment PictureFields on ApodPicture {
-                  date title explanation mediaType url hdUrl credit copyright
+                  date title explanation mediaType url hdUrl fallbackUrl credit copyright
                 }
                 """);
 
         assertThat(result.getErrors()).isEmpty();
         assertThat(result.toSpecification().toString())
-                .contains("today={date=2026-09-04", "first={date=2024-01-01", "second={date=2024-01-02");
+                .contains("today={date=2026-09-04", "first={date=2024-01-01", "second={date=2024-01-02",
+                        "fallbackUrl=null");
         verify(service).getPicture(null);
         verify(service).getPicture(LocalDate.of(2024, 1, 1));
         verify(service).getPicture(LocalDate.of(2024, 1, 2));
@@ -178,7 +181,7 @@ class ApodGraphQlIntegrationTest {
                 "data.__type.fields");
         assertThat(fields).filteredOn(field -> Boolean.TRUE.equals(field.get("isDeprecated")))
                 .extracting(field -> field.get("name"))
-                .containsExactlyInAnyOrder("date", "title", "explanation", "mediaType", "url", "hdUrl", "credit", "copyright");
+                .containsExactlyInAnyOrder("date", "title", "explanation", "mediaType", "url", "hdUrl", "fallbackUrl", "credit", "copyright");
         assertThat(fields).filteredOn(field -> Boolean.FALSE.equals(field.get("isDeprecated")))
                 .extracting(field -> field.get("name"))
                 .contains("today", "byDate", "search");
@@ -211,14 +214,16 @@ class ApodGraphQlIntegrationTest {
                 .date(date).results(List.of(ApodSimilarityResult.newBuilder()
                         .date(LocalDate.of(2024, 1, 1)).title("A related picture")
                         .explanation("An explanation").mediaType("image").url("")
-                        .hdUrl(null).credit(null).copyright(null).relevanceScore(0.8).build())).build());
+                        .hdUrl(null).credit(null).copyright(null).relevanceScore(0.8)
+                        .fallbackUrl("https://apod.nasa.gov/similarity-fallback.jpg").build())).build());
         ExecutionResult result = queryExecutor.execute("""
                 { apod { similar(date: "2024-02-29") {
-                  date results { date title explanation mediaType url hdUrl credit copyright relevanceScore }
+                  date results { date title explanation mediaType url hdUrl fallbackUrl credit copyright relevanceScore }
                 } } }
                 """);
         assertThat(result.getErrors()).isEmpty();
-        assertThat(result.toSpecification().toString()).contains("title=A related picture", "relevanceScore=0.8");
+        assertThat(result.toSpecification().toString()).contains("title=A related picture", "relevanceScore=0.8",
+                "fallbackUrl=https://apod.nasa.gov/similarity-fallback.jpg");
         verify(service).similar(date, 10);
         verifyNoMoreInteractions(service);
     }
@@ -238,6 +243,29 @@ class ApodGraphQlIntegrationTest {
         Map<String, Object> data = result.getData();
         assertThat((Map<String, Object>) data.get("apod"))
                 .containsEntry("today", Map.of("title", "A title")).containsEntry("similar", null);
+    }
+
+    @Test
+    void fallbackOnlyLegacySelectionFetchesThePictureAndMapsTheNewLookupShape() {
+        LocalDate date = LocalDate.of(2019, 4, 11);
+        var picture = apod(date);
+        picture.setFallbackUrl("https://apod.nasa.gov/source.jpg");
+        when(service.get(date)).thenReturn(picture);
+        when(service.getPicture(date)).thenReturn(new ApodMapper().toPicture(picture));
+        ExecutionResult result = queryExecutor.execute("""
+                { apod(date: "2019-04-11") {
+                  fallbackUrl
+                  byDate(date: "2019-04-11") { fallbackUrl }
+                } }
+                """);
+        assertThat(result.getErrors()).isEmpty();
+        Map<String, Object> data = result.getData();
+        assertThat((Map<String, Object>) data.get("apod"))
+                .containsEntry("fallbackUrl", "https://apod.nasa.gov/source.jpg")
+                .containsEntry("byDate", Map.of("fallbackUrl", "https://apod.nasa.gov/source.jpg"));
+        verify(service).get(date);
+        verify(service).getPicture(date);
+        verifyNoMoreInteractions(service);
     }
 
     private static Apod apod(LocalDate date) {

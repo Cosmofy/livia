@@ -130,6 +130,7 @@ class ApodServiceTest {
                 "https://example.com/apod.jpg",
                 null,
                 null,
+                null,
                 null);
     }
 }
