@@ -12,8 +12,7 @@ public record ApodResponse(
         String explanation,
         @JsonProperty("media_type") String mediaType,
         String url,
-        String hdurl,
         String credit,
         String copyright,
-        @JsonProperty("fallback_url") String fallbackUrl) {
+        @JsonProperty("url_fallback") String urlFallback) {
 }

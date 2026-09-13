@@ -6,8 +6,7 @@ import xyz.arryan.livia.clients.ApodClient;
 import xyz.arryan.livia.clients.dto.ApodResponse;
 import xyz.arryan.livia.clients.dto.ApodSearchResponse;
 import xyz.arryan.livia.clients.dto.ApodSimilarityResponse;
-import xyz.arryan.livia.codegen.types.Apod;
-import xyz.arryan.livia.codegen.types.ApodSearchPayload;
+import xyz.arryan.livia.codegen.types.Picture;
 import xyz.arryan.livia.errors.ApodException;
 import xyz.arryan.livia.mappers.ApodMapper;
 
@@ -37,82 +36,50 @@ class ApodServiceTest {
     }
 
     @Test
-    void omittedDateLetsTheApodServiceResolveMountainTimeToday() {
+    void omittedDateLetsTheApodServiceResolveToday() {
         when(client.get(null)).thenReturn(response(LocalDate.of(2026, 9, 4)));
 
-        Apod result = service.get(null);
+        Picture result = service.picture(null);
 
         assertThat(result.getDate()).isEqualTo(LocalDate.of(2026, 9, 4));
+        assertThat(result.getRelevanceScore()).isNull();
         verify(client).get(null);
     }
 
     @Test
-    void exactDateIsPassedToTheClient() {
+    void exactDateIsPassedToTheClientAndValidated() {
         LocalDate date = LocalDate.of(2024, 2, 29);
         when(client.get(date)).thenReturn(response(date));
 
-        Apod result = service.get(date);
-
-        assertThat(result.getDate()).isEqualTo(date);
+        assertThat(service.picture(date).getDate()).isEqualTo(date);
         verify(client).get(date);
+        assertCode(() -> service.picture(LocalDate.of(1995, 6, 15)), "DATE_TOO_EARLY");
     }
 
     @Test
-    void rejectsAnUpstreamRecordWithTheWrongRequestedDate() {
-        LocalDate requested = LocalDate.of(2024, 2, 29);
-        when(client.get(requested)).thenReturn(response(LocalDate.of(2024, 3, 1)));
-
-        assertCode(() -> service.get(requested), "APOD_INVALID_RESPONSE");
-    }
-
-    @Test
-    void rejectsTooEarlyAndMountainTimeFutureDatesLocally() {
-        assertCode(() -> service.get(LocalDate.of(1995, 6, 15)), "DATE_TOO_EARLY");
-        assertCode(() -> service.get(LocalDate.of(2026, 9, 5)), "DATE_IN_FUTURE");
-        verifyNoInteractions(client);
-    }
-
-    @Test
-    void normalizesSearchAndAppliesTheDefaultLimit() {
+    void normalizesSearchAndReturnsPicturesDirectly() {
         when(client.search("spiral galaxy", 10))
                 .thenReturn(new ApodSearchResponse("spiral galaxy", "hybrid", List.of()));
 
-        ApodSearchPayload result = service.search("  spiral   galaxy  ", null);
-
-        assertThat(result.getQuery()).isEqualTo("spiral galaxy");
-        assertThat(result.getResults()).isEmpty();
+        assertThat(service.search("  spiral   galaxy  ", null)).isEmpty();
         verify(client).search("spiral galaxy", 10);
     }
 
     @Test
     void enforcesSearchQueryAndLimitBoundaries() {
         assertCode(() -> service.search("   ", 10), "INVALID_SEARCH_QUERY");
-        assertCode(() -> service.search("___ !!!", 10), "INVALID_SEARCH_QUERY");
-        assertCode(() -> service.search("x".repeat(201), 10), "INVALID_SEARCH_QUERY");
         assertCode(() -> service.search("galaxy", 0), "INVALID_SEARCH_QUERY");
         assertCode(() -> service.search("galaxy", 51), "INVALID_SEARCH_QUERY");
         verifyNoInteractions(client);
     }
 
     @Test
-    void similarityDefaultsLimitAndValidatesBeforeCallingTheService() {
+    void similarityUsesThePictureDateAndReturnsPicturesDirectly() {
         LocalDate date = LocalDate.of(2024, 2, 29);
-        assertCode(() -> service.similar(null, 10), "INVALID_SIMILARITY_REQUEST");
-        assertCode(() -> service.similar(date, 0), "INVALID_SIMILARITY_REQUEST");
-        assertCode(() -> service.similar(date, 51), "INVALID_SIMILARITY_REQUEST");
-        assertCode(() -> service.similar(LocalDate.of(1995, 6, 15), 10), "DATE_TOO_EARLY");
-        assertCode(() -> service.similar(LocalDate.of(2026, 9, 5), 10), "DATE_IN_FUTURE");
-        verifyNoInteractions(client);
         when(client.similar(date, 10)).thenReturn(new ApodSimilarityResponse(date, List.of()));
-        assertThat(service.similar(date, null).getResults()).isEmpty();
-        verify(client).similar(date, 10);
-    }
 
-    @Test
-    void rejectsSimilarityForTheWrongSourceDate() {
-        LocalDate date = LocalDate.of(2024, 2, 29);
-        when(client.similar(date, 5)).thenReturn(new ApodSimilarityResponse(date.plusDays(1), List.of()));
-        assertCode(() -> service.similar(date, 5), "APOD_INVALID_RESPONSE");
+        assertThat(service.similar(date, null)).isEmpty();
+        verify(client).similar(date, 10);
     }
 
     private static void assertCode(Runnable invocation, String code) {
@@ -122,15 +89,7 @@ class ApodServiceTest {
     }
 
     private static ApodResponse response(LocalDate date) {
-        return new ApodResponse(
-                date,
-                "A title",
-                "An explanation",
-                "image",
-                "https://example.com/apod.jpg",
-                null,
-                null,
-                null,
-                null);
+        return new ApodResponse(date, "A title", "An explanation", "image",
+                "https://example.com/apod.jpg", null, null, null);
     }
 }

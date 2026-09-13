@@ -1,86 +1,47 @@
 # Open http://localhost:2259/graphiql and select one operation to run.
-# Every picture field is available on today, byDate, and search results.
+# `pictures` returns today with no selector, one historical picture with `date`,
+# or a list of matching pictures with `search`.
 
 query Today {
-  apod {
-    today { ...PictureFields }
-  }
+  pictures { ...PictureFields }
 }
 
 query ByDate {
-  apod {
-    byDate(date: "2024-02-29") { ...PictureFields }
+  pictures(date: "2024-02-29") {
+    ...PictureFields
+    similar(limit: 5) {
+      ...SearchPictureFields
+      relevanceScore
+    }
   }
 }
 
 query Search {
-  apod {
-    search(query: "spiral galaxy", limit: 5) {
-      query
-      searchMode
-      results {
-        date
-        title
-        explanation
-        mediaType
-        url
-        hdUrl
-        fallbackUrl
-        credit
-        copyright
-        relevanceScore
-        matchTypes
-      }
-    }
+  pictures(search: "spiral galaxy", limit: 5) {
+    ...PictureFields
+    relevanceScore
+    matchTypes
   }
 }
 
-query LegacyCompatibility {
-  apod(date: "2024-02-29") {
-    ...LegacyPictureFields
-  }
-}
-
-query Similar {
-  apod {
-    similar(date: "2024-02-29", limit: 5) {
-      date
-      results {
-        date
-        title
-        explanation
-        mediaType
-        url
-        hdUrl
-        fallbackUrl
-        credit
-        copyright
-        relevanceScore
-      }
-    }
-  }
-}
-
-fragment PictureFields on ApodPicture {
+fragment PictureFields on Picture {
   date
   title
   explanation
   mediaType
   url
-  hdUrl
-  fallbackUrl
   credit
   copyright
 }
 
-fragment LegacyPictureFields on Apod {
+fragment SearchPictureFields on SearchPicture {
   date
   title
   explanation
   mediaType
   url
-  hdUrl
-  fallbackUrl
   credit
   copyright
+  relevanceScore
+  matchTypes
 }

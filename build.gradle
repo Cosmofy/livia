@@ -42,7 +42,6 @@ dependencies {
     implementation 'com.google.code.gson:gson:2.13.1'
     // MongoDB
     implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
-    implementation("com.openai:openai-java:3.0.2")
     implementation 'com.fasterxml.jackson.core:jackson-databind'
     // JWT for WeatherKit authentication
     implementation 'io.jsonwebtoken:jjwt-api:0.12.6'

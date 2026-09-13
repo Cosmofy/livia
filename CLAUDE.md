@@ -69,22 +69,18 @@ Located in `src/main/java/xyz/arryan/livia/datafetchers/`:
 |---------|-------------|----------------|
 | **UniverseDataFetcher** | MongoDB `universe` collection | Instance-level cache |
 | **DeprecatedPlanetsDataFetcher** | `planets.json` (legacy) | Static file |
-| **PictureDataFetcher** | NASA APOD API + OpenAI | MongoDB persistent |
-| **ApodDataFetcher** | Internal APOD microservice | Service-owned Redis/Turso cache |
+| **PicturesDataFetcher** | Internal APOD microservice | Service-owned Redis/Turso cache |
 | **NewsDataFetcher** | Internal News microservice | Service-owned Redis cache; no Livia/Stellate cache |
 | **ArticlesDataFetcher** | Internal Articles microservice | Service-owned Redis + Stellate edge cache |
 | **EventsDataFetcher** | NASA EONET API | In-memory |
 | **AuroraDataFetcher** | NOAA SWPC, WeatherKit, ML API | ConcurrentHashMap with TTLs |
 
-APOD has one root entry point: `apod(date: Date): Apod!`. Its original scalar
-picture fields remain available but deprecated for existing clients. New clients
-use `apod.today`, `apod.byDate(date:)`, `apod.search(query:, limit:)`, and
-`apod.similar(date:, limit:)`. Similarity is nullable to isolate upstream outages
-and uses the REST contract in `docs/apod-similarity-contract.md`.
-Search results contain picture fields directly alongside relevance metadata.
-Do not restore the unused root `searchApods` field. Namespace-only requests must
-not fetch the legacy picture; preserve selection behavior for aliases, fragments,
-and skip/include directives.
+APOD has one root entry point: `pictures(date:, search:, limit:)`. Omit both
+selectors for today's picture, provide `date` for a historical picture, or
+provide `search` for discovery results. `date` and `search` are mutually
+exclusive. All modes return the same `Picture` type. Similarity is a nullable
+field on `Picture`, so it derives its source date from the parent picture.
+Search and similarity place their ranking metadata on that same type.
 
 ### Universe Hierarchy
 The `universe` query provides a hierarchical structure stored as a single nested MongoDB document (`_id: "observable-universe"`):

@@ -13,10 +13,9 @@ public record ApodSearchResultResponse(
         String explanation,
         @JsonProperty("media_type") String mediaType,
         String url,
-        String hdurl,
         String credit,
         String copyright,
         @JsonProperty("relevance_score") Double relevanceScore,
         @JsonProperty("match_types") List<String> matchTypes,
-        @JsonProperty("fallback_url") String fallbackUrl) {
+        @JsonProperty("url_fallback") String urlFallback) {
 }

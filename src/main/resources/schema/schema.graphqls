@@ -18,7 +18,7 @@ type Query {
     # Other APIs
     server: String
     time: Float
-    apod(date: Date): Apod!
+    pictures(date: Date, search: String, limit: Int = 10): [Picture!]!
     news(
         limit: Int = 24
         offset: Int = 0
@@ -27,7 +27,6 @@ type Query {
         newsSite: String
     ): NewsPage!
     articles: [Article]
-    picture(date: String): Picture
     events(daysInput: Int): [Event]
     apiKey(passphrase: String!): String
     aurora(lat: Float!, lon: Float!): Aurora
@@ -58,102 +57,37 @@ type NewsPage {
     articles: [NewsArticle!]!
 }
 
-# APOD entry point. The original fields and date argument remain compatible.
-type Apod {
-    date: Date! @deprecated(reason: "Use today or byDate.")
-    title: String! @deprecated(reason: "Use today or byDate.")
-    explanation: String! @deprecated(reason: "Use today or byDate.")
-    mediaType: String! @deprecated(reason: "Use today or byDate.")
-    url: String! @deprecated(reason: "Use today or byDate.")
-    hdUrl: String @deprecated(reason: "Use today or byDate.")
-    fallbackUrl: String @deprecated(reason: "Use today or byDate.")
-    credit: String @deprecated(reason: "Use today or byDate.")
-    copyright: String @deprecated(reason: "Use today or byDate.")
-
-    # Today's date is determined by the APOD service in America/Denver.
-    today: ApodPicture!
-    byDate(date: Date!): ApodPicture!
-    search(query: String!, limit: Int = 10): ApodSearchPayload!
-    # Nullable so similarity outages do not discard other requested APOD data.
-    similar(date: Date!, limit: Int = 10): ApodSimilarityPayload
-}
-
-type ApodPicture {
-    date: Date!
-    title: String!
-    explanation: String!
-    mediaType: String!
-    url: String!
-    hdUrl: String
-    # Original source URL supplied by APOD; clients may try it after a media load failure.
-    fallbackUrl: String
-    credit: String
-    copyright: String
-}
-
-enum ApodSearchMode {
-    HYBRID
-    LEXICAL
-    SEMANTIC
-}
-
-enum ApodMatchType {
-    LEXICAL
-    SEMANTIC
-}
-
-type ApodSearchResult {
-    date: Date!
-    title: String!
-    explanation: String!
-    mediaType: String!
-    url: String!
-    hdUrl: String
-    fallbackUrl: String
-    credit: String
-    copyright: String
-    relevanceScore: Float!
-    matchTypes: [ApodMatchType!]!
-}
-
-type ApodSearchPayload {
-    query: String!
-    searchMode: ApodSearchMode!
-    results: [ApodSearchResult!]!
-}
-
-type ApodSimilarityPayload {
-    date: Date!
-    results: [ApodSimilarityResult!]!
-}
-
-type ApodSimilarityResult {
-    date: Date!
-    title: String!
-    explanation: String!
-    mediaType: String!
-    url: String!
-    hdUrl: String
-    fallbackUrl: String
-    credit: String
-    copyright: String
-    relevanceScore: Float!
-}
-
-# API 1: Picture of the Day
 type Picture {
-    date: String # date to fetch
-    title: String # name of media
-    credit: String # credit (could be different to copyright)
-    explanation: Explanation # descriptions of media
-    media: String # link of image/video
-    copyright: String # display copyright if it exists (could be different to credit)
-    media_type: String # image or video
+    date: Date!
+    title: String!
+    explanation: String!
+    mediaType: String!
+    url: String!
+    credit: String
+    copyright: String
+    relevanceScore: Float
+    matchTypes: [PictureMatchType!]
+    # Similarity is derived from this picture's date.
+    similar(limit: Int = 10): [SearchPicture!]
 }
-type Explanation {
-    original: String # original explanation from NASA
-    summarized: String # ai summarized explanation
-    kids: String # ai explained/summarized explanation for kids mode
+
+# A discovery result has the same APOD media fields and ranking metadata, but it
+# cannot request further similarity results.
+type SearchPicture {
+    date: Date!
+    title: String!
+    explanation: String!
+    mediaType: String!
+    url: String!
+    credit: String
+    copyright: String
+    relevanceScore: Float
+    matchTypes: [PictureMatchType!]
+}
+
+enum PictureMatchType {
+    LEXICAL
+    SEMANTIC
 }
 
 

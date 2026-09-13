@@ -73,7 +73,7 @@ class ArticlesGraphQlIntegrationTest {
                 .toList();
 
         assertThat(typeNames)
-                .contains("Article", "Apod", "NewsArticle")
+                .contains("Article", "Picture", "NewsArticle")
                 .doesNotContain("ArticlePage", "ArticleOrdering", "_Any", "_Entity", "_Service", "_FieldSet", "link__Import");
 
         @SuppressWarnings("unchecked")

@@ -48,7 +48,6 @@ class ApodClientIntegrationTest {
               "explanation": "An explanation",
               "media_type": "video",
               "url": "https://example.com/apod-video",
-              "hdurl": null,
               "credit": null,
               "copyright": "A copyright"
             }
@@ -108,7 +107,6 @@ class ApodClientIntegrationTest {
                     "explanation":"Explanation",
                     "media_type":"image",
                     "url":"",
-                    "hdurl":null,
                     "credit":null,
                     "copyright":null,
                     "relevance_score":1.0,
@@ -259,7 +257,7 @@ class ApodClientIntegrationTest {
         server.enqueue(json(200, """
                 {"date":"2024-02-29","results":[{
                   "date":"2024-01-01","title":"Related","explanation":"Explanation",
-                  "media_type":"image","url":"","hdurl":null,"credit":null,"copyright":null,
+                  "media_type":"image","url":"","credit":null,"copyright":null,
                   "relevance_score":0.8
                 }]}
                 """));
@@ -290,17 +288,16 @@ class ApodClientIntegrationTest {
     @ParameterizedTest
     @NullSource
     @ValueSource(strings = {"null", "\"https://apod.nasa.gov/apod/image/source.jpg\""})
-    void mapsFallbackAcrossEveryEndpointIncludingNullAndOlderResponses(String fallbackJson) {
+    void mapsTheServiceSelectedUrlAcrossEveryEndpoint(String fallbackJson) {
         String body = SUCCESS_BODY.replace("\"copyright\": \"A copyright\"",
                 "\"copyright\": \"A copyright\", \"s3_object_key\": \"internal-only\""
-                        + (fallbackJson == null ? "" : ", \"fallback_url\": " + fallbackJson));
+                        + (fallbackJson == null ? "" : ", \"url_fallback\": " + fallbackJson));
         String expectedFallback = fallbackJson == null || "null".equals(fallbackJson)
                 ? null : "https://apod.nasa.gov/apod/image/source.jpg";
         String expectedUrl = "https://example.com/apod-video";
         if (expectedFallback != null) {
             expectedUrl = "https://media.example/hd/verified.jpg";
             body = body.replace("https://example.com/apod-video", expectedUrl)
-                    .replace("\"hdurl\": null", "\"hdurl\": \"" + expectedUrl + "\"")
                     .replace("\"media_type\": \"video\"", "\"media_type\": \"image\"");
         }
         String rankedBody = body.substring(0, body.lastIndexOf('}'))
@@ -311,23 +308,13 @@ class ApodClientIntegrationTest {
 
         var client = client(Duration.ofSeconds(2), Duration.ofSeconds(2), 1, OpenTelemetry.noop());
         var mapper = new ApodMapper();
-        var legacy = mapper.toGraphQl(client.get(null));
-        var picture = mapper.toPicture(legacy);
-        var search = mapper.toGraphQl(client.search("galaxy", 1)).getResults().getFirst();
-        var similar = mapper.toGraphQl(client.similar(LocalDate.of(2024, 2, 29), 1)).getResults().getFirst();
+        var picture = mapper.toPicture(client.get(null));
+        var search = mapper.toPictures(client.search("galaxy", 1)).getFirst();
+        var similar = mapper.toSearchPictures(client.similar(LocalDate.of(2024, 2, 29), 1), LocalDate.of(2024, 2, 29)).getFirst();
 
-        assertThat(legacy.getFallbackUrl()).isEqualTo(expectedFallback);
-        assertThat(picture.getFallbackUrl()).isEqualTo(expectedFallback);
-        assertThat(search.getFallbackUrl()).isEqualTo(expectedFallback);
-        assertThat(similar.getFallbackUrl()).isEqualTo(expectedFallback);
-        assertThat(legacy.getUrl()).isEqualTo(expectedUrl);
         assertThat(picture.getUrl()).isEqualTo(expectedUrl);
         assertThat(search.getUrl()).isEqualTo(expectedUrl);
         assertThat(similar.getUrl()).isEqualTo(expectedUrl);
-        String expectedHdUrl = expectedFallback == null ? null : expectedUrl;
-        assertThat(picture.getHdUrl()).isEqualTo(expectedHdUrl);
-        assertThat(search.getHdUrl()).isEqualTo(expectedHdUrl);
-        assertThat(similar.getHdUrl()).isEqualTo(expectedHdUrl);
         assertThat(similar.getMediaType()).isEqualTo(expectedFallback == null ? "video" : "image");
         assertThat(similar.getCopyright()).isEqualTo("A copyright");
         assertThat(search.getRelevanceScore()).isEqualTo(0.8);

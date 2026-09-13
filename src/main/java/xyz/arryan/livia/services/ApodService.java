@@ -3,16 +3,15 @@ package xyz.arryan.livia.services;
 import org.springframework.stereotype.Service;
 import xyz.arryan.livia.clients.ApodClient;
 import xyz.arryan.livia.clients.dto.ApodResponse;
-import xyz.arryan.livia.codegen.types.Apod;
-import xyz.arryan.livia.codegen.types.ApodPicture;
-import xyz.arryan.livia.codegen.types.ApodSearchPayload;
-import xyz.arryan.livia.codegen.types.ApodSimilarityPayload;
+import xyz.arryan.livia.codegen.types.Picture;
+import xyz.arryan.livia.codegen.types.SearchPicture;
 import xyz.arryan.livia.errors.ApodException;
 import xyz.arryan.livia.mappers.ApodMapper;
 
 import java.time.Clock;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.util.List;
 import java.util.regex.Pattern;
 
 @Service
@@ -34,7 +33,7 @@ public class ApodService {
         this.clock = clock;
     }
 
-    public Apod get(LocalDate date) {
+    public Picture picture(LocalDate date) {
         if (date != null) {
             validateDate(date);
         }
@@ -42,23 +41,19 @@ public class ApodService {
         if (date != null && (response == null || !date.equals(response.date()))) {
             throw ApodException.invalidResponse(null);
         }
-        return mapper.toGraphQl(response);
+        return mapper.toPicture(response);
     }
 
-    public ApodSearchPayload search(String query, Integer limit) {
+    public List<Picture> search(String query, Integer limit) {
         String normalizedQuery = normalizeSearchQuery(query);
         int resolvedLimit = limit == null ? DEFAULT_SEARCH_LIMIT : limit;
         if (resolvedLimit < 1 || resolvedLimit > 50) {
             throw ApodException.validation("INVALID_SEARCH_QUERY");
         }
-        return mapper.toGraphQl(client.search(normalizedQuery, resolvedLimit));
+        return mapper.toPictures(client.search(normalizedQuery, resolvedLimit));
     }
 
-    public ApodPicture getPicture(LocalDate date) {
-        return mapper.toPicture(get(date));
-    }
-
-    public ApodSimilarityPayload similar(LocalDate date, Integer limit) {
+    public List<SearchPicture> similar(LocalDate date, Integer limit) {
         int resolvedLimit = limit == null ? DEFAULT_SEARCH_LIMIT : limit;
         if (date == null || resolvedLimit < 1 || resolvedLimit > 50) {
             throw ApodException.validation("INVALID_SIMILARITY_REQUEST");
@@ -69,7 +64,7 @@ public class ApodService {
                 || response.results() == null || response.results().size() > resolvedLimit) {
             throw ApodException.invalidResponse(null);
         }
-        return mapper.toGraphQl(response);
+        return mapper.toSearchPictures(response, date);
     }
 
     private void validateDate(LocalDate date) {

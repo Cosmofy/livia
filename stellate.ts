@@ -13,13 +13,7 @@ const config: Config = {
       'Query.apiKey',
       'Query.server',
       'Query.time',
-      'Apod.search',
-      'Apod.similar',
-      'ApodSimilarityPayload',
-      'ApodSimilarityResult',
       'Query.news',
-      'ApodSearchPayload',
-      'ApodSearchResult',
       'NewsPage',
       'NewsArticle',
       'AuroraMeta',
@@ -61,23 +55,12 @@ const config: Config = {
         description: 'Natural disaster events - purged every 4 hours',
       },
 
-      // ============== LEGACY PICTURE OF THE DAY (48 hours, purged daily at 2am MT) ==============
+      // ============== APOD PICTURES (5 minutes) ==============
       {
-        types: [
-          'Picture',
-          'Explanation',
-        ],
-        maxAge: 172800,
-        swr: 172800,
-        description: 'Picture of the day - purged daily at 2am MT',
-      },
-
-      // ============== APOD (5 minutes; safe across Mountain Time midnight) ==============
-      {
-        types: ['Apod', 'ApodPicture'],
+        types: ['Picture'],
         maxAge: 300,
         swr: 0,
-        description: 'APOD REST facade - conservative TTL for the no-date current APOD query',
+        description: 'APOD pictures, date lookup, search, and similarity',
       },
 
       // ============== STATIC CONTENT (6 hours) ==============

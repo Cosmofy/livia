@@ -16,7 +16,7 @@ class ApodArchitectureTest {
         List<Path> integrationFiles = List.of(
                 Path.of("src/main/java/xyz/arryan/livia/clients/ApodClient.java"),
                 Path.of("src/main/java/xyz/arryan/livia/services/ApodService.java"),
-                Path.of("src/main/java/xyz/arryan/livia/datafetchers/ApodDataFetcher.java"),
+                Path.of("src/main/java/xyz/arryan/livia/datafetchers/PicturesDataFetcher.java"),
                 Path.of("src/main/java/xyz/arryan/livia/config/ApodClientProperties.java"));
 
         for (Path path : integrationFiles) {

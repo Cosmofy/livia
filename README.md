@@ -33,12 +33,11 @@ The Java origin remains directly reachable. Clients configured with `livia.arrya
 
 | GraphQL fields | Source | Cache/storage ownership |
 | --- | --- | --- |
-| `apod` (today, date lookup, search, similarity, and legacy picture fields) | Cosmofy APOD REST service | APOD service owns Redis/Turso; Stellate caches picture data for 5 minutes and does not cache search or similarity |
+| `pictures` (today, date lookup, search, and similarity) | Cosmofy APOD REST service | APOD service owns Redis/Turso; Stellate caches picture results for 5 minutes |
 | `news` | Cosmofy News REST service | News service owns Redis; News is non-cacheable in Stellate |
 | `articles` | Cosmofy Articles REST service | Articles service owns its JSON catalog, deterministic UUIDs, Redis page cache, and rate limiting; Stellate caches article data for 6 hours |
 | `universe` and nested hierarchy | MongoDB `universe`, document `_id=observable-universe` | Loaded into the Livia instance cache; Stellate caches hierarchy data for 1 day |
 | `planets` | Bundled `planets.json` compatibility dataset | Static process data; Stellate caches planetary data for 1 day |
-| `picture` | NASA APOD plus OpenAI summaries | Legacy MongoDB `pictures` persistence; Stellate caches for 48 hours |
 | `events` | NASA EONET | Stellate caches event data for 4 hours |
 | `aurora` | NOAA SWPC, WeatherKit, Aurora prediction API, bundled webcams | Short in-process caches plus a 5-minute Stellate edge policy |
 | `apiKey` | LiteLLM key API | Never edge-cached |
@@ -46,94 +45,62 @@ The Java origin remains directly reachable. Clients configured with `livia.arrya
 
 The authoritative edge policy is [stellate.ts](./stellate.ts). It targets the Stellate service named `livia` in the `cosmofy` organization.
 
+The [complete schema reference](./docs/graphql-schema.html) contains every root
+query and type from both GraphQL SDL files. Regenerate it with
+`node docs/generate-graphql-schema-docs.cjs` after changing the schema.
+
 ## GraphQL examples
 
 ### APOD
 
 ```graphql
-query TodaysApod {
-  apod {
-    today {
-      date
-      title
-      explanation
-      mediaType
-      url
-      hdUrl
-      fallbackUrl
-      credit
-      copyright
-    }
+query Today {
+  pictures { date title url }
+}
+
+query HistoricalPicture {
+  pictures(date: "2024-02-29") { date title url }
+}
+
+query SearchPictures {
+  pictures(search: "spiral galaxy", limit: 5) {
+    date title explanation url relevanceScore matchTypes
   }
 }
 
-query HistoricalApod {
-  apod {
-    byDate(date: "2024-02-29") {
-      date
-      title
-      url
-    }
-  }
-}
-
-query SearchApods {
-  apod {
-    search(query: "spiral galaxy", limit: 5) {
-      query
-      searchMode
-      results {
-        date
-        title
-        explanation
-        mediaType
-        url
-        hdUrl
-        fallbackUrl
-        credit
-        copyright
-        relevanceScore
-        matchTypes
-      }
-    }
+query SimilarPictures {
+  pictures(date: "2024-02-29") {
+    title
+    similar(limit: 5) { date title url relevanceScore }
   }
 }
 ```
 
-`apod(date: ...) { date title url }` remains supported, including fragments on
-`Apod`. Its original picture fields are deprecated in favor of `today` and
-`byDate`; deprecation does not disable them. The outer `date` argument applies
-only to those legacy fields. Each new operation uses its own arguments, and a
-search-only request does not fetch today's picture. The unused root
-`searchApods` field has been removed.
+`pictures` accepts one selector at a time: no selector returns today's picture,
+`date` returns that date, and `search` returns matching pictures. Supplying both
+`date` and `search` returns a validation error. Every mode returns the same
+`Picture` type; normal date lookups have null discovery metadata. Search and
+similarity results expose `relevanceScore`; search results also expose
+`matchTypes`. `similar` returns `SearchPicture`, which has the media and ranking
+fields but no `similar` field. The complete test queries are in [`examples/apod.graphql`](./examples/apod.graphql).
 
-Search results expose all picture fields directly alongside relevance metadata;
-there is no `apod` or `picture` child object. Scores express relative search
-relevance, not probabilities. The complete test queries are in
-[`examples/apod.graphql`](./examples/apod.graphql).
+The APOD microservice owns media URL selection. GraphQL exposes only its chosen
+`url`: a verified S3 object when one exists, otherwise the original playable
+source. `url_fallback` and ingestion-only HD URLs remain internal to the APOD
+service. Attribution and media types are preserved. No extra media lookup is
+performed by Livia. APOD picture responses have a five-minute edge TTL.
 
-The APOD microservice owns media URL selection. Livia passes through `url`,
-`hdUrl`, and nullable `fallbackUrl` (REST `fallback_url`) on all APOD picture and
-result types, including the deprecated legacy shape. Verified archived media
-uses the service's S3 URL; `fallbackUrl` points to the original source. Unarchived
-or incompatible media retains its original URLs and has no fallback. Attribution
-and media types are preserved. No extra media lookup is performed by Livia.
-
-Clients should try `url` first and try a distinct non-null `fallbackUrl` once
-only after a load failure. Video links may need an embedded/external player.
-This repository does not implement the app's image loading or agent artifact
-contract. APOD picture responses have a five-minute edge TTL; search and
-similarity remain uncached.
-
-`apod.similar(date: ..., limit: 10)` calls the APOD service's
+`pictures(date: ...) { similar(limit: ...) }` calls the APOD service's
 `GET /vector/similar?date=YYYY-MM-DD&limit=10`. It returns the source `date` and
 flat `results` containing all picture fields plus `relevanceScore`, excluding
 the source picture. Limits are 1–50. Scores are clamped cosine similarity
 (`max(0, min(1, 1 - cosine_distance))`), not search rank-fusion scores.
 This requires the matching endpoint to be deployed in the APOD service.
 Similarity is nullable: an unavailable endpoint produces a safe GraphQL error
-at `apod.similar` while preserving other requested data. Livia keeps neither
+at `pictures[].similar` while preserving the picture. Livia keeps neither
 vectors nor a discovery cache. See the [service contract](./docs/apod-similarity-contract.md).
+One `similar` layer is allowed by the schema: `SearchPicture` has no `similar`
+field, so a related picture cannot request another related-picture list.
 
 ### News
 
@@ -252,7 +219,6 @@ Copy `.env.example` for the complete documented defaults. The main groups are:
 | `APOD_SERVICE_BASE_URL`, `APOD_*TIMEOUT`, `APOD_MAX_ATTEMPTS`, `APOD_RETRY_BACKOFF` | APOD REST client endpoint and bounded resilience policy |
 | `NEWS_SERVICE_BASE_URL`, `NEWS_*TIMEOUT`, `NEWS_MAX_ATTEMPTS`, `NEWS_RETRY_BACKOFF` | News REST client endpoint and bounded resilience policy |
 | `ARTICLES_SERVICE_URL`, `ARTICLES_*TIMEOUT`, `ARTICLES_MAX_ATTEMPTS`, `ARTICLES_RETRY_BACKOFF` | Articles REST client endpoint and bounded resilience policy |
-| `NASA_API_KEY`, `OPENAI_API_KEY` | Legacy `picture` generation on a cache miss |
 | `WEATHERKIT_KEY_ID`, `WEATHERKIT_TEAM_ID`, `WEATHERKIT_SERVICE_ID`, `WEATHERKIT_PRIVATE_KEY` | Optional WeatherKit astronomy fields |
 | `AURORA_ML_API_URL` | Optional override for the Aurora prediction service |
 | `LITELLM_BASE_URL`, `LITELLM_MASTER_KEY`, `ACCEPTED_PASSPHRASES` | Virtual API-key generation |

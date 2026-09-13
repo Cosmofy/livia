@@ -11,9 +11,8 @@ public record ApodSimilarityResultResponse(
         String explanation,
         @JsonProperty("media_type") String mediaType,
         String url,
-        String hdurl,
         String credit,
         String copyright,
         @JsonProperty("relevance_score") Double relevanceScore,
-        @JsonProperty("fallback_url") String fallbackUrl) {
+        @JsonProperty("url_fallback") String urlFallback) {
 }

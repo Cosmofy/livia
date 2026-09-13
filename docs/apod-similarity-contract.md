@@ -23,8 +23,6 @@ Successful response (an empty `results` list is valid):
       "explanation": "Its explanation",
       "media_type": "image",
       "url": "https://example.com/picture.jpg",
-      "hdurl": null,
-      "fallback_url": null,
       "credit": null,
       "copyright": null,
       "relevance_score": 0.8
@@ -33,11 +31,10 @@ Successful response (an empty `results` list is valid):
 }
 ```
 
-All result fields follow `SourceApod`, with the additional required score.
-Nullable `fallback_url` maps to GraphQL `fallbackUrl`. Preserve the service-owned
-media URLs, including S3 URLs for verified archived assets and the original
-source fallback. Omitted fallback values from older service responses map to null.
-There is no nested picture object and no required `match_types` field.
+All result fields follow `SourceApod`, with the additional required score. The
+service selects the single public `url`; if it exposes `url_fallback` for its own
+recovery logic, Livia does not expose or consume it. There is no nested picture
+object and no required `match_types` field.
 
 Errors use the existing `{"error":{"code":"...","message":"..."}}` envelope:
 
@@ -56,5 +53,6 @@ exclusion, complete fields, empty results, error responses, and trace propagatio
 Livia uses its bounded search timeout/retry policy. It verifies the source date,
 result count, scores, ordering, uniqueness, and source exclusion. An undeployed
 route's unstructured 404 maps to `SIMILARITY_UNAVAILABLE`; a structured
-`NOT_FOUND` remains a missing-picture error. The GraphQL `similar` field is
-nullable, and both search and similarity are excluded from Stellate caching.
+`NOT_FOUND` remains a missing-picture error. The GraphQL `Picture.similar` field
+is nullable. Stellate applies the same five-minute policy to picture selections,
+including search and similarity results.
