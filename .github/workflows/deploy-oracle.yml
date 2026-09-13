@@ -185,7 +185,7 @@ jobs:
 
             apod_response=$(curl --fail --silent --show-error --max-time 45 \
               -H 'Content-Type: application/json' \
-              --data '{"query":"query DeploymentApod { apod { date title mediaType url hdUrl } }"}' \
+              --data '{"query":"query DeploymentPictures { pictures { date title mediaType url } }"}' \
               http://127.0.0.1:2259/graphql)
             if echo "${apod_response}" | grep -q '"errors"'; then
               echo "Deploy failed: APOD acceptance query returned GraphQL errors"
