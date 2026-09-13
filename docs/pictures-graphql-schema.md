@@ -14,7 +14,7 @@ type Pictures {
     limit: Int = 10
   ): [Picture!]!
 
-  earthObservatory(date: Date): EarthObservatoryPicture
+  earthObservatory(date: String): EarthObservatoryPicture
 }
 
 type Picture {
@@ -123,5 +123,5 @@ query {
 
 GraphQL exposes only `url`. It does not expose `hdUrl`, `urlFallback`, or
 `url_fallback`. `astronomy` accepts either `date` or `search`, never both.
-`earthObservatory` currently accepts an optional date and has no search or
-similarity field.
+`earthObservatory` accepts an optional `YYYY-MM-DD` date; an omitted or empty
+date returns the current item. It has no search or similarity field.

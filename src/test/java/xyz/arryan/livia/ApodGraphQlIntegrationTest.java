@@ -152,6 +152,20 @@ class ApodGraphQlIntegrationTest {
     }
 
     @Test
+    void emptyEarthObservatoryDateMeansCurrentItem() {
+        when(service.earthObservatory(null)).thenReturn(EarthObservatoryPicture.newBuilder()
+                .date(LocalDate.of(2026, 9, 13)).title("Current").explanation("Explanation")
+                .mediaType("image").url("https://example.com/current.jpg")
+                .articleUrl("https://example.com/article").build());
+
+        ExecutionResult result = queryExecutor.execute("{ pictures { earthObservatory(date: \"\") { title url } } }");
+
+        assertThat(result.getErrors()).isEmpty();
+        verify(service).earthObservatory(null);
+        verifyNoMoreInteractions(service);
+    }
+
+    @Test
     private static Picture picture(LocalDate date) {
         return Picture.newBuilder().date(date).title("A title").explanation("An explanation")
                 .mediaType("image").url("https://example.com/apod.jpg").build();

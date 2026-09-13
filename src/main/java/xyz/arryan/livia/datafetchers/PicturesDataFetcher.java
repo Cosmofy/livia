@@ -13,6 +13,7 @@ import xyz.arryan.livia.errors.ApodException;
 import xyz.arryan.livia.services.ApodService;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 import java.util.List;
 
 @DgsComponent
@@ -44,8 +45,13 @@ public class PicturesDataFetcher {
     }
 
     @DgsData(parentType = "Pictures", field = "earthObservatory")
-    public EarthObservatoryPicture earthObservatory(@InputArgument LocalDate date) {
-        return service.earthObservatory(date);
+    public EarthObservatoryPicture earthObservatory(@InputArgument String date) {
+        if (date == null || date.isBlank()) return service.earthObservatory(null);
+        try {
+            return service.earthObservatory(LocalDate.parse(date));
+        } catch (DateTimeParseException exception) {
+            throw ApodException.validation("INVALID_DATE_FORMAT");
+        }
     }
 
     @DgsData(parentType = "Picture", field = "similar")
