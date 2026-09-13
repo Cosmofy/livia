@@ -133,7 +133,6 @@ type Source {
     url: String
 }
 type Geometry {
-    id: String
     magnitudeValue: Float
     magnitudeUnit: String
     date: String

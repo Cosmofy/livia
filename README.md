@@ -38,7 +38,7 @@ The Java origin remains directly reachable. Clients configured with `livia.arrya
 | `articles` | Cosmofy Articles REST service | Articles service owns its JSON catalog, deterministic UUIDs, Redis page cache, and rate limiting; Stellate caches article data for 6 hours |
 | `universe` and nested hierarchy | MongoDB `universe`, document `_id=observable-universe` | Loaded into the Livia instance cache; Stellate caches hierarchy data for 1 day |
 | `planets` | Bundled `planets.json` compatibility dataset | Static process data; Stellate caches planetary data for 1 day |
-| `events` | NASA EONET | Stellate caches event data for 4 hours |
+| `events` | Cosmofy Nature REST service | Nature owns NASA EONET access and Redis caching; Stellate caches event data for 4 hours |
 | `aurora` | NOAA SWPC, WeatherKit, Aurora prediction API, bundled webcams | Short in-process caches plus a 5-minute Stellate edge policy |
 | `apiKey` | LiteLLM key API | Never edge-cached |
 | `server`, `time` | Livia runtime | Never edge-cached |

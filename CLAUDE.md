@@ -72,7 +72,7 @@ Located in `src/main/java/xyz/arryan/livia/datafetchers/`:
 | **PicturesDataFetcher** | Internal APOD microservice | Service-owned Redis/Turso cache |
 | **NewsDataFetcher** | Internal News microservice | Service-owned Redis cache; no Livia/Stellate cache |
 | **ArticlesDataFetcher** | Internal Articles microservice | Service-owned Redis + Stellate edge cache |
-| **EventsDataFetcher** | NASA EONET API | In-memory |
+| **EventsDataFetcher** | Internal Nature microservice | Nature-owned Redis cache; Stellate edge cache |
 | **AuroraDataFetcher** | NOAA SWPC, WeatherKit, ML API | ConcurrentHashMap with TTLs |
 
 APOD has one root entry point: `pictures(date:, search:, limit:)`. Omit both

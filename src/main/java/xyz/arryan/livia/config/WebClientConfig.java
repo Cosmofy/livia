@@ -11,7 +11,8 @@ import org.springframework.web.reactive.function.client.WebClient;
 @EnableConfigurationProperties({
         ApodClientProperties.class,
         NewsClientProperties.class,
-        ArticlesClientProperties.class
+        ArticlesClientProperties.class,
+        NatureClientProperties.class
 })
 public class WebClientConfig {
 
