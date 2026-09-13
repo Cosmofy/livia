@@ -5,6 +5,7 @@ import xyz.arryan.livia.clients.ApodClient;
 import xyz.arryan.livia.clients.dto.ApodResponse;
 import xyz.arryan.livia.codegen.types.Picture;
 import xyz.arryan.livia.codegen.types.SearchPicture;
+import xyz.arryan.livia.codegen.types.EarthObservatoryPicture;
 import xyz.arryan.livia.errors.ApodException;
 import xyz.arryan.livia.mappers.ApodMapper;
 
@@ -65,6 +66,10 @@ public class ApodService {
             throw ApodException.invalidResponse(null);
         }
         return mapper.toSearchPictures(response, date);
+    }
+
+    public EarthObservatoryPicture earthObservatory(LocalDate date) {
+        return mapper.toEarthObservatoryPicture(client.earthObservatory(date));
     }
 
     private void validateDate(LocalDate date) {

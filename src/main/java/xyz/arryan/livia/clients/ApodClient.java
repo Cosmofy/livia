@@ -24,6 +24,7 @@ import xyz.arryan.livia.clients.dto.ApodErrorResponse;
 import xyz.arryan.livia.clients.dto.ApodResponse;
 import xyz.arryan.livia.clients.dto.ApodSearchResponse;
 import xyz.arryan.livia.clients.dto.ApodSimilarityResponse;
+import xyz.arryan.livia.clients.dto.EarthObservatoryResponse;
 import xyz.arryan.livia.config.ApodClientProperties;
 import xyz.arryan.livia.config.RequestIdFilter;
 import xyz.arryan.livia.errors.ApodException;
@@ -105,6 +106,14 @@ public class ApodClient {
                         .queryParam("limit", limit)
                         .build(),
                 ApodSimilarityResponse.class);
+    }
+
+    public EarthObservatoryResponse earthObservatory(LocalDate date) {
+        return execute("earth_observatory", date != null, properties.apodRequestTimeout(), uriBuilder -> {
+            uriBuilder.path("/earth-observatory");
+            if (date != null) uriBuilder.queryParam("date", date);
+            return uriBuilder.build();
+        }, EarthObservatoryResponse.class);
     }
 
     private <T> T execute(
@@ -248,15 +257,16 @@ public class ApodClient {
 
     private static String fallbackCode(String operation, int status) {
         if (status == 422) {
+            if ("earth_observatory".equals(operation)) return "INVALID_DATE_FORMAT";
             if ("similar".equals(operation)) return "INVALID_SIMILARITY_REQUEST";
             return "search".equals(operation) ? "INVALID_SEARCH_QUERY" : "INVALID_DATE_FORMAT";
         }
         // An undeployed route returns an unstructured 404, not a missing APOD.
         if (status == 404 && "similar".equals(operation)) return "SIMILARITY_UNAVAILABLE";
         return switch (status) {
-            case 404 -> "NOT_FOUND";
+            case 404 -> "earth_observatory".equals(operation) ? "EARTH_OBSERVATORY_NOT_FOUND" : "NOT_FOUND";
             case 500 -> "INTERNAL_ERROR";
-            case 502, 503 -> "APOD_UNAVAILABLE";
+            case 502, 503 -> "earth_observatory".equals(operation) ? "EARTH_OBSERVATORY_UNAVAILABLE" : "APOD_UNAVAILABLE";
             default -> "APOD_UPSTREAM_ERROR";
         };
     }

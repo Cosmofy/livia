@@ -55,28 +55,28 @@ query and type from both GraphQL SDL files. Regenerate it with
 
 ```graphql
 query Today {
-  pictures { date title url }
+  pictures { astronomy { date title url } }
 }
 
 query HistoricalPicture {
-  pictures(date: "2024-02-29") { date title url }
+  pictures { astronomy(date: "2024-02-29") { date title url } }
 }
 
 query SearchPictures {
-  pictures(search: "spiral galaxy", limit: 5) {
+  pictures { astronomy(search: "spiral galaxy", limit: 5) {
     date title explanation url relevanceScore matchTypes
-  }
+  } }
 }
 
 query SimilarPictures {
-  pictures(date: "2024-02-29") {
+  pictures { astronomy(date: "2024-02-29") {
     title
     similar(limit: 5) { date title url relevanceScore }
-  }
+  } }
 }
 ```
 
-`pictures` accepts one selector at a time: no selector returns today's picture,
+`pictures.astronomy` accepts one selector at a time: no selector returns today's picture,
 `date` returns that date, and `search` returns matching pictures. Supplying both
 `date` and `search` returns a validation error. Every mode returns the same
 `Picture` type; normal date lookups have null discovery metadata. Search and
@@ -90,7 +90,7 @@ source. `url_fallback` and ingestion-only HD URLs remain internal to the APOD
 service. Attribution and media types are preserved. No extra media lookup is
 performed by Livia. APOD picture responses have a five-minute edge TTL.
 
-`pictures(date: ...) { similar(limit: ...) }` calls the APOD service's
+`pictures { astronomy(date: ...) { similar(limit: ...) } }` calls the Pictures service's
 `GET /vector/similar?date=YYYY-MM-DD&limit=10`. It returns the source `date` and
 flat `results` containing all picture fields plus `relevanceScore`, excluding
 the source picture. Limits are 1–50. Scores are clamped cosine similarity

@@ -137,11 +137,20 @@ query MyQuery {
     volumetricMeanRadius
   }
   pictures {
-    date
-    title
-    explanation
-    mediaType
-    url
+    astronomy {
+      date
+      title
+      explanation
+      mediaType
+      url
+    }
+    earthObservatory {
+      date
+      title
+      mediaType
+      url
+      articleUrl
+    }
   }
   events {
     categories {

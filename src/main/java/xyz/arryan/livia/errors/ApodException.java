@@ -21,6 +21,8 @@ public class ApodException extends RuntimeException {
             "SEARCH_UNAVAILABLE",
             "INVALID_SIMILARITY_REQUEST",
             "SIMILARITY_UNAVAILABLE",
+            "EARTH_OBSERVATORY_NOT_FOUND",
+            "EARTH_OBSERVATORY_UNAVAILABLE",
             "INTERNAL_ERROR");
     private static final Map<String, String> PUBLIC_MESSAGES = Map.ofEntries(
             Map.entry("DATE_TOO_EARLY", "NASA's Astronomy Picture of the Day archive begins on June 16, 1995."),
@@ -37,6 +39,8 @@ public class ApodException extends RuntimeException {
             Map.entry("SEARCH_UNAVAILABLE", "Astronomy Picture of the Day search is temporarily unavailable."),
             Map.entry("INVALID_SIMILARITY_REQUEST", "Similarity requires a valid APOD date and a limit between 1 and 50."),
             Map.entry("SIMILARITY_UNAVAILABLE", "Astronomy Picture of the Day similarity is temporarily unavailable."),
+            Map.entry("EARTH_OBSERVATORY_NOT_FOUND", "No Earth Observatory picture was found for the requested date."),
+            Map.entry("EARTH_OBSERVATORY_UNAVAILABLE", "Earth Observatory is temporarily unavailable."),
             Map.entry("APOD_INVALID_RESPONSE", "The APOD service returned an invalid response."),
             Map.entry("APOD_TIMEOUT", "The APOD service did not respond in time."),
             Map.entry("APOD_UNAVAILABLE", "The APOD service is temporarily unavailable."),

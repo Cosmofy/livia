@@ -75,12 +75,9 @@ Located in `src/main/java/xyz/arryan/livia/datafetchers/`:
 | **EventsDataFetcher** | Internal Nature microservice | Nature-owned Redis cache; Stellate edge cache |
 | **AuroraDataFetcher** | NOAA SWPC, WeatherKit, ML API | ConcurrentHashMap with TTLs |
 
-APOD has one root entry point: `pictures(date:, search:, limit:)`. Omit both
-selectors for today's picture, provide `date` for a historical picture, or
-provide `search` for discovery results. `date` and `search` are mutually
-exclusive. All modes return the same `Picture` type. Similarity is a nullable
-field on `Picture`, so it derives its source date from the parent picture.
-Search and similarity place their ranking metadata on that same type.
+Pictures has one root entry point: `pictures`. `pictures.astronomy(date:, search:,
+limit:)` provides APOD lookup and discovery; `pictures.earthObservatory(date:)`
+provides Earth Observatory lookup. Omit the date to receive the current item.
 
 ### Universe Hierarchy
 The `universe` query provides a hierarchical structure stored as a single nested MongoDB document (`_id: "observable-universe"`):

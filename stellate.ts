@@ -57,10 +57,10 @@ const config: Config = {
 
       // ============== APOD PICTURES (5 minutes) ==============
       {
-        types: ['Picture'],
+        types: ['Pictures', 'Picture', 'SearchPicture', 'EarthObservatoryPicture'],
         maxAge: 300,
         swr: 0,
-        description: 'APOD pictures, date lookup, search, and similarity',
+        description: 'APOD and Earth Observatory picture lookups, search, and similarity',
       },
 
       // ============== STATIC CONTENT (6 hours) ==============

@@ -3,25 +3,29 @@
 # or a list of matching pictures with `search`.
 
 query Today {
-  pictures { ...PictureFields }
+  pictures { astronomy { ...PictureFields } }
 }
 
 query ByDate {
-  pictures(date: "2024-02-29") {
+  pictures { astronomy(date: "2024-02-29") {
     ...PictureFields
     similar(limit: 5) {
       ...SearchPictureFields
       relevanceScore
     }
-  }
+  } }
 }
 
 query Search {
-  pictures(search: "spiral galaxy", limit: 5) {
+  pictures { astronomy(search: "spiral galaxy", limit: 5) {
     ...PictureFields
     relevanceScore
     matchTypes
-  }
+  } }
+}
+
+query EarthObservatory {
+  pictures { earthObservatory(date: "2026-09-11") { date title url articleUrl } }
 }
 
 fragment PictureFields on Picture {

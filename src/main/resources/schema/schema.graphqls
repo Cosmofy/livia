@@ -18,7 +18,7 @@ type Query {
     # Other APIs
     server: String
     time: Float
-    pictures(date: Date, search: String, limit: Int = 10): [Picture!]!
+    pictures: Pictures!
     news(
         limit: Int = 24
         offset: Int = 0
@@ -57,6 +57,11 @@ type NewsPage {
     articles: [NewsArticle!]!
 }
 
+type Pictures {
+    astronomy(date: Date, search: String, limit: Int = 10): [Picture!]!
+    earthObservatory(date: Date): EarthObservatoryPicture
+}
+
 type Picture {
     date: Date!
     title: String!
@@ -83,6 +88,21 @@ type SearchPicture {
     copyright: String
     relevanceScore: Float
     matchTypes: [PictureMatchType!]
+}
+
+type EarthObservatoryPicture {
+    date: Date!
+    title: String!
+    explanation: String!
+    mediaType: String!
+    url: String!
+    credit: String
+    copyright: String
+    imageDate: Date
+    locationName: String
+    latitude: Float
+    longitude: Float
+    articleUrl: String!
 }
 
 enum PictureMatchType {

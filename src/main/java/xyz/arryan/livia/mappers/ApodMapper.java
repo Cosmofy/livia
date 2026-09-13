@@ -9,6 +9,8 @@ import xyz.arryan.livia.clients.dto.ApodSimilarityResultResponse;
 import xyz.arryan.livia.codegen.types.Picture;
 import xyz.arryan.livia.codegen.types.PictureMatchType;
 import xyz.arryan.livia.codegen.types.SearchPicture;
+import xyz.arryan.livia.clients.dto.EarthObservatoryResponse;
+import xyz.arryan.livia.codegen.types.EarthObservatoryPicture;
 import xyz.arryan.livia.errors.ApodException;
 
 import java.time.LocalDate;
@@ -17,6 +19,18 @@ import java.util.Locale;
 
 @Component
 public class ApodMapper {
+
+    public EarthObservatoryPicture toEarthObservatoryPicture(EarthObservatoryResponse response) {
+        if (response == null || response.date() == null || isBlank(response.title()) || isBlank(response.explanation())
+                || isBlank(response.mediaType()) || isBlank(response.url()) || isBlank(response.articleUrl())) {
+            throw ApodException.invalidResponse(null);
+        }
+        return EarthObservatoryPicture.newBuilder().date(response.date()).title(response.title())
+                .explanation(response.explanation()).mediaType(response.mediaType()).url(response.url())
+                .credit(response.credit()).copyright(response.copyright()).imageDate(response.imageDate())
+                .locationName(response.locationName()).latitude(response.latitude()).longitude(response.longitude())
+                .articleUrl(response.articleUrl()).build();
+    }
 
     public Picture toPicture(ApodResponse response) {
         if (response == null || response.date() == null || isBlank(response.title())

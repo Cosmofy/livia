@@ -6,6 +6,8 @@ import com.netflix.graphql.dgs.DgsDataFetchingEnvironment;
 import com.netflix.graphql.dgs.DgsQuery;
 import com.netflix.graphql.dgs.InputArgument;
 import xyz.arryan.livia.codegen.types.Picture;
+import xyz.arryan.livia.codegen.types.Pictures;
+import xyz.arryan.livia.codegen.types.EarthObservatoryPicture;
 import xyz.arryan.livia.codegen.types.SearchPicture;
 import xyz.arryan.livia.errors.ApodException;
 import xyz.arryan.livia.services.ApodService;
@@ -23,7 +25,12 @@ public class PicturesDataFetcher {
     }
 
     @DgsQuery(field = "pictures")
-    public List<Picture> pictures(
+    public Pictures pictures() {
+        return Pictures.newBuilder().build();
+    }
+
+    @DgsData(parentType = "Pictures", field = "astronomy")
+    public List<Picture> astronomy(
             @InputArgument LocalDate date,
             @InputArgument String search,
             @InputArgument Integer limit) {
@@ -34,6 +41,11 @@ public class PicturesDataFetcher {
             return service.search(search, limit);
         }
         return List.of(service.picture(date));
+    }
+
+    @DgsData(parentType = "Pictures", field = "earthObservatory")
+    public EarthObservatoryPicture earthObservatory(@InputArgument LocalDate date) {
+        return service.earthObservatory(date);
     }
 
     @DgsData(parentType = "Picture", field = "similar")
