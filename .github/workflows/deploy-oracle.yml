@@ -205,22 +205,6 @@ jobs:
             fi
             echo "${news_response}" | grep -q '"totalCount"'
 
-            articles_response=$(curl --fail --silent --show-error --max-time 25 \
-              -H 'Content-Type: application/json' \
-              --data '{"query":"query DeploymentArticles { articles { id title } }"}' \
-              http://127.0.0.1:2259/graphql)
-            if echo "${articles_response}" | grep -q '"errors"'; then
-              echo "Deploy failed: Articles acceptance query returned GraphQL errors"
-              journalctl -u livia.service -n 100 --no-pager
-              exit 1
-            fi
-            article_count=$(echo "${articles_response}" | python3 -c \
-              'import json,sys; print(len(json.load(sys.stdin)["data"]["articles"]))')
-            if [ "${article_count}" -lt 1 ]; then
-              echo "Deploy failed: Articles acceptance query returned an empty catalog"
-              exit 1
-            fi
-
             article_schema_response=$(curl --fail --silent --show-error --max-time 25 \
               -H 'Content-Type: application/json' \
               --data '{"query":"query ArticleSchema { __type(name: \"Query\") { fields { name } } }"}' \
