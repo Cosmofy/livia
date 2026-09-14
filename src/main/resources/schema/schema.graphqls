@@ -58,7 +58,7 @@ type NewsPage {
 }
 
 type Pictures {
-    astronomy(date: Date, search: String, limit: Int = 10): [Picture!]!
+    astronomy(date: String, search: String, limit: Int = 10): [Picture!]!
     earthObservatory(date: String): EarthObservatoryPicture
 }
 

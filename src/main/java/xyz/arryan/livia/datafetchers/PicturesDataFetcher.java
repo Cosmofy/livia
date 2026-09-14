@@ -34,16 +34,23 @@ public class PicturesDataFetcher {
 
     @DgsData(parentType = "Pictures", field = "astronomy")
     public List<Picture> astronomy(
-            @InputArgument LocalDate date,
+            @InputArgument String date,
             @InputArgument String search,
             @InputArgument Integer limit) {
-        if (date != null && search != null) {
+        String normalizedDate = date == null || date.isBlank() ? null : date;
+        String normalizedSearch = search == null || search.isBlank() ? null : search;
+        if (normalizedDate != null && normalizedSearch != null) {
             throw ApodException.validation("INVALID_PICTURE_LOOKUP");
         }
-        if (search != null) {
-            return service.search(search, limit);
+        if (normalizedSearch != null) {
+            return service.search(normalizedSearch, limit);
         }
-        return List.of(service.picture(date));
+        if (normalizedDate == null) return List.of(service.picture(null));
+        try {
+            return List.of(service.picture(LocalDate.parse(normalizedDate)));
+        } catch (DateTimeParseException exception) {
+            throw ApodException.validation("INVALID_DATE_FORMAT");
+        }
     }
 
     @DgsData(parentType = "Pictures", field = "earthObservatory")
