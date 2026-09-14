@@ -25,6 +25,8 @@ import xyz.arryan.livia.clients.dto.ApodResponse;
 import xyz.arryan.livia.clients.dto.ApodSearchResponse;
 import xyz.arryan.livia.clients.dto.ApodSimilarityResponse;
 import xyz.arryan.livia.clients.dto.EarthObservatoryResponse;
+import xyz.arryan.livia.clients.dto.EarthObservatorySearchResponse;
+import xyz.arryan.livia.clients.dto.EarthObservatorySimilarityResponse;
 import xyz.arryan.livia.config.ApodClientProperties;
 import xyz.arryan.livia.config.RequestIdFilter;
 import xyz.arryan.livia.errors.ApodException;
@@ -114,6 +116,20 @@ public class ApodClient {
             if (date != null) uriBuilder.queryParam("date", date);
             return uriBuilder.build();
         }, EarthObservatoryResponse.class);
+    }
+
+    public EarthObservatorySearchResponse earthObservatorySearch(String query, int limit) {
+        return execute("earth_observatory_search", false, properties.searchRequestTimeout(),
+                uriBuilder -> uriBuilder.path("/earth-observatory/search")
+                        .queryParam("q", query).queryParam("limit", limit).build(),
+                EarthObservatorySearchResponse.class);
+    }
+
+    public EarthObservatorySimilarityResponse earthObservatorySimilar(LocalDate date, int limit) {
+        return execute("earth_observatory_similar", true, properties.searchRequestTimeout(),
+                uriBuilder -> uriBuilder.path("/earth-observatory/similar")
+                        .queryParam("date", date).queryParam("limit", limit).build(),
+                EarthObservatorySimilarityResponse.class);
     }
 
     private <T> T execute(

@@ -9,6 +9,8 @@ import xyz.arryan.livia.codegen.types.Picture;
 import xyz.arryan.livia.codegen.types.Pictures;
 import xyz.arryan.livia.codegen.types.EarthObservatoryPicture;
 import xyz.arryan.livia.codegen.types.SearchPicture;
+import xyz.arryan.livia.codegen.types.EarthObservatorySearchPayload;
+import xyz.arryan.livia.codegen.types.EarthObservatorySimilarityPayload;
 import xyz.arryan.livia.errors.ApodException;
 import xyz.arryan.livia.services.ApodService;
 
@@ -52,6 +54,18 @@ public class PicturesDataFetcher {
         } catch (DateTimeParseException exception) {
             throw ApodException.validation("INVALID_DATE_FORMAT");
         }
+    }
+
+    @DgsData(parentType = "EarthObservatoryPicture", field = "search")
+    public EarthObservatorySearchPayload earthObservatorySearch(@InputArgument String query, @InputArgument Integer limit) {
+        return service.earthObservatorySearch(query, limit);
+    }
+
+    @DgsData(parentType = "EarthObservatoryPicture", field = "similar")
+    public EarthObservatorySimilarityPayload earthObservatorySimilar(@InputArgument Integer limit, DgsDataFetchingEnvironment environment) {
+        EarthObservatoryPicture picture = environment.getSource();
+        if (picture == null || picture.getDate() == null) throw ApodException.invalidResponse(null);
+        return service.earthObservatorySimilar(picture.getDate(), limit);
     }
 
     @DgsData(parentType = "Picture", field = "similar")

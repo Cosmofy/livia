@@ -6,6 +6,10 @@ import xyz.arryan.livia.clients.dto.ApodResponse;
 import xyz.arryan.livia.codegen.types.Picture;
 import xyz.arryan.livia.codegen.types.SearchPicture;
 import xyz.arryan.livia.codegen.types.EarthObservatoryPicture;
+import xyz.arryan.livia.codegen.types.EarthObservatorySearchPayload;
+import xyz.arryan.livia.codegen.types.EarthObservatorySimilarityPayload;
+import xyz.arryan.livia.codegen.types.EarthObservatorySearchResult;
+import xyz.arryan.livia.codegen.types.EarthObservatorySimilarityResult;
 import xyz.arryan.livia.errors.ApodException;
 import xyz.arryan.livia.mappers.ApodMapper;
 
@@ -70,6 +74,19 @@ public class ApodService {
 
     public EarthObservatoryPicture earthObservatory(LocalDate date) {
         return mapper.toEarthObservatoryPicture(client.earthObservatory(date));
+    }
+
+    public EarthObservatorySearchPayload earthObservatorySearch(String query, Integer limit) {
+        String normalized = normalizeSearchQuery(query);
+        int resolved = limit == null ? DEFAULT_SEARCH_LIMIT : limit;
+        if (resolved < 1 || resolved > 50) throw ApodException.validation("INVALID_SEARCH_QUERY");
+        return mapper.toEarthObservatorySearch(client.earthObservatorySearch(normalized, resolved), resolved);
+    }
+
+    public EarthObservatorySimilarityPayload earthObservatorySimilar(LocalDate date, Integer limit) {
+        int resolved = limit == null ? DEFAULT_SEARCH_LIMIT : limit;
+        if (date == null || resolved < 1 || resolved > 50) throw ApodException.validation("INVALID_SIMILARITY_REQUEST");
+        return mapper.toEarthObservatorySimilarity(client.earthObservatorySimilar(date, resolved), date, resolved);
     }
 
     private void validateDate(LocalDate date) {

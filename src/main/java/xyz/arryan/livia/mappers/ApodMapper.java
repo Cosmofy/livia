@@ -10,12 +10,20 @@ import xyz.arryan.livia.codegen.types.Picture;
 import xyz.arryan.livia.codegen.types.PictureMatchType;
 import xyz.arryan.livia.codegen.types.SearchPicture;
 import xyz.arryan.livia.clients.dto.EarthObservatoryResponse;
+import xyz.arryan.livia.clients.dto.EarthObservatorySearchResponse;
+import xyz.arryan.livia.clients.dto.EarthObservatorySearchResultResponse;
+import xyz.arryan.livia.clients.dto.EarthObservatorySimilarityResponse;
+import xyz.arryan.livia.clients.dto.EarthObservatorySimilarityResultResponse;
 import xyz.arryan.livia.codegen.types.EarthObservatoryPicture;
 import xyz.arryan.livia.errors.ApodException;
 
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Locale;
+import xyz.arryan.livia.codegen.types.EarthObservatorySearchPayload;
+import xyz.arryan.livia.codegen.types.EarthObservatorySimilarityPayload;
+import xyz.arryan.livia.codegen.types.EarthObservatorySearchResult;
+import xyz.arryan.livia.codegen.types.EarthObservatorySimilarityResult;
 
 @Component
 public class ApodMapper {
@@ -30,6 +38,32 @@ public class ApodMapper {
                 .credit(response.credit()).copyright(response.copyright()).imageDate(response.imageDate())
                 .locationName(response.locationName()).latitude(response.latitude()).longitude(response.longitude())
                 .articleUrl(response.articleUrl()).build();
+    }
+
+    public EarthObservatorySearchPayload toEarthObservatorySearch(EarthObservatorySearchResponse response, int limit) {
+        if (response == null || isBlank(response.query()) || isBlank(response.searchMode()) || response.results() == null || response.results().size() > limit)
+            throw ApodException.invalidResponse(null);
+        return EarthObservatorySearchPayload.newBuilder().query(response.query()).searchMode(response.searchMode())
+                .results(response.results().stream().map(this::toEarthObservatorySearchResult).toList()).build();
+    }
+
+    public EarthObservatorySimilarityPayload toEarthObservatorySimilarity(EarthObservatorySimilarityResponse response, LocalDate sourceDate, int limit) {
+        if (response == null || !sourceDate.equals(response.date()) || response.results() == null || response.results().size() > limit)
+            throw ApodException.invalidResponse(null);
+        return EarthObservatorySimilarityPayload.newBuilder().date(response.date())
+                .results(response.results().stream().map(this::toEarthObservatorySimilarityResult).toList()).build();
+    }
+
+    private EarthObservatorySearchResult toEarthObservatorySearchResult(EarthObservatorySearchResultResponse r) {
+        if (r == null || r.date() == null || isBlank(r.title()) || isBlank(r.explanation()) || isBlank(r.mediaType()) || isBlank(r.url()) || isBlank(r.articleUrl())) throw ApodException.invalidResponse(null);
+        return EarthObservatorySearchResult.newBuilder().date(r.date()).title(r.title()).explanation(r.explanation()).mediaType(r.mediaType()).url(r.url())
+                .credit(r.credit()).copyright(r.copyright()).imageDate(r.imageDate()).locationName(r.locationName()).latitude(r.latitude()).longitude(r.longitude()).articleUrl(r.articleUrl()).relevanceScore(r.relevanceScore()).build();
+    }
+
+    private EarthObservatorySimilarityResult toEarthObservatorySimilarityResult(EarthObservatorySimilarityResultResponse r) {
+        if (r == null || r.date() == null || isBlank(r.title()) || isBlank(r.explanation()) || isBlank(r.mediaType()) || isBlank(r.url()) || isBlank(r.articleUrl()) || r.relevanceScore() == null) throw ApodException.invalidResponse(null);
+        return EarthObservatorySimilarityResult.newBuilder().date(r.date()).title(r.title()).explanation(r.explanation()).mediaType(r.mediaType()).url(r.url())
+                .credit(r.credit()).copyright(r.copyright()).imageDate(r.imageDate()).locationName(r.locationName()).latitude(r.latitude()).longitude(r.longitude()).articleUrl(r.articleUrl()).relevanceScore(r.relevanceScore()).build();
     }
 
     public Picture toPicture(ApodResponse response) {

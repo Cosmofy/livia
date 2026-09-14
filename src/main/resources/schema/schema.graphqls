@@ -103,6 +103,52 @@ type EarthObservatoryPicture {
     latitude: Float
     longitude: Float
     articleUrl: String!
+    search(query: String!, limit: Int = 10): EarthObservatorySearchPayload!
+    similar(limit: Int = 10): EarthObservatorySimilarityPayload!
+}
+
+type EarthObservatorySearchPayload {
+    query: String!
+    searchMode: String!
+    results: [EarthObservatorySearchResult!]!
+}
+
+type EarthObservatorySimilarityPayload {
+    date: Date!
+    results: [EarthObservatorySimilarityResult!]!
+}
+
+type EarthObservatorySearchResult {
+    date: Date!
+    title: String!
+    explanation: String!
+    mediaType: String!
+    url: String!
+    credit: String
+    copyright: String
+    imageDate: Date
+    locationName: String
+    latitude: Float
+    longitude: Float
+    articleUrl: String!
+    relevanceScore: Float
+    matchTypes: [PictureMatchType!]
+}
+
+type EarthObservatorySimilarityResult {
+    date: Date!
+    title: String!
+    explanation: String!
+    mediaType: String!
+    url: String!
+    credit: String
+    copyright: String
+    imageDate: Date
+    locationName: String
+    latitude: Float
+    longitude: Float
+    articleUrl: String!
+    relevanceScore: Float!
 }
 
 enum PictureMatchType {
