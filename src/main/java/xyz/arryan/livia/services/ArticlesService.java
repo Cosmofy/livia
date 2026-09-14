@@ -33,4 +33,12 @@ public class ArticlesService {
         }
         return List.copyOf(articles);
     }
+
+    public List<Article> latestArticles(Integer limit) {
+        if (limit == null) return allArticles();
+        if (limit < 1 || limit > PAGE_SIZE) {
+            throw xyz.arryan.livia.errors.ArticlesException.validation();
+        }
+        return List.copyOf(mapper.toGraphQlArticles(client.get(limit, 0, null, null, null, null, "-date")));
+    }
 }

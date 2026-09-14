@@ -3,6 +3,7 @@ package xyz.arryan.livia.datafetchers;
 import com.netflix.graphql.dgs.DgsComponent;
 import com.netflix.graphql.dgs.DgsDataFetchingEnvironment;
 import com.netflix.graphql.dgs.DgsQuery;
+import com.netflix.graphql.dgs.InputArgument;
 import io.opentelemetry.api.GlobalOpenTelemetry;
 import io.opentelemetry.api.trace.Span;
 import io.opentelemetry.api.trace.StatusCode;
@@ -34,12 +35,13 @@ public class ArticlesDataFetcher {
     }
 
     @DgsQuery(field = "articles")
-    public List<Article> articles(DgsDataFetchingEnvironment environment) {
+    public List<Article> articles(@InputArgument Integer limit,
+                                  DgsDataFetchingEnvironment environment) {
         return traceResolver(
                 "articles",
                 "list_all",
                 graphQlOperationName(environment),
-                service::allArticles,
+                limit == null ? service::allArticles : () -> service.latestArticles(limit),
                 List::size);
     }
 

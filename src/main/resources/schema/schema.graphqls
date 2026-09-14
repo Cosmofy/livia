@@ -26,7 +26,7 @@ type Query {
         ordering: NewsOrdering = PUBLISHED_AT_DESCENDING
         newsSite: String
     ): NewsPage!
-    articles: [Article]
+    articles(limit: Int): [Article]
     events(daysInput: Int): [Event]
     apiKey(passphrase: String!): String
     aurora(lat: Float!, lon: Float!): Aurora
