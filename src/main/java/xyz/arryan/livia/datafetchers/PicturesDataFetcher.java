@@ -32,6 +32,17 @@ public class PicturesDataFetcher {
         return Pictures.newBuilder().build();
     }
 
+    @DgsQuery(field = "picture")
+    public Picture picture(@InputArgument String date) {
+        String normalizedDate = date == null || date.isBlank() ? null : date;
+        if (normalizedDate == null) return service.picture(null);
+        try {
+            return service.picture(LocalDate.parse(normalizedDate));
+        } catch (DateTimeParseException exception) {
+            throw ApodException.validation("INVALID_DATE_FORMAT");
+        }
+    }
+
     @DgsData(parentType = "Pictures", field = "astronomy")
     public List<Picture> astronomy(
             @InputArgument String date,

@@ -19,6 +19,9 @@ type Query {
     server: String
     time: Float
     pictures: Pictures!
+    # Compatibility for released clients. New clients should use
+    # pictures { astronomy(date: ...) }.
+    picture(date: String): Picture @deprecated(reason: "Use pictures { astronomy(date: ...) }.")
     news(
         limit: Int = 24
         offset: Int = 0

@@ -52,6 +52,20 @@ class ApodGraphQlIntegrationTest {
     }
 
     @Test
+    void preservesDeprecatedSingularPictureLookupForReleasedClients() {
+        LocalDate date = LocalDate.of(2026, 9, 4);
+        when(service.picture(date)).thenReturn(picture(date));
+
+        ExecutionResult result = queryExecutor.execute("{ picture(date: \"2026-09-04\") { date title url } }");
+
+        assertThat(result.getErrors()).isEmpty();
+        assertThat(result.toSpecification().toString())
+                .contains("picture={date=2026-09-04, title=A title, url=https://example.com/image.jpg}");
+        verify(service).picture(date);
+        verifyNoMoreInteractions(service);
+    }
+
+    @Test
     void dateSelectorReturnsOnePictureAndSimilarUsesItsDate() {
         LocalDate date = LocalDate.of(2019, 4, 11);
         when(service.picture(date)).thenReturn(picture(date));
@@ -106,13 +120,14 @@ class ApodGraphQlIntegrationTest {
     }
 
     @Test
-    void removesTheOldApodAndPictureFieldsFromThePublicSchema() {
+    void removesTheOldApodFieldButRetainsDeprecatedPictureCompatibility() {
         List<Map<String, Object>> fields = queryExecutor.executeAndExtractJsonPath(
                 "{ __type(name: \"Query\") { fields { name } } }", "data.__type.fields");
 
         assertThat(fields).extracting(field -> field.get("name"))
                 .contains("pictures")
-                .doesNotContain("apod", "picture");
+                .contains("picture")
+                .doesNotContain("apod");
 
         List<Map<String, Object>> pictureFields = queryExecutor.executeAndExtractJsonPath(
                 "{ __type(name: \"Picture\") { fields { name } } }", "data.__type.fields");
