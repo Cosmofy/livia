@@ -21,7 +21,7 @@ type Query {
     pictures: Pictures!
     # Compatibility for released clients. New clients should use
     # pictures { astronomy(date: ...) }.
-    picture(date: String): Picture @deprecated(reason: "Use pictures { astronomy(date: ...) }.")
+    picture(date: String): LegacyPicture @deprecated(reason: "Use pictures { astronomy(date: ...) }.")
     news(
         limit: Int = 24
         offset: Int = 0
@@ -77,6 +77,24 @@ type Picture {
     matchTypes: [PictureMatchType!]
     # Similarity is derived from this picture's date.
     similar(limit: Int = 10): [SearchPicture!]
+}
+
+# Contract retained for the released app. New consumers must use Picture via
+# `pictures { astronomy }`; its field names are intentionally idiomatic GraphQL.
+type LegacyPicture {
+    date: String
+    title: String
+    credit: String
+    explanation: LegacyExplanation
+    media: String
+    copyright: String
+    media_type: String
+}
+
+type LegacyExplanation {
+    original: String
+    summarized: String
+    kids: String
 }
 
 # A discovery result has the same APOD media fields and ranking metadata, but it

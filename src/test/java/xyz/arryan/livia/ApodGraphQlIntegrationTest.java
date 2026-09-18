@@ -56,11 +56,17 @@ class ApodGraphQlIntegrationTest {
         LocalDate date = LocalDate.of(2026, 9, 4);
         when(service.picture(date)).thenReturn(picture(date));
 
-        ExecutionResult result = queryExecutor.execute("{ picture(date: \"2026-09-04\") { date title url } }");
+        ExecutionResult result = queryExecutor.execute("""
+                { picture(date: "2026-09-04") {
+                  date title media media_type
+                  explanation { original summarized kids }
+                } }
+                """);
 
         assertThat(result.getErrors()).isEmpty();
         assertThat(result.toSpecification().toString())
-                .contains("picture={date=2026-09-04, title=A title, url=https://example.com/apod.jpg}");
+                .contains("picture={date=2026-09-04, title=A title, media=https://example.com/apod.jpg, media_type=image",
+                        "explanation={original=An explanation, summarized=null, kids=null}");
         verify(service).picture(date);
         verifyNoMoreInteractions(service);
     }

@@ -16,7 +16,9 @@ import xyz.arryan.livia.services.ApodService;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 @DgsComponent
 public class PicturesDataFetcher {
@@ -33,14 +35,33 @@ public class PicturesDataFetcher {
     }
 
     @DgsQuery(field = "picture")
-    public Picture picture(@InputArgument String date) {
+    public Map<String, Object> picture(@InputArgument String date) {
         String normalizedDate = date == null || date.isBlank() ? null : date;
-        if (normalizedDate == null) return service.picture(null);
+        if (normalizedDate == null) return legacyPicture(service.picture(null));
         try {
-            return service.picture(LocalDate.parse(normalizedDate));
+            return legacyPicture(service.picture(LocalDate.parse(normalizedDate)));
         } catch (DateTimeParseException exception) {
             throw ApodException.validation("INVALID_DATE_FORMAT");
         }
+    }
+
+    private static Map<String, Object> legacyPicture(Picture picture) {
+        Map<String, Object> explanation = new LinkedHashMap<>();
+        explanation.put("original", picture.getExplanation());
+        // The retired summarization service is no longer invoked. Preserve the
+        // released nullable shape rather than fabricating summaries.
+        explanation.put("summarized", null);
+        explanation.put("kids", null);
+
+        Map<String, Object> result = new LinkedHashMap<>();
+        result.put("date", picture.getDate() == null ? null : picture.getDate().toString());
+        result.put("title", picture.getTitle());
+        result.put("credit", picture.getCredit());
+        result.put("explanation", explanation);
+        result.put("media", picture.getUrl());
+        result.put("copyright", picture.getCopyright());
+        result.put("media_type", picture.getMediaType());
+        return result;
     }
 
     @DgsData(parentType = "Pictures", field = "astronomy")
