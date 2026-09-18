@@ -122,7 +122,7 @@ class ApodGraphQlIntegrationTest {
     @Test
     void removesTheOldApodFieldButRetainsDeprecatedPictureCompatibility() {
         List<Map<String, Object>> fields = queryExecutor.executeAndExtractJsonPath(
-                "{ __type(name: \"Query\") { fields { name } } }", "data.__type.fields");
+                "{ __type(name: \"Query\") { fields(includeDeprecated: true) { name } } }", "data.__type.fields");
 
         assertThat(fields).extracting(field -> field.get("name"))
                 .contains("pictures")
