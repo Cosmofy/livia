@@ -22,7 +22,7 @@ public class NatureMapper {
     private Event toEvent(NatureEventResponse event) {
         return Event.newBuilder().id(event.id()).title(event.title())
                 .categories(categories(event.categories())).sources(sources(event.sources()))
-                .geometry(geometry(event.geometry())).build();
+                .geometry(geometry(event.id(), event.geometry())).build();
     }
 
     private List<Category> categories(List<NatureCategoryResponse> categories) {
@@ -37,12 +37,14 @@ public class NatureMapper {
                 .map(source -> Source.newBuilder().id(source.id()).url(source.url()).build()).toList();
     }
 
-    private List<Geometry> geometry(List<NatureGeometryResponse> geometry) {
+    private List<Geometry> geometry(String eventId, List<NatureGeometryResponse> geometry) {
         if (geometry == null) return List.of();
-        return geometry.stream().filter(item -> item != null)
-                .map(item -> Geometry.newBuilder().magnitudeValue(item.magnitudeValue()).magnitudeUnit(item.magnitudeUnit())
-                        .date(item.date()).type(item.type()).coordinates(validCoordinates(item.coordinates())).build())
-                .toList();
+        return java.util.stream.IntStream.range(0, geometry.size()).filter(index -> geometry.get(index) != null)
+                .mapToObj(index -> {
+                    NatureGeometryResponse item = geometry.get(index);
+                    return Geometry.newBuilder().id(eventId + "-" + index).magnitudeValue(item.magnitudeValue()).magnitudeUnit(item.magnitudeUnit())
+                            .date(item.date()).type(item.type()).coordinates(validCoordinates(item.coordinates())).build();
+                }).toList();
     }
 
     private List<Double> validCoordinates(List<Double> coordinates) {
