@@ -60,7 +60,7 @@ class ApodGraphQlIntegrationTest {
 
         assertThat(result.getErrors()).isEmpty();
         assertThat(result.toSpecification().toString())
-                .contains("picture={date=2026-09-04, title=A title, url=https://example.com/image.jpg}");
+                .contains("picture={date=2026-09-04, title=A title, url=https://example.com/apod.jpg}");
         verify(service).picture(date);
         verifyNoMoreInteractions(service);
     }
